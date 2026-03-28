@@ -163,7 +163,7 @@ def fetch_amplitude_data(sheet_id=None, credentials_file=None) -> dict:
 
     def pull_tab(tab_name):
         print(f"  Pulling Amplitude '{tab_name}'…")
-        result = sheets.spreadsheets().values().get(
+        result = sheets.values().get(
             spreadsheetId=sheet_id,
             range=f"'{tab_name}'!A2:E"
         ).execute()
