@@ -1,0 +1,70 @@
+name: Weekly Dashboard Rebuild
+
+on:
+  schedule:
+    - cron: '0 10 * * 1'   # Every Monday at 10:00 UTC
+  workflow_dispatch:         # Manual trigger via GitHub UI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # Allow committing rebuilt files back to main
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install \
+            google-analytics-data \
+            google-auth \
+            google-api-python-client \
+            google-auth-httplib2 \
+            google-auth-oauthlib \
+            gspread
+
+      - name: Build Executive dashboard
+        env:
+          GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          HUBSPOT_SHEET_ID: ${{ secrets.HUBSPOT_SHEET_ID }}
+          AMPLITUDE_SHEET_ID: ${{ secrets.AMPLITUDE_SHEET_ID }}
+        run: python scripts/build_executive.py
+
+      - name: Build GA4 dashboard
+        env:
+          GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+        run: python scripts/build_ga4.py
+
+      - name: Build HubSpot dashboard
+        env:
+          GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
+          HUBSPOT_SHEET_ID: ${{ secrets.HUBSPOT_SHEET_ID }}
+        run: python scripts/build_hubspot.py
+
+      - name: Build Amplitude dashboard
+        env:
+          GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
+          AMPLITUDE_SHEET_ID: ${{ secrets.AMPLITUDE_SHEET_ID }}
+        run: python scripts/build_amplitude.py
+
+      - name: Commit rebuilt dashboards
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add \
+            executive/index.html \
+            ga4/index.html \
+            hubspot/index.html \
+            amplitude/index.html
+          git diff --staged --quiet || \
+            git commit -m "Weekly rebuild $(date +%Y-%m-%d)"
+          git push

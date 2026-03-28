@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Visme Marketing Dashboards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F8FAFB;--surface:#FFFFFF;--surface2:#EFF6FC;
+  --text:#293745;--text-muted:#7F859D;--text-dim:#A8B2C0;
+  --accent:#3CACD7;--border:#BBD0E5;--border-light:#E7EFF3;
+  --radius:10px;--radius-sm:6px;
+  --shadow:0 1px 3px rgba(41,55,69,.07),0 4px 16px rgba(41,55,69,.05);
+  --shadow-md:0 4px 20px rgba(41,55,69,.12),0 16px 48px rgba(41,55,69,.08);
+  --font-ui:'Lato',sans-serif;--font-display:'Montserrat',sans-serif;
+}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* Header */
+.hub-header{
+  background:#1E2A35;
+  padding:48px 0 40px;
+  text-align:center;
+}
+.hub-logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;}
+.hub-gem{width:40px;height:40px;background:linear-gradient(135deg,#3CACD7 0%,#3D92E7 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;}
+.hub-logo-text{font-family:var(--font-display);font-size:22px;font-weight:700;color:#fff;letter-spacing:-.3px;}
+.hub-title{font-family:var(--font-display);font-size:32px;font-weight:800;color:#fff;letter-spacing:-.8px;margin-bottom:10px;}
+.hub-title span{color:#3CACD7;}
+.hub-subtitle{font-size:14px;color:rgba(255,255,255,.45);letter-spacing:.2px;}
+
+/* Grid */
+.hub-content{max-width:1100px;margin:0 auto;padding:48px 32px;}
+.dashboards-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:20px;
+}
+@media(max-width:700px){.dashboards-grid{grid-template-columns:1fr}}
+
+/* Dashboard card */
+.dash-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px 28px 24px;
+  box-shadow:var(--shadow);
+  transition:box-shadow .2s ease, transform .2s ease;
+  display:flex;flex-direction:column;gap:0;
+}
+.dash-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.dash-card.coming-soon{opacity:.7;}
+
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.card-icon{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.status-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase;}
+.status-live{background:#E8F8F0;color:#2E8B57;border:1px solid #B3E0CA;}
+.status-soon{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+
+.card-name{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;margin-bottom:5px;}
+.card-desc{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:16px;flex:1;}
+
+.source-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+.source-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.3px;text-transform:uppercase;}
+
+.card-link{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 16px;border-radius:6px;
+  font-size:13px;font-weight:600;
+  text-decoration:none;
+  transition:all .15s ease;
+  align-self:flex-start;
+}
+.card-link.live{background:var(--accent);color:#fff;}
+.card-link.live:hover{background:#2B9DC8;box-shadow:0 2px 8px rgba(60,172,215,.4);}
+.card-link.disabled{background:var(--surface2);color:var(--text-muted);cursor:default;pointer-events:none;}
+
+/* Footer */
+.hub-footer{text-align:center;padding:32px;font-size:11.5px;color:var(--text-dim);}
+.hub-footer a{color:var(--accent);text-decoration:none;}
+</style>
+</head>
+<body>
+
+<header class="hub-header">
+  <div class="hub-logo">
+    <div class="hub-gem">V</div>
+    <div class="hub-logo-text">Visme</div>
+  </div>
+  <h1 class="hub-title">Marketing <span>Dashboards</span></h1>
+  <p class="hub-subtitle">Select a dashboard below to explore your data</p>
+</header>
+
+<main class="hub-content">
+  <div class="dashboards-grid">
+
+    <!-- Executive Overview -->
+    <div class="dash-card">
+      <div class="card-top">
+        <div class="card-icon" style="background:#EFF8FC;">📊</div>
+        <span class="status-badge status-live">● Live</span>
+      </div>
+      <div class="card-name">Executive Overview</div>
+      <div class="card-desc">Top-line marketing summary combining GA4, HubSpot, and Amplitude. Full-funnel conversion view from session to deal. Built for leadership reviews.</div>
+      <div class="source-tags">
+        <span class="source-tag" style="background:#EFF8FC;color:#2B9DC8;">GA4</span>
+        <span class="source-tag" style="background:#FFF2EE;color:#E05C38;">HubSpot</span>
+        <span class="source-tag" style="background:#F5F0FF;color:#7040C8;">Amplitude</span>
+      </div>
+      <a href="executive/index.html" class="card-link live">Open Dashboard →</a>
+    </div>
+
+    <!-- GA4 -->
+    <div class="dash-card">
+      <div class="card-top">
+        <div class="card-icon" style="background:#EFF8FC;">📈</div>
+        <span class="status-badge status-live">● Live</span>
+      </div>
+      <div class="card-name">GA4 Traffic &amp; Engagement</div>
+      <div class="card-desc">Sessions, new users, channel breakdown, geographic split, landing pages, and conversion funnel events. Full weekly trend history with year-over-year comparison.</div>
+      <div class="source-tags">
+        <span class="source-tag" style="background:#EFF8FC;color:#2B9DC8;">GA4</span>
+      </div>
+      <a href="ga4/index.html" class="card-link live">Open Dashboard →</a>
+    </div>
+
+    <!-- HubSpot -->
+    <div class="dash-card">
+      <div class="card-top">
+        <div class="card-icon" style="background:#FFF2EE;">🏆</div>
+        <span class="status-badge status-live">● Live</span>
+      </div>
+      <div class="card-name">HubSpot Pipeline &amp; Revenue</div>
+      <div class="card-desc">Leads, MQLs, deals, pipeline value, and closed won revenue. Lead source channel breakdown with conversion funnel rates. Weekly trends with YoY comparison.</div>
+      <div class="source-tags">
+        <span class="source-tag" style="background:#FFF2EE;color:#E05C38;">HubSpot</span>
+      </div>
+      <a href="hubspot/index.html" class="card-link live">Open Dashboard →</a>
+    </div>
+
+    <!-- Amplitude -->
+    <div class="dash-card">
+      <div class="card-top">
+        <div class="card-icon" style="background:#F5F0FF;">⚡</div>
+        <span class="status-badge status-live">● Live</span>
+      </div>
+      <div class="card-name">Amplitude PLG Metrics</div>
+      <div class="card-desc">Product-led growth signals: new signups, activated users, activation rate, and free-to-paid conversions. Weekly trends with year-over-year overlay.</div>
+      <div class="source-tags">
+        <span class="source-tag" style="background:#F5F0FF;color:#7040C8;">Amplitude</span>
+      </div>
+      <a href="amplitude/index.html" class="card-link live">Open Dashboard →</a>
+    </div>
+
+    <!-- GSC -->
+    <div class="dash-card coming-soon">
+      <div class="card-top">
+        <div class="card-icon" style="background:#F0F4FF;">🔍</div>
+        <span class="status-badge status-soon">Coming Soon</span>
+      </div>
+      <div class="card-name">GSC SEO Performance</div>
+      <div class="card-desc">Organic search visibility, top queries, page impressions, click-through rates, and average position from Google Search Console.</div>
+      <div class="source-tags">
+        <span class="source-tag" style="background:#F0F4FF;color:#5B6AB0;">Google Search Console</span>
+      </div>
+      <a href="gsc/index.html" class="card-link disabled">Coming Soon</a>
+    </div>
+
+    <!-- Paid Media -->
+    <div class="dash-card coming-soon">
+      <div class="card-top">
+        <div class="card-icon" style="background:#FFFBEE;">📢</div>
+        <span class="status-badge status-soon">Coming Soon</span>
+      </div>
+      <div class="card-name">Paid Media</div>
+      <div class="card-desc">Google Ads performance: spend, impressions, clicks, CPC, conversion rates, and ROAS. Campaign and ad group breakdowns with budget pacing.</div>
+      <div class="source-tags">
+        <span class="source-tag" style="background:#FFFBEE;color:#B08020;">Google Ads</span>
+      </div>
+      <a href="paid-media/index.html" class="card-link disabled">Coming Soon</a>
+    </div>
+
+  </div>
+</main>
+
+<footer class="hub-footer">
+  Visme Marketing Analytics &nbsp;·&nbsp; Rebuilt weekly via <a href="https://github.com/mattvisme/visme-dashboards/actions" target="_blank">GitHub Actions</a> &nbsp;·&nbsp; <a href="https://github.com/mattvisme/visme-dashboards" target="_blank">View repo</a>
+</footer>
+
+</body>
+</html>

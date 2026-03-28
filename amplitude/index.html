@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Amplitude — PLG Metrics — Visme Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F8FAFB;--surface:#FFFFFF;--surface2:#EFF6FC;--sidebar:#1E2A35;
+  --text:#293745;--text-muted:#7F859D;--text-dim:#A8B2C0;
+  --accent:#9062F0;--border:#BBD0E5;--border-light:#E7EFF3;
+  --sidebar-w:232px;--topbar-h:72px;--radius:10px;--radius-sm:6px;
+  --shadow:0 1px 3px rgba(41,55,69,.07),0 4px 16px rgba(41,55,69,.05);
+  --shadow-md:0 4px 12px rgba(41,55,69,.1),0 12px 40px rgba(41,55,69,.07);
+  --font-ui:'Lato',sans-serif;--font-display:'Montserrat',sans-serif;
+}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--sidebar);display:flex;flex-direction:column;z-index:100;overflow-y:auto;scrollbar-width:none;}
+#sidebar::-webkit-scrollbar{display:none}
+.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+.sidebar-logo-mark{display:flex;align-items:center;gap:9px;}
+.logo-gem{width:28px;height:28px;background:linear-gradient(135deg,#9062F0 0%,#C9B0F7 100%);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.logo-text{font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;}
+.logo-sub{font-size:9.5px;color:rgba(255,255,255,.3);margin-top:1px;letter-spacing:.4px;text-transform:uppercase;font-weight:400;}
+.source-group{margin-top:6px;}
+.source-header{display:flex;align-items:center;gap:7px;padding:8px 14px 4px;}
+.source-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.source-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;flex:1;}
+.source-nav{list-style:none;padding:0 8px 4px;}
+.source-nav li a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.5);transition:all .12s ease;margin-bottom:1px;}
+.source-nav li a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);}
+.source-nav li a.active{background:rgba(144,98,240,.18);color:#C9B0F7;font-weight:600;}
+.nav-icon{width:14px;height:14px;opacity:.65;flex-shrink:0;}
+.source-nav li a.active .nav-icon{opacity:1}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;}
+#main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
+#topbar{position:sticky;top:0;z-index:50;height:var(--topbar-h);background:rgba(248,250,251,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:24px;}
+.topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;flex-shrink:0;margin-right:auto;}
+.topbar-title span{color:#9062F0}
+.as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.range-control{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.range-label{font-size:11.5px;font-weight:600;color:var(--text-muted);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
+.range-pills{display:flex;gap:4px;}
+.pill{padding:5px 12px;border-radius:20px;font-size:12.5px;font-weight:500;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s ease;user-select:none;}
+.pill:hover{background:var(--surface2);color:var(--text)}
+.pill.active{background:#9062F0;color:#fff;border-color:#9062F0;box-shadow:0 2px 8px rgba(144,98,240,.35);}
+#content{padding:32px;display:flex;flex-direction:column;gap:32px;max-width:1400px;width:100%;}
+.section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;}
+.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}.section:nth-child(5){animation-delay:.25s}
+.section-header{display:flex;align-items:baseline;gap:12px;}
+.section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
+.section-subtitle{font-size:12px;color:var(--text-dim);font-weight:400;}
+.section-divider{height:1px;background:var(--border-light);margin-bottom:2px;}
+.cards-row{display:grid;gap:16px;}
+.cards-2{grid-template-columns:1fr 1fr}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:box-shadow .2s ease;}
+.card:hover{box-shadow:var(--shadow-md)}
+.card-title{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:4px;}
+.card-desc{font-size:11.5px;color:var(--text-dim);margin-bottom:20px;line-height:1.4;}
+.chart-wrap{position:relative;height:240px;}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:4px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;box-shadow:var(--shadow);}
+.kpi-label{font-size:11px;font-weight:600;color:var(--text-dim);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+.kpi-value{font-size:26px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-1px;}
+.kpi-delta{font-size:11.5px;font-weight:500;margin-top:5px;display:flex;align-items:center;gap:4px;}
+.delta-up{color:#9062F0}.delta-down{color:#F45F50}.delta-neu{color:var(--text-dim)}
+.chart-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--text-muted);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#loading{position:fixed;inset:0;background:var(--sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;opacity:1;transition:opacity .5s ease;}
+#loading.hide{opacity:0;pointer-events:none}
+.loading-logo{font-family:var(--font-display);font-size:28px;font-weight:700;color:#fff;margin-bottom:24px;letter-spacing:-.5px;}
+.loading-logo span{color:#9062F0}
+.loading-bar-track{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;}
+.loading-bar-fill{height:100%;background:#9062F0;border-radius:2px;animation:loadbar 1.2s ease-in-out forwards;}
+@keyframes loadbar{from{width:0}to{width:100%}}
+.loading-text{margin-top:14px;font-size:12px;color:rgba(255,255,255,.3);letter-spacing:.5px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-logo">Visme <span>Amplitude</span></div>
+  <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+  <div class="loading-text">Loading PLG data…</div>
+</div>
+
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <a href="https://mattvisme.github.io/visme-dashboards/" style="text-decoration:none;display:block">
+      <div class="sidebar-logo-mark">
+        <div class="logo-gem">V</div>
+        <div>
+          <div class="logo-text">Visme</div>
+          <div class="logo-sub">Marketing Analytics</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="source-group" id="grp-amplitude">
+    <div class="source-header">
+      <div class="source-dot" style="background:#9062F0"></div>
+      <span class="source-label">Amplitude</span>
+    </div>
+    <ul class="source-nav">
+      <li><a href="#section-amp-kpi" class="active">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="9" width="4" height="6" rx="1" fill="currentColor" opacity=".6"/><rect x="6" y="5" width="4" height="10" rx="1" fill="currentColor" opacity=".8"/><rect x="11" y="1" width="4" height="14" rx="1" fill="currentColor"/></svg>
+        Overview
+      </a></li>
+      <li><a href="#section-amplitude">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        New Signups
+      </a></li>
+      <li><a href="#section-amp-activations">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 12L6 8l3 3 5-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Activated Users
+      </a></li>
+      <li><a href="#section-amp-cr">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Activation Rate
+      </a></li>
+      <li><a href="#section-amp-upgrades">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Free&#x2192;Paid
+      </a></li>
+    </ul>
+  </div>
+
+  <div class="sidebar-footer">
+    Amplitude Product Analytics<br/>
+    <a href="../index.html" style="display:inline-flex;align-items:center;gap:4px;color:rgba(255,255,255,.3);text-decoration:none;font-size:10px;margin-top:4px;">← All Dashboards</a>
+  </div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-title">Amplitude <span>PLG Metrics</span></div>
+    <div class="as-of-badge" id="asOfBadge">Data as of —</div>
+    <div class="range-control">
+      <span class="range-label">Range</span>
+      <div class="range-pills" id="rangePills">
+        <span class="pill" data-w="8">8W</span>
+        <span class="pill active" data-w="13">13W</span>
+        <span class="pill" data-w="26">26W</span>
+        <span class="pill" data-w="52">52W</span>
+        <span class="pill" data-w="104">104W</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- KPI Overview (new section) -->
+    <div class="section" id="section-amp-kpi">
+      <div class="section-header">
+        <h2 class="section-title">PLG Overview</h2>
+        <span class="section-subtitle" id="ampKpiSubtitle">Last 13 weeks vs. same period prior year</span>
+      </div>
+      <div class="section-divider"></div>
+      <div class="kpi-row">
+        <div class="kpi"><div class="kpi-label">New Signups</div><div class="kpi-value" id="kpi-amp-signups">—</div><div class="kpi-delta" id="kpi-amp-signups-delta"></div></div>
+        <div class="kpi"><div class="kpi-label">Activated Users</div><div class="kpi-value" id="kpi-amp-activations">—</div><div class="kpi-delta" id="kpi-amp-activations-delta"></div></div>
+        <div class="kpi"><div class="kpi-label">Avg Activation Rate</div><div class="kpi-value" id="kpi-amp-cr">—</div><div class="kpi-delta" id="kpi-amp-cr-delta"></div></div>
+        <div class="kpi"><div class="kpi-label">Free&#x2192;Paid Conversions</div><div class="kpi-value" id="kpi-amp-upgrades">—</div><div class="kpi-delta" id="kpi-amp-upgrades-delta"></div></div>
+      </div>
+    </div>
+
+    <!-- New Signups -->
+    <div class="section" id="section-amplitude">
+      <div class="section-header">
+        <h2 class="section-title">Weekly New Signups</h2>
+        <span class="section-subtitle">Sign Up Completed events — current vs. prior year</span>
+      </div>
+      <div class="section-divider"></div>
+      <div class="card">
+        <div class="card-title">New Signups / Week</div>
+        <div class="chart-wrap"><canvas id="chartAmpSignups"></canvas></div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#9062F0"></div> Current Period</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#C9B0F7;opacity:.8"></div><span style="opacity:.7">Prior Year (dashed)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activated Users -->
+    <div class="section" id="section-amp-activations">
+      <div class="section-header">
+        <h2 class="section-title">Weekly Activated Users</h2>
+        <span class="section-subtitle">Activation Event — current vs. prior year</span>
+      </div>
+      <div class="section-divider"></div>
+      <div class="card">
+        <div class="card-title">Activated Users / Week</div>
+        <div class="chart-wrap"><canvas id="chartAmpActivations"></canvas></div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#3D92E7"></div> Current Period</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#BBD0E5;opacity:.8"></div><span style="opacity:.7">Prior Year (dashed)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activation Rate -->
+    <div class="section" id="section-amp-cr">
+      <div class="section-header">
+        <h2 class="section-title">Weekly Activation Rate</h2>
+        <span class="section-subtitle">% of new users who hit the activation event</span>
+      </div>
+      <div class="section-divider"></div>
+      <div class="card">
+        <div class="card-title">Activation Rate (%) / Week</div>
+        <div class="chart-wrap"><canvas id="chartAmpCR"></canvas></div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#FCBC41"></div> Current Period</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#FDDA87;opacity:.8"></div><span style="opacity:.7">Prior Year (dashed)</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Free→Paid -->
+    <div class="section" id="section-amp-upgrades">
+      <div class="section-header">
+        <h2 class="section-title">Free&#x2192;Paid Conversions</h2>
+        <span class="section-subtitle">Weekly free-to-paid upgrade events — current vs. prior year</span>
+      </div>
+      <div class="section-divider"></div>
+      <div class="card">
+        <div class="card-title">Free&#x2192;Paid Conversions / Week</div>
+        <div class="chart-wrap"><canvas id="chartAmpUpgrades"></canvas></div>
+        <div class="chart-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#6CC395"></div> Current Period</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#B3E0CA;opacity:.8"></div><span style="opacity:.7">Prior Year (dashed)</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- DATA_INJECTION_POINT -->
+
+<script>
+let activeWeeks = 13;
+const charts = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const lastD = AMP.lastDate ? new Date(AMP.lastDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '—';
+  document.getElementById('asOfBadge').textContent = 'Data as of ' + lastD;
+  buildAllCharts();
+  setupPills();
+  setupNavHighlight();
+  setTimeout(() => document.getElementById('loading').classList.add('hide'), 1400);
+});
+
+function setupPills() {
+  document.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      activeWeeks = parseInt(p.dataset.w);
+      updateAll();
+    });
+  });
+}
+
+let _navObs = null;
+const _visibleSections = new Set();
+function setupNavHighlight() {
+  if (_navObs) { _navObs.disconnect(); _navObs = null; }
+  _visibleSections.clear();
+  const links = document.querySelectorAll('.source-nav a[href]');
+  const sections = document.querySelectorAll('.section[id]');
+  function highlightTopmost() {
+    if (!_visibleSections.size) return;
+    const sorted = [..._visibleSections].sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
+    links.forEach(l=>l.classList.remove('active'));
+    const link = document.querySelector('.source-nav a[href="#'+sorted[0].id+'"]');
+    if (link) link.classList.add('active');
+  }
+  _navObs = new IntersectionObserver(entries => {
+    entries.forEach(e=>{if(e.isIntersecting)_visibleSections.add(e.target);else _visibleSections.delete(e.target);});
+    highlightTopmost();
+  }, {threshold:0.2});
+  sections.forEach(s=>_navObs.observe(s));
+}
+
+function updateAll() {
+  updateAmpKPIs();
+  updateAmpCharts();
+}
+
+function fmtNum(n) {
+  if (n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if (n>=1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toLocaleString();
+}
+function fmtDelta(curr, prev, id) {
+  const el = document.getElementById(id);
+  if (!el||prev===0){if(el)el.innerHTML='';return;}
+  const pct = ((curr-prev)/prev*100);
+  const sign = pct>=0?'+':'';
+  const cls  = pct>=0?'delta-up':'delta-down';
+  const arrow = pct>=0?'↑':'↓';
+  el.innerHTML = `<span class="${cls}">${arrow} ${sign}${pct.toFixed(1)}%</span> <span style="color:var(--text-dim);font-size:10.5px">vs prior year</span>`;
+}
+
+function getAmpSlice(n) {
+  const allW = AMP.weeks; const total = allW.length;
+  if (!total) return {curr:[],prev:[],currLabels:[],prevLabels:[]};
+  const currStart = Math.max(0,total-n);
+  const prevEnd   = Math.max(0,total-52);
+  const prevStart = Math.max(0,prevEnd-n);
+  return {
+    curr: allW.slice(currStart,total),
+    prev: prevStart<prevEnd ? allW.slice(prevStart,prevEnd) : [],
+    currLabels: AMP.weekLabels.slice(currStart,total),
+    prevLabels: prevStart<prevEnd ? AMP.weekLabels.slice(prevStart,prevEnd) : [],
+  };
+}
+function padPrev(arr, n) {
+  const out = arr.slice();
+  while (out.length<n) out.unshift(null);
+  return out;
+}
+
+const CHART_DEFAULTS = {
+  responsive:true,maintainAspectRatio:false,
+  interaction:{mode:'index',intersect:false},
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'#1E2A35',titleColor:'rgba(255,255,255,.9)',bodyColor:'rgba(255,255,255,.7)',padding:12,cornerRadius:8,titleFont:{family:'Lato',size:12,weight:'700'},bodyFont:{family:'Lato',size:11.5}}},
+  scales:{
+    x:{grid:{display:false},ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},maxRotation:45,autoSkipPadding:12},border:{display:false}},
+    y:{grid:{color:'#E7EFF3',lineWidth:1},ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtNum(v)},border:{display:false}}
+  }
+};
+function makeLineDS(label,data,color,dashed=false){
+  return{label,data,borderColor:color,backgroundColor:dashed?'transparent':color+'14',borderWidth:dashed?1.5:2,borderDash:dashed?[4,3]:[],pointRadius:data.length>40?0:3,pointHoverRadius:5,pointBackgroundColor:color,fill:!dashed,tension:0.35};
+}
+function initChart(id,type,data,opts){
+  const ctx=document.getElementById(id);if(!ctx)return;
+  if(charts[id]){charts[id].destroy();}
+  charts[id]=new Chart(ctx,{type,data,options:{...CHART_DEFAULTS,...opts}});
+}
+function updateChartData(id,datasets,labels){
+  const ch=charts[id];if(!ch)return;
+  ch.data.labels=labels;ch.data.datasets=datasets;ch.update('active');
+}
+
+function buildAllCharts() {
+  initChart('chartAmpSignups','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}}});
+  initChart('chartAmpActivations','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}}});
+  initChart('chartAmpCR','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>v!=null?v.toFixed(2)+'%':v}}}});
+  initChart('chartAmpUpgrades','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}}});
+  updateAll();
+}
+
+function updateAmpKPIs() {
+  const s = getAmpSlice(activeWeeks);
+  const n = activeWeeks;
+  document.getElementById('ampKpiSubtitle').textContent = `Last ${n} weeks vs. same ${n} weeks prior year`;
+
+  const cSu=s.curr.reduce((a,w)=>a+(AMP.signups[w]||0),0);
+  const pSu=s.prev.reduce((a,w)=>a+(AMP.signups[w]||0),0);
+  document.getElementById('kpi-amp-signups').textContent=fmtNum(cSu);
+  fmtDelta(cSu,pSu,'kpi-amp-signups-delta');
+
+  const cAc=s.curr.reduce((a,w)=>a+(AMP.activations[w]||0),0);
+  const pAc=s.prev.reduce((a,w)=>a+(AMP.activations[w]||0),0);
+  document.getElementById('kpi-amp-activations').textContent=fmtNum(cAc);
+  fmtDelta(cAc,pAc,'kpi-amp-activations-delta');
+
+  const cCR=s.curr.map(w=>AMP.cr[w]).filter(v=>v!=null);
+  const pCR=s.prev.map(w=>AMP.cr[w]).filter(v=>v!=null);
+  const cCRavg=cCR.length?cCR.reduce((a,v)=>a+v,0)/cCR.length:null;
+  const pCRavg=pCR.length?pCR.reduce((a,v)=>a+v,0)/pCR.length:null;
+  document.getElementById('kpi-amp-cr').textContent=cCRavg!=null?cCRavg.toFixed(2)+'%':'—';
+  if(cCRavg!=null&&pCRavg!=null)fmtDelta(cCRavg,pCRavg,'kpi-amp-cr-delta');
+
+  const cUp=s.curr.reduce((a,w)=>a+(AMP.upgrades[w]||0),0);
+  const pUp=s.prev.reduce((a,w)=>a+(AMP.upgrades[w]||0),0);
+  document.getElementById('kpi-amp-upgrades').textContent=fmtNum(cUp);
+  fmtDelta(cUp,pUp,'kpi-amp-upgrades-delta');
+}
+
+function updateAmpCharts() {
+  const s=getAmpSlice(activeWeeks);
+  if(!s.curr.length)return;
+  const n=s.curr.length;
+
+  const suC=s.curr.map(w=>AMP.signups[w]||0);
+  const suP=padPrev(s.prev.map(w=>AMP.signups[w]||0),n);
+  updateChartData('chartAmpSignups',[makeLineDS('Current',suC,'#9062F0'),makeLineDS('Prior Year',suP,'#C9B0F7',true)],s.currLabels);
+
+  const acC=s.curr.map(w=>AMP.activations[w]||0);
+  const acP=padPrev(s.prev.map(w=>AMP.activations[w]||0),n);
+  updateChartData('chartAmpActivations',[makeLineDS('Current',acC,'#3D92E7'),makeLineDS('Prior Year',acP,'#BBD0E5',true)],s.currLabels);
+
+  const crC=s.curr.map(w=>AMP.cr[w]!=null?AMP.cr[w]:null);
+  const crP=padPrev(s.prev.map(w=>AMP.cr[w]!=null?AMP.cr[w]:null),n);
+  updateChartData('chartAmpCR',[makeLineDS('Current',crC,'#FCBC41'),makeLineDS('Prior Year',crP,'#FDDA87',true)],s.currLabels);
+
+  const upC=s.curr.map(w=>AMP.upgrades[w]||0);
+  const upP=padPrev(s.prev.map(w=>AMP.upgrades[w]||0),n);
+  updateChartData('chartAmpUpgrades',[makeLineDS('Current',upC,'#6CC395'),makeLineDS('Prior Year',upP,'#B3E0CA',true)],s.currLabels);
+}
+</script>
+</body>
+</html>

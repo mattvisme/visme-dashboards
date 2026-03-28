@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Paid Media — Visme Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F8FAFB;--surface:#FFFFFF;--surface2:#EFF6FC;--sidebar:#1E2A35;--text:#293745;--text-muted:#7F859D;--accent:#FCBC41;--border:#BBD0E5;--sidebar-w:232px;--topbar-h:72px;--radius:10px;--font-ui:'Lato',sans-serif;--font-display:'Montserrat',sans-serif;}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-height:100vh;}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--sidebar);display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07);}
+.sidebar-logo-mark{display:flex;align-items:center;gap:9px;}
+.logo-gem{width:28px;height:28px;background:linear-gradient(135deg,#FCBC41 0%,#F5A623 100%);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;}
+.logo-text{font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;}
+.logo-sub{font-size:9.5px;color:rgba(255,255,255,.3);margin-top:1px;letter-spacing:.4px;text-transform:uppercase;}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;}
+#main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
+#topbar{height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;}
+.topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;}
+.topbar-title span{color:var(--accent)}
+#content{padding:64px 32px;display:flex;align-items:center;justify-content:center;flex:1;}
+.coming-soon-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:48px 56px;text-align:center;max-width:480px;box-shadow:0 1px 3px rgba(41,55,69,.07),0 4px 16px rgba(41,55,69,.05);}
+.cs-icon{font-size:48px;margin-bottom:20px;}
+.cs-title{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text);margin-bottom:10px;}
+.cs-desc{font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:24px;}
+.cs-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;letter-spacing:.3px;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <a href="https://mattvisme.github.io/visme-dashboards/" style="text-decoration:none;display:block">
+      <div class="sidebar-logo-mark">
+        <div class="logo-gem">$</div>
+        <div><div class="logo-text">Visme</div><div class="logo-sub">Marketing Analytics</div></div>
+      </div>
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    Google Ads · Paid Media<br/>
+    <a href="../index.html" style="display:inline-flex;align-items:center;gap:4px;color:rgba(255,255,255,.3);text-decoration:none;font-size:10px;margin-top:4px;">← All Dashboards</a>
+  </div>
+</nav>
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-title">Paid <span>Media</span></div>
+  </div>
+  <div id="content">
+    <div class="coming-soon-card">
+      <div class="cs-icon">📢</div>
+      <div class="cs-title">Paid Media</div>
+      <div class="cs-desc">This dashboard is coming soon. The Google Ads data pipeline is being connected. It will show spend, impressions, clicks, CPC, conversions, and ROAS across all paid campaigns.</div>
+      <div class="cs-badge">🚧 Coming Soon</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

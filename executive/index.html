@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Executive Overview — Visme Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F8FAFB;--surface:#FFFFFF;--surface2:#EFF6FC;--sidebar:#1E2A35;
+  --text:#293745;--text-muted:#7F859D;--text-dim:#A8B2C0;
+  --accent:#3CACD7;--border:#BBD0E5;--border-light:#E7EFF3;
+  --sidebar-w:232px;--topbar-h:72px;--radius:10px;--radius-sm:6px;
+  --shadow:0 1px 3px rgba(41,55,69,.07),0 4px 16px rgba(41,55,69,.05);
+  --shadow-md:0 4px 12px rgba(41,55,69,.1),0 12px 40px rgba(41,55,69,.07);
+  --font-ui:'Lato',sans-serif;--font-display:'Montserrat',sans-serif;
+}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--sidebar);display:flex;flex-direction:column;z-index:100;overflow-y:auto;scrollbar-width:none;}
+#sidebar::-webkit-scrollbar{display:none}
+.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+.sidebar-logo-mark{display:flex;align-items:center;gap:9px;}
+.logo-gem{width:28px;height:28px;background:linear-gradient(135deg,#3CACD7 0%,#3D92E7 100%);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.logo-text{font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;}
+.logo-sub{font-size:9.5px;color:rgba(255,255,255,.3);margin-top:1px;letter-spacing:.4px;text-transform:uppercase;font-weight:400;}
+.source-group{margin-top:6px;}
+.source-header{display:flex;align-items:center;gap:7px;padding:8px 14px 4px;}
+.source-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.source-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;flex:1;}
+.source-nav{list-style:none;padding:0 8px 4px;}
+.source-nav li a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.5);transition:all .12s ease;margin-bottom:1px;}
+.source-nav li a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);}
+.source-nav li a.active{background:rgba(60,172,215,.14);color:#3CACD7;font-weight:600;}
+.nav-icon{width:14px;height:14px;opacity:.65;flex-shrink:0;}
+.source-nav li a.active .nav-icon{opacity:1}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;}
+#main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
+#topbar{position:sticky;top:0;z-index:50;height:var(--topbar-h);background:rgba(248,250,251,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:24px;}
+.topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;flex-shrink:0;margin-right:auto;}
+.topbar-title span{color:var(--accent)}
+.as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.range-control{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.range-label{font-size:11.5px;font-weight:600;color:var(--text-muted);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
+.range-pills{display:flex;gap:4px;}
+.pill{padding:5px 12px;border-radius:20px;font-size:12.5px;font-weight:500;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s ease;user-select:none;}
+.pill:hover{background:var(--surface2);color:var(--text)}
+.pill.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(60,172,215,.35);}
+#content{padding:32px;display:flex;flex-direction:column;gap:32px;max-width:1400px;width:100%;}
+.section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;}
+.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}
+.section-header{display:flex;align-items:baseline;gap:12px;}
+.section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
+.section-subtitle{font-size:12px;color:var(--text-dim);font-weight:400;}
+.section-divider{height:1px;background:var(--border-light);margin-bottom:2px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);}
+.chart-wrap{position:relative;height:260px;}
+.delta-up{color:#3CACD7}.delta-down{color:#F45F50}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#loading{position:fixed;inset:0;background:var(--sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;opacity:1;transition:opacity .5s ease;}
+#loading.hide{opacity:0;pointer-events:none}
+.loading-logo{font-family:var(--font-display);font-size:28px;font-weight:700;color:#fff;margin-bottom:24px;letter-spacing:-.5px;}
+.loading-logo span{color:var(--accent)}
+.loading-bar-track{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;}
+.loading-bar-fill{height:100%;background:var(--accent);border-radius:2px;animation:loadbar 1.2s ease-in-out forwards;}
+@keyframes loadbar{from{width:0}to{width:100%}}
+.loading-text{margin-top:14px;font-size:12px;color:rgba(255,255,255,.3);letter-spacing:.5px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-logo">Visme <span>Executive</span></div>
+  <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+  <div class="loading-text">Loading executive summary…</div>
+</div>
+
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <a href="https://mattvisme.github.io/visme-dashboards/" style="text-decoration:none;display:block">
+      <div class="sidebar-logo-mark">
+        <div class="logo-gem">V</div>
+        <div>
+          <div class="logo-text">Visme</div>
+          <div class="logo-sub">Marketing Analytics</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="source-group">
+    <div class="source-header">
+      <div class="source-dot" style="background:#3CACD7"></div>
+      <span class="source-label">Overview</span>
+    </div>
+    <ul class="source-nav">
+      <li><a href="#section-exec-summary" class="active">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M4 6h8M4 9h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Executive Summary
+      </a></li>
+      <li><a href="#section-full-funnel">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M1 3h14l-4 5v5l-6-2V8z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        Full Funnel
+      </a></li>
+      <li><a href="#section-hs-channels">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+        Channel Breakdown
+      </a></li>
+    </ul>
+  </div>
+
+  <div class="sidebar-footer">
+    GA4 · HubSpot · Amplitude<br/>
+    <a href="../index.html" style="display:inline-flex;align-items:center;gap:4px;color:rgba(255,255,255,.3);text-decoration:none;font-size:10px;margin-top:4px;">← All Dashboards</a>
+  </div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-title">Executive <span>Overview</span></div>
+    <div class="as-of-badge" id="asOfBadge">Data as of —</div>
+    <div class="range-control">
+      <span class="range-label">Range</span>
+      <div class="range-pills" id="rangePills">
+        <span class="pill" data-w="8">8W</span>
+        <span class="pill active" data-w="13">13W</span>
+        <span class="pill" data-w="26">26W</span>
+        <span class="pill" data-w="52">52W</span>
+        <span class="pill" data-w="104">104W</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <div class="section" id="section-exec-summary">
+      <div class="section-header">
+        <h2 class="section-title">Executive Marketing Overview</h2>
+        <span class="section-subtitle" id="exec-subtitle">Last 13 weeks vs. same 13 weeks prior year</span>
+      </div>
+      <div class="section-divider"></div>
+      <div id="exec-summary-wrap" style="overflow-x:auto"></div>
+    </div>
+
+    <div class="section" id="section-full-funnel">
+      <div class="section-header">
+        <h2 class="section-title">Full Conversion Funnel</h2>
+        <span class="section-subtitle" id="funnel-subtitle">Cumulative volumes and stage conversion rates for the selected period</span>
+      </div>
+      <div class="section-divider"></div>
+      <div id="funnel-table-wrap" style="margin-bottom:32px;overflow-x:auto"></div>
+      <div class="card">
+        <div class="chart-wrap"><canvas id="chartFullFunnel"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section" id="section-hs-channels">
+      <div class="section-header">
+        <h2 class="section-title">Channel Performance</h2>
+        <span class="section-subtitle">HubSpot lead sources — current period vs. prior year (click columns to sort)</span>
+      </div>
+      <div class="section-divider"></div>
+      <div id="hs-channel-table-wrap" style="overflow-x:auto"></div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- DATA_INJECTION_POINT -->
+
+<script>
+let activeWeeks = 13;
+const charts = {};
+let hsSortCol = 0, hsSortAsc = false;
+const HS_CHANNELS = ['Organic Search','Paid Search','Paid Social','Direct','Referral','Social Media','Email'];
+const HS_COL_KEYS = ['leads','deals','pipeline','revenue'];
+const HS_COL_LABELS = ['Leads','Deals Created','Pipeline Value','Closed Won Revenue'];
+
+document.addEventListener('DOMContentLoaded', () => {
+  const dates = [GA4.asOfDate,
+    (typeof AMP!=='undefined'&&AMP.lastDate) ? new Date(AMP.lastDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : '',
+    (typeof HS!=='undefined'&&HS.lastDate) ? new Date(HS.lastDate).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : ''
+  ].filter(Boolean).sort();
+  document.getElementById('asOfBadge').textContent = 'Data as of ' + dates.pop();
+  buildAllCharts();
+  setupPills();
+  setupNavHighlight();
+  setTimeout(() => document.getElementById('loading').classList.add('hide'), 1400);
+});
+
+function setupPills() {
+  document.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      activeWeeks = parseInt(p.dataset.w);
+      updateAll();
+    });
+  });
+}
+
+let _navObs = null;
+const _visibleSections = new Set();
+function setupNavHighlight() {
+  if (_navObs) { _navObs.disconnect(); _navObs = null; }
+  _visibleSections.clear();
+  const links = document.querySelectorAll('.source-nav a[href]');
+  const sections = document.querySelectorAll('.section[id]');
+  function highlightTopmost() {
+    if (!_visibleSections.size) return;
+    const sorted = [..._visibleSections].sort((a,b)=>a.getBoundingClientRect().top-b.getBoundingClientRect().top);
+    links.forEach(l=>l.classList.remove('active'));
+    const link = document.querySelector('.source-nav a[href="#'+sorted[0].id+'"]');
+    if (link) link.classList.add('active');
+  }
+  _navObs = new IntersectionObserver(entries => {
+    entries.forEach(e=>{if(e.isIntersecting)_visibleSections.add(e.target);else _visibleSections.delete(e.target);});
+    highlightTopmost();
+  }, {threshold:0.2});
+  sections.forEach(s=>_navObs.observe(s));
+}
+
+function updateAll() {
+  updateExecSummary();
+  updateFullFunnel();
+  if(typeof HS!=='undefined'&&HS.weeks.length) updateHSChannelTable();
+}
+
+function fmtNum(n) {
+  if (n>=1e6) return (n/1e6).toFixed(1)+'M';
+  if (n>=1e3) return (n/1e3).toFixed(1)+'K';
+  return n.toLocaleString();
+}
+function fmtUSD(v) {
+  if (v==null||isNaN(v)) return '$0';
+  if (v>=1e6) return '$'+(v/1e6).toFixed(1)+'M';
+  if (v>=1e3) return '$'+(v/1e3).toFixed(1)+'K';
+  return '$'+Math.round(v).toLocaleString();
+}
+
+function getSlice(n) {
+  const allW=GA4.weeks;const total=allW.length;
+  return{curr:allW.slice(Math.max(0,total-n),total),prev:allW.slice(Math.max(0,total-52-n),Math.max(0,total-52)),currLabels:GA4.weekLabels.slice(Math.max(0,total-n),total),prevLabels:GA4.weekLabels.slice(Math.max(0,total-52-n),Math.max(0,total-52))};
+}
+function getAmpSlice(n) {
+  const allW=AMP.weeks;const total=allW.length;
+  if(!total)return{curr:[],prev:[],currLabels:[],prevLabels:[]};
+  const cs=Math.max(0,total-n),pe=Math.max(0,total-52),ps=Math.max(0,pe-n);
+  return{curr:allW.slice(cs,total),prev:ps<pe?allW.slice(ps,pe):[],currLabels:AMP.weekLabels.slice(cs,total),prevLabels:ps<pe?AMP.weekLabels.slice(ps,pe):[]};
+}
+function getHSSlice(n) {
+  const allW=HS.weeks;const total=allW.length;
+  if(!total)return{curr:[],prev:[],currLabels:[],prevLabels:[]};
+  const cs=Math.max(0,total-n),pe=Math.max(0,total-52),ps=Math.max(0,pe-n);
+  return{curr:allW.slice(cs,total),prev:ps<pe?allW.slice(ps,pe):[],currLabels:HS.weekLabels.slice(cs,total),prevLabels:ps<pe?HS.weekLabels.slice(ps,pe):[]};
+}
+function padPrev(arr,n){const out=arr.slice();while(out.length<n)out.unshift(null);return out;}
+
+const CHART_DEFAULTS={responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'#1E2A35',titleColor:'rgba(255,255,255,.9)',bodyColor:'rgba(255,255,255,.7)',padding:12,cornerRadius:8}},scales:{x:{grid:{display:false},ticks:{color:'#7F859D',font:{family:'Lato',size:10.5}},border:{display:false}},y:{grid:{color:'#E7EFF3'},ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtNum(v)},border:{display:false}}}};
+function makeBarDS(label,data,color){return{label,data,backgroundColor:color+'CC',borderColor:color,borderWidth:1,borderRadius:4};}
+function initChart(id,type,data,opts){const ctx=document.getElementById(id);if(!ctx)return;if(charts[id]){charts[id].destroy();}charts[id]=new Chart(ctx,{type,data,options:{...CHART_DEFAULTS,...opts}});}
+function updateChartData(id,datasets,labels){const ch=charts[id];if(!ch)return;ch.data.labels=labels;ch.data.datasets=datasets;ch.update('active');}
+
+function buildAllCharts() {
+  initChart('chartFullFunnel','bar',{labels:[],datasets:[]},{
+    indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmtNum(ctx.raw)}}},
+    scales:{x:{grid:{color:'#E7EFF3'},ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtNum(v)},border:{display:false}},y:{grid:{display:false},ticks:{color:'#293745',font:{family:'Lato',size:11.5,weight:'600'}},border:{display:false}}}
+  });
+  updateAll();
+}
+
+function updateExecSummary() {
+  const n=activeWeeks;
+  document.getElementById('exec-subtitle').textContent='Last '+n+' week'+(n===1?'':'s')+' vs. same period prior year';
+  const s=getSlice(n);
+  const sAmp=(typeof AMP!=='undefined'&&AMP.weeks.length)?getAmpSlice(n):null;
+  const sHS=(typeof HS!=='undefined'&&HS.weeks.length)?getHSSlice(n):null;
+  function sumGA4(m){return s.curr.reduce((a,w)=>a+(GA4[m][w]||0),0);}
+  function sumGA4P(m){return s.prev.reduce((a,w)=>a+(GA4[m][w]||0),0);}
+  function sumAmp(f){return sAmp?sAmp.curr.reduce((a,w)=>a+(AMP[f][w]||0),0):null;}
+  function sumAmpP(f){return sAmp?sAmp.prev.reduce((a,w)=>a+(AMP[f][w]||0),0):null;}
+  function sumHS(f){return sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.[f]||0),0):null;}
+  function sumHSP(f){return sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.[f]||0),0):null;}
+  const rows=[
+    {metric:'Website Traffic (Sessions)',source:'GA4',curr:sumGA4('sessions'),prev:sumGA4P('sessions'),fmt:fmtNum},
+    {metric:'New Signups (PLG)',source:'Amplitude',curr:sumAmp('signups'),prev:sumAmpP('signups'),fmt:fmtNum},
+    {metric:'New Leads',source:'HubSpot',curr:sumHS('leads'),prev:sumHSP('leads'),fmt:fmtNum},
+    {metric:'MQL',source:'HubSpot',curr:sumHS('mqls'),prev:sumHSP('mqls'),fmt:fmtNum},
+    {metric:'Deals Created',source:'HubSpot',curr:sumHS('deals'),prev:sumHSP('deals'),fmt:fmtNum},
+    {metric:'Pipeline Created',source:'HubSpot',curr:sumHS('pipeline'),prev:sumHSP('pipeline'),fmt:fmtUSD},
+    {metric:'Closed Won Revenue',source:'HubSpot',curr:sumHS('revenue'),prev:sumHSP('revenue'),fmt:fmtUSD},
+  ];
+  const SOURCE_COLORS={'GA4':'#3CACD7','Amplitude':'#9062F0','HubSpot':'#FF7A59'};
+  function chgHtml(curr,prev){
+    if(curr===null||prev===null||prev===0)return'<span style="color:var(--text-muted)">—</span>';
+    const pct=(curr-prev)/prev*100;const cls=pct>=0?'delta-up':'delta-down';const arr=pct>=0?'↑':'↓';
+    return`<span class="${cls}">${arr} ${pct>=0?'+':''}${pct.toFixed(1)}%</span>`;
+  }
+  let html=`<table style="width:100%;border-collapse:collapse;font-family:var(--font-ui)"><thead><tr style="border-bottom:2px solid var(--border)">
+  <th style="text-align:left;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Metric</th>
+  <th style="text-align:center;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Source</th>
+  <th style="text-align:right;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Current Period</th>
+  <th style="text-align:right;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Prior Period</th>
+  <th style="text-align:right;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Change</th>
+</tr></thead><tbody>`;
+  rows.forEach((r,i)=>{
+    const bg=i%2===0?'':'background:var(--surface2)';
+    const cv=r.curr!=null?r.fmt(r.curr):'—';const pv=r.prev!=null?r.fmt(r.prev):'—';
+    const col=SOURCE_COLORS[r.source]||'#3CACD7';
+    html+=`<tr style="${bg}">
+      <td style="padding:11px 14px;font-size:13px;font-weight:600;color:var(--text)">${r.metric}</td>
+      <td style="padding:11px 14px;text-align:center"><span style="font-size:10px;font-weight:700;color:${col};background:${col}18;padding:2px 7px;border-radius:10px;letter-spacing:.4px;text-transform:uppercase">${r.source}</span></td>
+      <td style="text-align:right;padding:11px 14px;font-size:13px;font-weight:700;color:var(--text)">${cv}</td>
+      <td style="text-align:right;padding:11px 14px;font-size:13px;color:var(--text-muted)">${pv}</td>
+      <td style="text-align:right;padding:11px 14px;font-size:12.5px">${chgHtml(r.curr,r.prev)}</td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('exec-summary-wrap').innerHTML=html;
+}
+
+function updateFullFunnel() {
+  const n=activeWeeks;
+  document.getElementById('funnel-subtitle').textContent='Cumulative volumes and stage conversion rates \u2014 last '+n+' week'+(n===1?'':'s');
+  const s=getSlice(n);
+  const sAmp=(typeof AMP!=='undefined'&&AMP.weeks.length)?getAmpSlice(n):null;
+  const sHS=(typeof HS!=='undefined'&&HS.weeks.length)?getHSSlice(n):null;
+  const sessions=s.curr.reduce((a,w)=>a+(GA4.sessions[w]||0),0);
+  const signups=sAmp?sAmp.curr.reduce((a,w)=>a+(AMP.signups[w]||0),0):null;
+  const leads=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.leads||0),0):null;
+  const mqls=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.mqls||0),0):null;
+  const deals=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.deals||0),0):null;
+  const pSessions=s.prev.reduce((a,w)=>a+(GA4.sessions[w]||0),0);
+  const pSignups=sAmp?sAmp.prev.reduce((a,w)=>a+(AMP.signups[w]||0),0):null;
+  const pLeads=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.leads||0),0):null;
+  const pMqls=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.mqls||0),0):null;
+  const pDeals=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.deals||0),0):null;
+  function rate(num,den){return(num!=null&&den>0)?num/den*100:null;}
+  function fmtRate(r){return r!=null?r.toFixed(2)+'%':'—';}
+  function chgHtml(curr,prev){
+    if(curr===null||prev===null||prev===0)return'<span style="color:var(--text-muted)">—</span>';
+    const d=curr-prev;const cls=d>=0?'delta-up':'delta-down';
+    return`<span class="${cls}">${d>=0?'+':''}${d.toFixed(2)}pp</span>`;
+  }
+  const steps=[
+    {label:'Visitor → Signup',curr:rate(signups,sessions),prev:rate(pSignups,pSessions),volCurr:signups,volPrev:pSignups},
+    {label:'Signup → Lead',curr:rate(leads,signups),prev:rate(pLeads,pSignups),volCurr:leads,volPrev:pLeads},
+    {label:'Lead → MQL',curr:rate(mqls,leads),prev:rate(pMqls,pLeads),volCurr:mqls,volPrev:pMqls},
+    {label:'MQL → Deal',curr:rate(deals,mqls),prev:rate(pDeals,pMqls),volCurr:deals,volPrev:pDeals},
+    {label:'Deal → Customer',curr:null,prev:null,volCurr:null,volPrev:null},
+  ];
+  let html=`<table style="width:100%;border-collapse:collapse;font-family:var(--font-ui)"><thead><tr style="border-bottom:2px solid var(--border)">
+  <th style="text-align:left;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Conversion Step</th>
+  <th style="text-align:right;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Volume (Current)</th>
+  <th style="text-align:right;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Rate (Current)</th>
+  <th style="text-align:right;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Rate (Prior)</th>
+  <th style="text-align:right;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Change</th>
+</tr></thead><tbody>`;
+  steps.forEach((r,i)=>{
+    const bg=i%2===0?'':'background:var(--surface2)';
+    const note=r.label==='Deal → Customer'?'<span style="color:var(--text-muted);font-size:10.5px"> requires closed won deal count</span>':'';
+    html+=`<tr style="${bg}">
+      <td style="padding:11px 14px;font-size:13px;font-weight:600;color:var(--text)">${r.label}</td>
+      <td style="text-align:right;padding:11px 14px;font-size:13px;color:var(--text)">${r.volCurr!=null?fmtNum(r.volCurr):'—'}</td>
+      <td style="text-align:right;padding:11px 14px;font-size:13px;font-weight:700;color:var(--text)">${fmtRate(r.curr)}${note}</td>
+      <td style="text-align:right;padding:11px 14px;font-size:13px;color:var(--text-muted)">${fmtRate(r.prev)}</td>
+      <td style="text-align:right;padding:11px 14px;font-size:12.5px">${chgHtml(r.curr,r.prev)}</td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  document.getElementById('funnel-table-wrap').innerHTML=html;
+  const chartSteps=[{label:'Sessions',val:sessions},{label:'Signups',val:signups},{label:'Leads',val:leads},{label:'MQLs',val:mqls},{label:'Deals',val:deals}].filter(s=>s.val!=null&&s.val>0);
+  const FUNNEL_COLORS=['#3CACD7','#9062F0','#FF7A59','#F5A623','#6CC395'];
+  updateChartData('chartFullFunnel',[{data:chartSteps.map(s=>s.val),backgroundColor:chartSteps.map((_,i)=>FUNNEL_COLORS[i]+'CC'),borderColor:chartSteps.map((_,i)=>FUNNEL_COLORS[i]),borderWidth:1,borderRadius:4}],chartSteps.map(s=>s.label));
+}
+
+function updateHSChannelTable() {
+  const s=getHSSlice(activeWeeks);
+  function agg(weeks){
+    const out={};HS_CHANNELS.forEach(ch=>out[ch]={leads:0,deals:0,pipeline:0,revenue:0});
+    weeks.forEach(w=>{const cd=HS.channels[w];if(!cd)return;Object.keys(cd).forEach(ch=>{if(!out[ch])out[ch]={leads:0,deals:0,pipeline:0,revenue:0};HS_COL_KEYS.forEach(k=>{out[ch][k]+=cd[ch][k]||0;});});});
+    return out;
+  }
+  const curr=agg(s.curr);const prev=agg(s.prev);
+  let rows=HS_CHANNELS.map(ch=>({ch,curr:curr[ch]||{leads:0,deals:0,pipeline:0,revenue:0},prev:prev[ch]||{leads:0,deals:0,pipeline:0,revenue:0}}));
+  rows.sort((a,b)=>{const key=HS_COL_KEYS[hsSortCol]||'leads';return hsSortAsc?a.curr[key]-b.curr[key]:b.curr[key]-a.curr[key];});
+  const isDollar=[false,false,true,true];
+  const fmt=(v,d)=>d?fmtUSD(v):fmtNum(v);
+  const arrow=c=>c==null?'':c>=0?`<span class="delta-up">↑${c.toFixed(1)}%</span>`:`<span class="delta-down">↓${Math.abs(c).toFixed(1)}%</span>`;
+  const chg=(c,p)=>p>0?(c-p)/p*100:null;
+  const sortIcon=i=>i===hsSortCol?(hsSortAsc?' ▲':' ▼'):'';
+  let html=`<table style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:8px 12px;font-size:11.5px;color:var(--text-muted);font-weight:600;border-bottom:2px solid var(--border)">Channel</th>`;
+  HS_COL_LABELS.forEach((label,i)=>{html+=`<th style="text-align:right;padding:8px 12px;font-size:11.5px;color:var(--text-muted);font-weight:600;border-bottom:2px solid var(--border);cursor:pointer;user-select:none" onclick="hsSortCol=${i};hsSortAsc=hsSortCol===${i}?!hsSortAsc:false;updateHSChannelTable()">${label}${sortIcon(i)}</th>`;});
+  html+='</tr></thead><tbody>';
+  rows.forEach((r,idx)=>{
+    const bg=idx%2===0?'':'background:var(--surface2)';
+    html+=`<tr style="${bg}"><td style="padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--text)">${r.ch}</td>`;
+    HS_COL_KEYS.forEach((k,i)=>{const cv=r.curr[k];const pct=chg(cv,r.prev[k]);html+=`<td style="text-align:right;padding:8px 12px;font-size:12.5px"><div style="font-weight:600;color:var(--text)">${fmt(cv,isDollar[i])}</div><div style="font-size:10.5px;margin-top:2px">${arrow(pct)}</div></td>`;});
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  document.getElementById('hs-channel-table-wrap').innerHTML=html;
+}
+</script>
+</body>
+</html>
