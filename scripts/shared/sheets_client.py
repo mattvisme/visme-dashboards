@@ -137,7 +137,7 @@ def fetch_hubspot_data(sheet_id=None, credentials_file=None) -> dict:
 
     payload = {
         "weeks":      all_dates,
-        "weekLabels": [_fmt_label(d) for d in all_dates],
+        "weekLabels": [_fmt_label((datetime.strptime(d, "%Y-%m-%d") + timedelta(days=6)).strftime("%Y-%m-%d")) for d in all_dates],
         "summary":    summary,
         "channels":   channels,
         "lastDate":   last_date,
@@ -221,7 +221,7 @@ def fetch_amplitude_data(sheet_id=None, credentials_file=None) -> dict:
 
     payload = {
         "weeks":       sorted_dates,
-        "weekLabels":  [_fmt_label(d) for d in sorted_dates],
+        "weekLabels":  [_fmt_label((datetime.strptime(d, "%Y-%m-%d") + timedelta(days=6)).strftime("%Y-%m-%d")) for d in sorted_dates],
         "signups":     {d: merged[d]["signups"]     for d in sorted_dates},
         "upgrades":    {d: merged[d]["upgrades"]    for d in sorted_dates},
         "activations": {d: merged[d]["activations"] for d in sorted_dates},

@@ -205,7 +205,8 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
 
     week_labels = {}
     for w in all_weeks:
-        week_labels[w] = _fmt_label(datetime.strptime(w, "%Y-%m-%d").date())
+        sunday = datetime.strptime(w, "%Y-%m-%d").date() + timedelta(days=6)
+        week_labels[w] = _fmt_label(sunday)
 
     payload = {
         "asOfDate":    as_of_date,

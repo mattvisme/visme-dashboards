@@ -507,14 +507,16 @@ const WINDOWS = [8, 13, 26, 52];
 let currentWindow = 13;
 const charts = {};
 
-// Utility: format date as "Mar 16"
+// Utility: format date as "Mar 16" — weeks are keyed by Monday, show Sunday (+6 days)
 function fmtDate(iso) {
   const d = new Date(iso + 'T12:00:00');
+  d.setDate(d.getDate() + 6);
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 function fmtDateShort(iso) {
   const d = new Date(iso + 'T12:00:00');
+  d.setDate(d.getDate() + 6);
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
 }
 
