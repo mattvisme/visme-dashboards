@@ -48,8 +48,8 @@ def _get_credentials(credentials_file=None):
 
 
 def _get_monday_str(date_str: str) -> str:
-    """Return the Monday of the week for a YYYY-MM-DD date string."""
-    d = datetime.strptime(date_str, "%Y-%m-%d").date()
+    """Return the Monday of the week for a YYYYMMDD date string (GA4 date dimension format)."""
+    d = datetime.strptime(date_str, "%Y%m%d").date()
     return (d - timedelta(days=d.weekday())).strftime("%Y-%m-%d")
 
 
