@@ -16,6 +16,15 @@ import re
 
 PLACEHOLDER = "<!-- DATA_INJECTION_POINT -->"
 
+# Matches a previously-injected data <script> block so builds are idempotent.
+# Format produced by this module:
+#   <script>
+#   const VARNAME = {single-line JSON};
+#   </script>
+_INJECTED_RE = re.compile(
+    r"<script>\n(?:const [A-Z_]+ = \{[^\n]*\};\n)+</script>"
+)
+
 
 def inject_data(template_path: str, data_dict: dict, output_path: str):
     """
@@ -32,15 +41,13 @@ def inject_data(template_path: str, data_dict: dict, output_path: str):
         const GA4 = {...};
         const AMP = {...};
         </script>
+
+    If the placeholder has already been replaced by a previous build run, the
+    existing data script block is replaced instead (idempotent re-injection).
     """
     # Read template
     with open(template_path, encoding="utf-8") as f:
         html = f.read()
-
-    if PLACEHOLDER not in html:
-        raise ValueError(
-            f"Placeholder '{PLACEHOLDER}' not found in template: {template_path}"
-        )
 
     # Build script block
     lines = ["<script>"]
@@ -50,8 +57,18 @@ def inject_data(template_path: str, data_dict: dict, output_path: str):
     lines.append("</script>")
     script_block = "\n".join(lines)
 
-    # Replace placeholder
-    html = html.replace(PLACEHOLDER, script_block, 1)
+    if PLACEHOLDER in html:
+        # First-time injection: replace the placeholder comment
+        html = html.replace(PLACEHOLDER, script_block, 1)
+    else:
+        # Re-injection: replace the previously-injected data block
+        m = _INJECTED_RE.search(html)
+        if m:
+            html = html[: m.start()] + script_block + html[m.end() :]
+        else:
+            raise ValueError(
+                f"Placeholder '{PLACEHOLDER}' not found in template: {template_path}"
+            )
 
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)

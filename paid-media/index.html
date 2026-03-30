@@ -509,5 +509,387 @@
 <script>
 const D = {"generatedAt":"2026-03-30","weeks":["2026-03-23","2026-03-16","2026-03-09","2026-03-02","2026-02-23","2026-02-16","2026-02-09","2026-02-02","2026-01-26","2026-01-19","2026-01-12","2026-01-05","2025-12-29","2025-12-22","2025-12-15","2025-12-08","2025-12-01","2025-11-24"],"spend":{"2026-03-23":2726.83,"2026-03-16":4271.58,"2026-03-09":4948.23,"2026-03-02":5947.05,"2026-02-23":6806.85,"2026-02-16":6627.63,"2026-02-09":6140.97,"2026-02-02":5704.95,"2026-01-26":6654.81,"2026-01-19":5539.49,"2026-01-12":3448.7,"2026-01-05":2463.91,"2025-12-29":2013.09,"2025-12-22":3194.61,"2025-12-15":5609.52,"2025-12-08":6607.82,"2025-12-01":6091.43,"2025-11-24":3365.22},"clicks":{"2026-03-23":1139,"2026-03-16":1507,"2026-03-09":1846,"2026-03-02":2174,"2026-02-23":2345,"2026-02-16":2122,"2026-02-09":2042,"2026-02-02":1947,"2026-01-26":1961,"2026-01-19":1559,"2026-01-12":1244,"2026-01-05":1017,"2025-12-29":687,"2025-12-22":1103,"2025-12-15":2579,"2025-12-08":3284,"2025-12-01":3827,"2025-11-24":1703},"ctr":{"2026-03-23":0.0637,"2026-03-16":0.0493,"2026-03-09":0.0642,"2026-03-02":0.0634,"2026-02-23":0.0615,"2026-02-16":0.0603,"2026-02-09":0.0658,"2026-02-02":0.0622,"2026-01-26":0.0602,"2026-01-19":0.0506,"2026-01-12":0.049,"2026-01-05":0.0511,"2025-12-29":0.0462,"2025-12-22":0.0555,"2025-12-15":0.0641,"2025-12-08":0.0725,"2025-12-01":0.0808,"2025-11-24":0.0705},"convs":{"2026-03-23":5.0,"2026-03-16":14.98,"2026-03-09":15.0,"2026-03-02":21.0,"2026-02-23":33.94,"2026-02-16":24.03,"2026-02-09":30.0,"2026-02-02":22.5,"2026-01-26":18.5,"2026-01-19":15.5,"2026-01-12":11.5,"2026-01-05":11.03,"2025-12-29":6.0,"2025-12-22":6.99,"2025-12-15":18.67,"2025-12-08":45.83,"2025-12-01":50.99,"2025-11-24":19.0},"cpc":{"2026-03-23":545.37,"2026-03-16":285.13,"2026-03-09":329.88,"2026-03-02":283.19,"2026-02-23":200.55,"2026-02-16":275.81,"2026-02-09":204.7,"2026-02-02":253.55,"2026-01-26":359.72,"2026-01-19":357.39,"2026-01-12":299.89,"2026-01-05":223.39,"2025-12-29":335.52,"2025-12-22":457.07,"2025-12-15":300.51,"2025-12-08":144.18,"2025-12-01":119.47,"2025-11-24":177.12},"revenue":{"2026-03-23":962.0,"2026-03-16":2476.0,"2026-03-09":2537.0,"2026-03-02":5355.0,"2026-02-23":6996.15,"2026-02-16":5285.81,"2026-02-09":6039.69,"2026-02-02":5122.19,"2026-01-26":3552.29,"2026-01-19":2894.48,"2026-01-12":2414.73,"2026-01-05":2220.65,"2025-12-29":1734.0,"2025-12-22":1672.63,"2025-12-15":3898.67,"2025-12-08":8443.13,"2025-12-01":9476.05,"2025-11-24":3702.95},"signups":{"2026-03-23":37265,"2026-03-16":28686,"2026-03-09":32358,"2026-03-02":31838,"2026-02-23":32884,"2026-02-16":30793,"2026-02-09":30233,"2026-02-02":32006,"2026-01-26":26756,"2026-01-19":10410,"2026-01-12":9757,"2026-01-05":8839,"2025-12-29":6117,"2025-12-22":31775,"2025-12-15":46092,"2025-12-08":55044,"2025-12-01":63565,"2025-11-24":61015}};
 </script>
+<script>
+const WINDOWS = [8, 13, 26, 52];
+let currentWindow = 13;
+const charts = {};
+
+// Utility: format date as "Mar 16"
+function fmtDate(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function fmtDateShort(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+}
+
+// Get weeks for current window
+function getCurrentWeeks(n) {
+  const all = D.weeks;
+  return all.slice(-n);
+}
+
+// Get YoY week: 364 days (52 weeks) before
+function getYoYDate(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  d.setDate(d.getDate() - 364);
+  return d.toISOString().slice(0, 10);
+}
+
+// Find best matching week in dataset (within 3 days)
+function findNearestWeek(iso) {
+  const target = new Date(iso + 'T12:00:00').getTime();
+  let best = null, bestDiff = Infinity;
+  for (const w of D.weeks) {
+    const diff = Math.abs(new Date(w + 'T12:00:00').getTime() - target);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = w;
+    }
+  }
+  if (bestDiff <= 3 * 86400 * 1000) return best;
+  return null;
+}
+
+function getDataSeries(dataObj, weeks) {
+  return weeks.map(w => dataObj[w] !== undefined ? dataObj[w] : null);
+}
+
+function getYoYSeries(dataObj, weeks) {
+  return weeks.map(w => {
+    const yoyDate = getYoYDate(w);
+    const nearestWeek = findNearestWeek(yoyDate);
+    if (!nearestWeek) return null;
+    return dataObj[nearestWeek] !== undefined ? dataObj[nearestWeek] : null;
+  });
+}
+
+// Stats calculations
+function sumNonNull(arr) {
+  let s = 0, count = 0;
+  for (const v of arr) { if (v !== null && v !== undefined) { s += v; count++; } }
+  return count > 0 ? s : null;
+}
+
+function avgNonNull(arr) {
+  let s = 0, count = 0;
+  for (const v of arr) { if (v !== null && v !== undefined) { s += v; count++; } }
+  return count > 0 ? s / count : null;
+}
+
+function yoyPct(curr, prior) {
+  if (prior === null || prior === 0) return null;
+  return (curr - prior) / Math.abs(prior) * 100;
+}
+
+function fmtPct(v, decimals=1) {
+  if (v === null) return '—';
+  return (v >= 0 ? '+' : '') + v.toFixed(decimals) + '%';
+}
+
+function fmtNum(v, prefix='', suffix='', decimals=0) {
+  if (v === null) return '—';
+  return prefix + v.toLocaleString('en-US', {minimumFractionDigits: decimals, maximumFractionDigits: decimals}) + suffix;
+}
+
+function renderStat(containerId, items) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = items.map(item => `
+    <div class="stat-item">
+      <div class="stat-label">${item.label}</div>
+      <div class="stat-value">${item.value}</div>
+      ${item.yoy !== undefined ? `<div class="stat-yoy ${item.yoyClass}">${item.yoyArrow} ${item.yoy}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function yoyDisplay(pct, lowerIsBetter=false) {
+  if (pct === null) return { cls: 'neutral', arrow: '—', txt: '—' };
+  const positive = pct > 0;
+  const good = lowerIsBetter ? !positive : positive;
+  return {
+    cls: good ? 'good' : 'bad',
+    arrow: positive ? '▲' : '▼',
+    txt: fmtPct(pct)
+  };
+}
+
+// Chart defaults
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
+Chart.defaults.font.size = 12;
+
+function makeBarLineChart(canvasId, labels, barData, lineData, barColor, lineColor, yFmt) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  if (charts[canvasId]) charts[canvasId].destroy();
+  charts[canvasId] = new Chart(ctx, {
+    data: {
+      labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Current',
+          data: barData,
+          backgroundColor: barColor + 'cc',
+          borderColor: barColor,
+          borderWidth: 1,
+          borderRadius: 3,
+          order: 2,
+        },
+        {
+          type: 'line',
+          label: 'Prior Year',
+          data: lineData,
+          borderColor: lineColor,
+          borderDash: [5, 4],
+          borderWidth: 2,
+          pointRadius: 2,
+          pointHoverRadius: 4,
+          fill: false,
+          spanGaps: true,
+          tension: 0.3,
+          order: 1,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${yFmt(ctx.parsed.y)}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { maxTicksLimit: 8, color: '#656d76' }
+        },
+        y: {
+          grid: { color: '#eaeef2' },
+          ticks: { color: '#656d76', callback: (v) => yFmt(v) }
+        }
+      }
+    }
+  });
+}
+
+function makeLineChart(canvasId, labels, currData, priorData, currColor, priorColor, yFmt) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  if (charts[canvasId]) charts[canvasId].destroy();
+  charts[canvasId] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Current',
+          data: currData,
+          borderColor: currColor,
+          backgroundColor: currColor + '20',
+          borderWidth: 2.5,
+          pointRadius: 2,
+          pointHoverRadius: 5,
+          fill: false,
+          spanGaps: true,
+          tension: 0.3,
+        },
+        {
+          label: 'Prior Year',
+          data: priorData,
+          borderColor: priorColor,
+          borderDash: [5, 4],
+          borderWidth: 1.5,
+          pointRadius: 1,
+          pointHoverRadius: 4,
+          fill: false,
+          spanGaps: true,
+          tension: 0.3,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => `${ctx.dataset.label}: ${yFmt(ctx.parsed.y)}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { maxTicksLimit: 8, color: '#656d76' }
+        },
+        y: {
+          grid: { color: '#eaeef2' },
+          ticks: { color: '#656d76', callback: (v) => yFmt(v) }
+        }
+      }
+    }
+  });
+}
+
+function renderAll() {
+  const n = currentWindow;
+  const weeks = getCurrentWeeks(n);
+  const labels = weeks.map(fmtDate);
+
+  // Update date range label
+  const startDate = weeks[0], endDate = weeks[weeks.length - 1];
+  document.getElementById('date-range-label').textContent =
+    fmtDateShort(startDate) + ' – ' + fmtDateShort(endDate);
+
+  // ---- SPEND ----
+  const spendCurr = getDataSeries(D.spend, weeks);
+  const spendPrior = getYoYSeries(D.spend, weeks);
+  const spendSum = sumNonNull(spendCurr);
+  const spendPriorSum = sumNonNull(spendPrior);
+  const spendPct = yoyPct(spendSum, spendPriorSum);
+  const spendYoy = yoyDisplay(spendPct, true);
+  renderStat('stat-spend', [
+    { label: 'Total Spend', value: fmtNum(spendSum, '$', '', 0) },
+    { label: 'Prior Year', value: fmtNum(spendPriorSum, '$', '', 0) },
+    { label: 'YoY', value: spendYoy.txt, yoy: spendYoy.txt, yoyClass: spendYoy.cls, yoyArrow: spendYoy.arrow }
+  ]);
+  makeBarLineChart('chart-spend', labels, spendCurr, spendPrior, '#0969da', '#0969da55',
+    v => v === null ? '—' : '$' + Math.round(v).toLocaleString());
+
+  // ---- CLICKS ----
+  const clicksCurr = getDataSeries(D.clicks, weeks);
+  const clicksPrior = getYoYSeries(D.clicks, weeks);
+  const clicksSum = sumNonNull(clicksCurr);
+  const clicksPriorSum = sumNonNull(clicksPrior);
+  const clicksPct = yoyPct(clicksSum, clicksPriorSum);
+  const clicksYoy = yoyDisplay(clicksPct, false);
+  renderStat('stat-clicks', [
+    { label: 'Total Clicks', value: fmtNum(clicksSum) },
+    { label: 'Prior Year', value: fmtNum(clicksPriorSum) },
+    { label: 'YoY', value: clicksYoy.txt, yoy: clicksYoy.txt, yoyClass: clicksYoy.cls, yoyArrow: clicksYoy.arrow }
+  ]);
+  makeLineChart('chart-clicks', labels, clicksCurr, clicksPrior, '#8250df', '#8250df80',
+    v => v === null ? '—' : Math.round(v).toLocaleString());
+
+  // ---- CTR ----
+  const ctrCurr = getDataSeries(D.ctr, weeks);
+  const ctrPrior = getYoYSeries(D.ctr, weeks);
+  const ctrAvg = avgNonNull(ctrCurr);
+  const ctrPriorAvg = avgNonNull(ctrPrior);
+  const ctrPct = yoyPct(ctrAvg, ctrPriorAvg);
+  const ctrYoy = yoyDisplay(ctrPct, false);
+  renderStat('stat-ctr', [
+    { label: 'Avg CTR', value: ctrAvg !== null ? (ctrAvg * 100).toFixed(2) + '%' : '—' },
+    { label: 'Prior Year', value: ctrPriorAvg !== null ? (ctrPriorAvg * 100).toFixed(2) + '%' : '—' },
+    { label: 'YoY', value: ctrYoy.txt, yoy: ctrYoy.txt, yoyClass: ctrYoy.cls, yoyArrow: ctrYoy.arrow }
+  ]);
+  makeLineChart('chart-ctr', labels, ctrCurr, ctrPrior, '#1a7f37', '#1a7f3780',
+    v => v === null ? '—' : (v * 100).toFixed(2) + '%');
+
+  // ---- SIGN UPS ----
+  const signupsCurr = getDataSeries(D.signups, weeks);
+  const signupsPrior = getYoYSeries(D.signups, weeks);
+  const signupsSum = sumNonNull(signupsCurr);
+  const signupsPriorSum = sumNonNull(signupsPrior);
+  const signupsPct = yoyPct(signupsSum, signupsPriorSum);
+  const signupsYoy = yoyDisplay(signupsPct, false);
+  renderStat('stat-signups', [
+    { label: 'Total Sign Ups', value: fmtNum(signupsSum) },
+    { label: 'Prior Year', value: fmtNum(signupsPriorSum) },
+    { label: 'YoY', value: signupsYoy.txt, yoy: signupsYoy.txt, yoyClass: signupsYoy.cls, yoyArrow: signupsYoy.arrow }
+  ]);
+  makeLineChart('chart-signups', labels, signupsCurr, signupsPrior, '#9a6700', '#9a670080',
+    v => v === null ? '—' : Math.round(v).toLocaleString());
+
+  // ---- CONVERSIONS ----
+  const convsCurr = getDataSeries(D.convs, weeks);
+  const convsPrior = getYoYSeries(D.convs, weeks);
+  const convsSum = sumNonNull(convsCurr);
+  const convsPriorSum = sumNonNull(convsPrior);
+  const convsPct = yoyPct(convsSum, convsPriorSum);
+  const convsYoy = yoyDisplay(convsPct, false);
+  renderStat('stat-convs', [
+    { label: 'Total Conversions', value: fmtNum(convsSum) },
+    { label: 'Prior Year', value: fmtNum(convsPriorSum) },
+    { label: 'YoY', value: convsYoy.txt, yoy: convsYoy.txt, yoyClass: convsYoy.cls, yoyArrow: convsYoy.arrow }
+  ]);
+  makeLineChart('chart-convs', labels, convsCurr, convsPrior, '#cf222e', '#cf222e80',
+    v => v === null ? '—' : Math.round(v).toLocaleString());
+
+  // ---- COST PER CONVERSION ----
+  const cpcCurr = weeks.map(w => {
+    const s = D.spend[w], c = D.convs[w];
+    return (s !== undefined && c !== undefined && c > 0) ? s / c : null;
+  });
+  const cpcPrior = weeks.map(w => {
+    const yoyDate = getYoYDate(w);
+    const nearestWeek = findNearestWeek(yoyDate);
+    if (!nearestWeek) return null;
+    const s = D.spend[nearestWeek], c = D.convs[nearestWeek];
+    return (s !== undefined && c !== undefined && c > 0) ? s / c : null;
+  });
+  const cpcAvg = avgNonNull(cpcCurr);
+  const cpcPriorAvg = avgNonNull(cpcPrior);
+  const cpcPct = yoyPct(cpcAvg, cpcPriorAvg);
+  const cpcYoy = yoyDisplay(cpcPct, true);
+  renderStat('stat-cpc', [
+    { label: 'Avg Cost/Conv', value: fmtNum(cpcAvg, '$', '', 2) },
+    { label: 'Prior Year', value: fmtNum(cpcPriorAvg, '$', '', 2) },
+    { label: 'YoY', value: cpcYoy.txt, yoy: cpcYoy.txt, yoyClass: cpcYoy.cls, yoyArrow: cpcYoy.arrow }
+  ]);
+  makeLineChart('chart-cpc', labels, cpcCurr, cpcPrior, '#0969da', '#0969da80',
+    v => v === null ? '—' : '$' + v.toFixed(0));
+}
+
+function setWindow(n) {
+  currentWindow = n;
+  WINDOWS.forEach(w => {
+    const btn = document.getElementById('btn-' + w);
+    if (btn) btn.classList.toggle('active', w === n);
+  });
+  renderAll();
+}
+
+// Sidebar active state on scroll
+function updateActiveNav() {
+  const sections = ['spend', 'ctr', 'conversions'];
+  let active = sections[0];
+  for (const id of sections) {
+    const el = document.getElementById(id);
+    if (el && el.getBoundingClientRect().top <= 80) active = id;
+  }
+  document.querySelectorAll('#sidebar .source-nav a').forEach(a => {
+    const href = a.getAttribute('href').replace('#', '');
+    a.classList.toggle('active',
+      (href === 'spend' && active === 'spend') ||
+      (href === 'clicks' && active === 'spend') ||
+      (href === 'ctr' && active === 'ctr') ||
+      (href === 'signups' && active === 'ctr') ||
+      (href === 'conversions' && active === 'conversions') ||
+      (href === 'cpc' && active === 'conversions')
+    );
+  });
+}
+
+window.addEventListener('scroll', updateActiveNav, { passive: true });
+window.addEventListener('load', () => {
+  renderAll();
+  updateActiveNav();
+  // Populate topbar date badge
+  const badge = document.getElementById('as-of-badge');
+  if (badge && typeof D !== 'undefined') {
+    const dateStr = D.generatedAt || '';
+    if (dateStr) badge.textContent = 'Data as of ' + String(dateStr).substring(0, 10);
+  }
+});
+</script>
 </body>
 </html>
