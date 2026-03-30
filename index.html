@@ -66,8 +66,13 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .card-name{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;margin-bottom:5px;}
 .card-desc{font-size:13px;color:var(--text-muted);line-height:1.5;margin-bottom:16px;flex:1;}
 
-.source-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
+.source-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
 .source-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.3px;text-transform:uppercase;}
+
+.card-asof{font-size:11px;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:5px;}
+.card-asof-label{color:var(--text-muted);font-weight:500;}
+.card-asof-value{color:var(--text);}
+.card-asof-value.loading{color:var(--text-dim);font-style:italic;}
 
 .card-link{
   display:inline-flex;align-items:center;gap:6px;
@@ -113,6 +118,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
         <span class="source-tag" style="background:#FFF2EE;color:#E05C38;">HubSpot</span>
         <span class="source-tag" style="background:#F5F0FF;color:#7040C8;">Amplitude</span>
       </div>
+      <div class="card-asof"><span class="card-asof-label">Data as of</span><span class="card-asof-value loading" id="asof-executive">—</span></div>
       <a href="executive/index.html" class="card-link live">Open Dashboard →</a>
     </div>
 
@@ -127,6 +133,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       <div class="source-tags">
         <span class="source-tag" style="background:#EFF8FC;color:#2B9DC8;">GA4</span>
       </div>
+      <div class="card-asof"><span class="card-asof-label">Data as of</span><span class="card-asof-value loading" id="asof-ga4">—</span></div>
       <a href="ga4/index.html" class="card-link live">Open Dashboard →</a>
     </div>
 
@@ -141,6 +148,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       <div class="source-tags">
         <span class="source-tag" style="background:#FFF2EE;color:#E05C38;">HubSpot</span>
       </div>
+      <div class="card-asof"><span class="card-asof-label">Data as of</span><span class="card-asof-value loading" id="asof-hubspot">—</span></div>
       <a href="hubspot/index.html" class="card-link live">Open Dashboard →</a>
     </div>
 
@@ -155,6 +163,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       <div class="source-tags">
         <span class="source-tag" style="background:#F5F0FF;color:#7040C8;">Amplitude</span>
       </div>
+      <div class="card-asof"><span class="card-asof-label">Data as of</span><span class="card-asof-value loading" id="asof-amplitude">—</span></div>
       <a href="amplitude/index.html" class="card-link live">Open Dashboard →</a>
     </div>
 
@@ -169,6 +178,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       <div class="source-tags">
         <span class="source-tag" style="background:#F0F4FF;color:#5B6AB0;">Google Search Console</span>
       </div>
+      <div class="card-asof"><span class="card-asof-label">Data as of</span><span class="card-asof-value loading" id="asof-gsc">—</span></div>
       <a href="gsc/index.html" class="card-link live">Open Dashboard →</a>
     </div>
 
@@ -183,6 +193,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       <div class="source-tags">
         <span class="source-tag" style="background:#FFFBEE;color:#B08020;">Google Ads</span>
       </div>
+      <div class="card-asof"><span class="card-asof-label">Data as of</span><span class="card-asof-value loading" id="asof-paid-media">—</span></div>
       <a href="paid-media/index.html" class="card-link live">Open Dashboard →</a>
     </div>
 
@@ -192,6 +203,43 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 <footer class="hub-footer">
   Visme Marketing Analytics &nbsp;·&nbsp; Rebuilt weekly via <a href="https://github.com/mattvisme/visme-dashboards/actions" target="_blank">GitHub Actions</a> &nbsp;·&nbsp; <a href="https://github.com/mattvisme/visme-dashboards" target="_blank">View repo</a>
 </footer>
+
+<script>
+// Fetch "data as of" dates from each built dashboard file
+(function () {
+  // Format an ISO date string (YYYY-MM-DD or YYYY-MM-DDTHH:...) → "Mar 29, 2026"
+  function fmtIso(iso) {
+    const d = new Date((iso.slice(0, 10)) + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // Each entry: [elementId, url, extractFn]
+  const DASHBOARDS = [
+    ['asof-executive',  'executive/index.html',  t => { const m = /"asOfDate":"([^"]+)"/.exec(t); return m ? m[1] : null; }],
+    ['asof-ga4',        'ga4/index.html',         t => { const m = /"asOfDate":"([^"]+)"/.exec(t); return m ? m[1] : null; }],
+    ['asof-hubspot',    'hubspot/index.html',     t => { const m = /"lastDate":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
+    ['asof-amplitude',  'amplitude/index.html',   t => { const m = /"lastDate":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
+    ['asof-gsc',        'gsc/index.html',         t => { const m = /"lastDate":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
+    ['asof-paid-media', 'paid-media/index.html',  t => { const m = /"generatedAt":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
+  ];
+
+  DASHBOARDS.forEach(([id, url, extract]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    fetch(url)
+      .then(r => r.ok ? r.text() : null)
+      .then(text => {
+        if (!text) return;
+        const date = extract(text);
+        if (date) {
+          el.textContent = date;
+          el.classList.remove('loading');
+        }
+      })
+      .catch(() => {}); // silently ignore fetch errors (e.g. local file:// access)
+  });
+})();
+</script>
 
 </body>
 </html>

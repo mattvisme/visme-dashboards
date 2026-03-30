@@ -339,6 +339,7 @@
 
   /* Scrollspy active state */
   section { scroll-margin-top: 56px; }
+  .card  { scroll-margin-top: 72px; }
 </style>
 </head>
 <body>
@@ -364,11 +365,11 @@
     </div>
     <ul class="source-nav">
       <li><a href="#spend" class="active">Total Spend</a></li>
-      <li><a href="#clicks">Traffic (Clicks)</a></li>
+      <li><a href="#card-clicks">Traffic (Clicks)</a></li>
       <li><a href="#ctr">Click-Through Rate</a></li>
-      <li><a href="#signups">Free Sign Ups</a></li>
+      <li><a href="#card-signups">Free Sign Ups</a></li>
       <li><a href="#conversions">Conversions</a></li>
-      <li><a href="#cpc">Cost Per Conversion</a></li>
+      <li><a href="#card-cpc">Cost Per Conversion</a></li>
     </ul>
   </div>
 
@@ -858,7 +859,7 @@ function setWindow(n) {
   renderAll();
 }
 
-// Sidebar active state on scroll
+// Sidebar active state on scroll — one item highlighted at a time
 function updateActiveNav() {
   const sections = ['spend', 'ctr', 'conversions'];
   let active = sections[0];
@@ -866,16 +867,12 @@ function updateActiveNav() {
     const el = document.getElementById(id);
     if (el && el.getBoundingClientRect().top <= 80) active = id;
   }
+  // Map section → the single nav href that should be active
+  const sectionNav = { spend: 'spend', ctr: 'ctr', conversions: 'conversions' };
+  const activeHref = sectionNav[active];
   document.querySelectorAll('#sidebar .source-nav a').forEach(a => {
     const href = a.getAttribute('href').replace('#', '');
-    a.classList.toggle('active',
-      (href === 'spend' && active === 'spend') ||
-      (href === 'clicks' && active === 'spend') ||
-      (href === 'ctr' && active === 'ctr') ||
-      (href === 'signups' && active === 'ctr') ||
-      (href === 'conversions' && active === 'conversions') ||
-      (href === 'cpc' && active === 'conversions')
-    );
+    a.classList.toggle('active', href === activeHref);
   });
 }
 
