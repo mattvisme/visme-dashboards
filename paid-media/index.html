@@ -517,7 +517,8 @@ function fmtDate(iso) {
 function fmtDateShort(iso) {
   const d = new Date(iso + 'T12:00:00');
   d.setDate(d.getDate() + 6);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+  const yy = d.toLocaleDateString('en-US', { year: '2-digit' });
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + " '" + yy;
 }
 
 // Get weeks for current window
@@ -742,7 +743,7 @@ function renderAll() {
   // Update date range label
   const startDate = weeks[0], endDate = weeks[weeks.length - 1];
   document.getElementById('date-range-label').textContent =
-    fmtDateShort(startDate) + ' – ' + fmtDateShort(endDate);
+    fmtDateShort(startDate) + ' → ' + fmtDateShort(endDate);
 
   // ---- SPEND ----
   const spendCurr = getDataSeries(D.spend, weeks);

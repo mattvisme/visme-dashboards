@@ -51,7 +51,8 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;flex-shrink:0;margin-right:auto;}
 .topbar-title span{color:#FF7A59}
 .as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
-.range-control{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.range-control{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.date-range-badge{font-size:11.5px;color:var(--text-muted);white-space:nowrap;padding:4px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border-light);}
 .range-label{font-size:11.5px;font-weight:600;color:var(--text-muted);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
 .range-pills{display:flex;gap:4px;}
 .pill{padding:5px 12px;border-radius:20px;font-size:12.5px;font-weight:500;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s ease;white-space:nowrap;user-select:none;}
@@ -156,6 +157,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
         <span class="pill" data-w="52">52W</span>
         <span class="pill" data-w="104">104W</span>
       </div>
+      <span class="date-range-badge" id="dateRange"></span>
     </div>
   </div>
 
@@ -298,6 +300,8 @@ function setupNavHighlight() {
 }
 
 function updateAll() {
+  const _lbl = HS.weekLabels.slice(Math.max(0, HS.weeks.length - activeWeeks));
+  if (_lbl.length) document.getElementById('dateRange').textContent = _lbl[0] + ' → ' + _lbl[_lbl.length-1];
   updateHSKPIs();
   updateHSCharts();
   updateHSChannelTable();

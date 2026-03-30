@@ -982,13 +982,14 @@ function updateSortHeaders(tableId, col, dir) {
 function updatePeriodLabel(cur) {
   if(!cur.length) return;
   const first = cur[0], last = cur[cur.length-1];
-  // last week end = last + 6 days
-  const lastEnd = new Date(last+'T00:00:00');
-  lastEnd.setDate(lastEnd.getDate()+6);
-  const endStr = lastEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  const startStr = new Date(first+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  function _fmtWeekEnd(iso) {
+    const d = new Date(iso+'T12:00:00');
+    d.setDate(d.getDate()+6);
+    const yy = d.toLocaleDateString('en-US',{year:'2-digit'});
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + " '" + yy;
+  }
   document.getElementById('period-label').textContent =
-    `${lookback} weeks (${startStr} – ${endStr})`;
+    _fmtWeekEnd(first) + ' → ' + _fmtWeekEnd(last);
 }
 
 // ── setWindow / updateAll ──────────────────────────────────────────────────────
