@@ -219,7 +219,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
     ['asof-ga4',        'ga4/index.html',         t => { const m = /"asOfDate":"([^"]+)"/.exec(t); return m ? m[1] : null; }],
     ['asof-hubspot',    'hubspot/index.html',     t => { const m = /"lastDate":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
     ['asof-amplitude',  'amplitude/index.html',   t => { const m = /"lastDate":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
-    ['asof-gsc',        'gsc/index.html',         t => { const m = /"lastDate":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
+    ['asof-gsc',        'gsc/index.html',         t => { const m = /"endDate":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
     ['asof-paid-media', 'paid-media/index.html',  t => { const m = /"generatedAt":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
   ];
 

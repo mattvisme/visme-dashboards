@@ -339,10 +339,12 @@ def fetch_ppc_data(sheet_id=None) -> dict:
     all_weeks = sorted(w_spend.keys(), reverse=True)
     print(f"  PPC weeks found: {len(all_weeks)}")
 
-    today_str = date.today().strftime("%Y-%m-%d")
+    # Use the most recent data week as generatedAt (not today), so the hub
+    # "Data as of" badge reflects the actual last date of ad data.
+    last_data_date = all_weeks[0] if all_weeks else date.today().strftime("%Y-%m-%d")
 
     payload = {
-        "generatedAt": today_str,
+        "generatedAt": last_data_date,
         "weeks":  all_weeks,
         "spend":  {w: round(w_spend.get(w, 0.0), 2)   for w in all_weeks},
         "clicks": {w: int(w_clicks.get(w, 0))          for w in all_weeks},
