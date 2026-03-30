@@ -335,9 +335,10 @@ def fetch_ppc_data(sheet_id=None) -> dict:
         week  = _get_monday(d)
         w_revenue[week] = w_revenue.get(week, 0.0) + value
 
-    # ── Assemble weeks list (most-recent-first) ───────────────────────────────
-    all_weeks = sorted(w_spend.keys())
-    print(f"  PPC weeks found: {len(all_weeks)}")
+    # ── Assemble weeks list (oldest-first, complete weeks only) ──────────────
+    this_monday = (date.today() - timedelta(days=date.today().weekday())).strftime("%Y-%m-%d")
+    all_weeks = [w for w in sorted(w_spend.keys()) if w < this_monday]
+    print(f"  PPC weeks found: {len(all_weeks)} (excluded current incomplete week {this_monday})")
 
     # Use the most recent data week as generatedAt (not today), so the hub
     # "Data as of" badge reflects the actual last date of ad data.
