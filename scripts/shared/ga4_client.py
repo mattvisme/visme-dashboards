@@ -101,7 +101,7 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
         )
         if dim_filter:
             req.dimension_filter = dim_filter
-        resp = client.run_report(req)
+        resp = client.run_report(req, timeout=120)
         return [[d.value for d in r.dimension_values] + [m.value for m in r.metric_values]
                 for r in resp.rows]
 
