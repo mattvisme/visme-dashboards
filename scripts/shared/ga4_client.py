@@ -8,6 +8,7 @@ import json
 import os
 import sys
 import tempfile
+import time
 from datetime import date, datetime, timedelta
 from collections import defaultdict
 
@@ -101,7 +102,16 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
         )
         if dim_filter:
             req.dimension_filter = dim_filter
-        resp = client.run_report(req, timeout=120)
+        for attempt in range(4):
+            try:
+                resp = client.run_report(req, timeout=120)
+                break
+            except Exception as e:
+                if attempt == 3:
+                    raise
+                wait = 15 * (2 ** attempt)   # 15s, 30s, 60s
+                print(f"  GA4 API error (attempt {attempt + 1}/4), retrying in {wait}s: {e}")
+                time.sleep(wait)
         return [[d.value for d in r.dimension_values] + [m.value for m in r.metric_values]
                 for r in resp.rows]
 
