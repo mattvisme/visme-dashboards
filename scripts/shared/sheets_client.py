@@ -129,8 +129,11 @@ def fetch_hubspot_data(sheet_id=None, credentials_file=None) -> dict:
         }
     print(f"    {len(channels)} unique channel weeks  ({skipped_c} skipped)")
 
-    all_dates = sorted(set(list(summary.keys()) + list(channels.keys())))
-    last_date = all_dates[-1] if all_dates else ""
+    this_monday_str = (date.today() - timedelta(days=date.today().weekday())).strftime("%Y-%m-%d")
+    all_dates = [d for d in sorted(set(list(summary.keys()) + list(channels.keys())))
+                 if d < this_monday_str]
+    last_monday_dt = datetime.strptime(all_dates[-1], "%Y-%m-%d").date() if all_dates else date.today()
+    last_date = (last_monday_dt + timedelta(days=6)).strftime("%Y-%m-%d")
 
     payload = {
         "weeks":      all_dates,
@@ -208,9 +211,13 @@ def fetch_amplitude_data(sheet_id=None, credentials_file=None) -> dict:
 
     # Merge: Full first, Weekly overrides on overlap
     merged = {**data_full, **data_weekly}
-    sorted_dates = sorted(merged.keys())
+    this_monday_str = (date.today() - timedelta(days=date.today().weekday())).strftime("%Y-%m-%d")
+    sorted_dates = [d for d in sorted(merged.keys()) if d < this_monday_str]
     print(f"  Amplitude merged: {len(sorted_dates)} unique weeks "
           f"({sorted_dates[0] if sorted_dates else '—'} → {sorted_dates[-1] if sorted_dates else '—'})")
+
+    last_monday_dt = datetime.strptime(sorted_dates[-1], "%Y-%m-%d").date() if sorted_dates else date.today()
+    last_date = (last_monday_dt + timedelta(days=6)).strftime("%Y-%m-%d")
 
     payload = {
         "weeks":       sorted_dates,
@@ -219,7 +226,7 @@ def fetch_amplitude_data(sheet_id=None, credentials_file=None) -> dict:
         "upgrades":    {d: merged[d]["upgrades"]    for d in sorted_dates},
         "activations": {d: merged[d]["activations"] for d in sorted_dates},
         "cr":          {d: merged[d]["cr"]          for d in sorted_dates},
-        "lastDate":    sorted_dates[-1] if sorted_dates else "",
+        "lastDate":    last_date,
     }
     return payload
 
@@ -340,9 +347,10 @@ def fetch_ppc_data(sheet_id=None) -> dict:
     all_weeks = [w for w in sorted(w_spend.keys()) if w < this_monday]
     print(f"  PPC weeks found: {len(all_weeks)} (excluded current incomplete week {this_monday})")
 
-    # Use the most recent data week as generatedAt (not today), so the hub
-    # "Data as of" badge reflects the actual last date of ad data.
-    last_data_date = all_weeks[-1] if all_weeks else date.today().strftime("%Y-%m-%d")
+    # generatedAt = last Sunday of the most recent complete week (Monday + 6 days),
+    # so "Data as of" shows the week-end date consistent with other dashboards.
+    last_monday_dt = datetime.strptime(all_weeks[-1], "%Y-%m-%d").date() if all_weeks else date.today()
+    last_data_date = (last_monday_dt + timedelta(days=6)).strftime("%Y-%m-%d")
 
     payload = {
         "generatedAt": last_data_date,

@@ -47,10 +47,10 @@ def _get_credentials(credentials_file=None):
     )
 
 
-def _yw_to_monday(yw: str) -> date:
-    """Convert GA4 yearWeek (e.g. '202403') to the Monday of that ISO week."""
-    year, wk = int(yw[:4]), int(yw[4:])
-    return datetime.strptime(f"{year}-W{wk:02d}-1", "%G-W%V-%u").date()
+def _get_monday_str(date_str: str) -> str:
+    """Return the Monday of the week for a YYYY-MM-DD date string."""
+    d = datetime.strptime(date_str, "%Y-%m-%d").date()
+    return (d - timedelta(days=d.weekday())).strftime("%Y-%m-%d")
 
 
 def _fmt_label(d: date) -> str:
@@ -81,14 +81,16 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
     client = BetaAnalyticsDataClient(credentials=creds)
     prop = f"properties/{property_id}"
 
-    today = date.today()
-    last_sunday = today - timedelta(days=(today.weekday() + 1) % 7 or 7)
-    start_dt = last_sunday - timedelta(weeks=WEEKS_HISTORY - 1)
+    today        = date.today()
+    this_monday  = today - timedelta(days=today.weekday())   # Mon of current week
+    last_sunday  = this_monday - timedelta(days=1)           # Sun of last complete week
+    start_dt     = this_monday - timedelta(weeks=WEEKS_HISTORY)
 
-    end_date = last_sunday.strftime("%Y-%m-%d")
-    start_date = start_dt.strftime("%Y-%m-%d")
-    as_of_date = last_sunday.strftime("%B %-d, %Y") if sys.platform != "win32" \
-        else last_sunday.strftime(f"%B {last_sunday.day}, %Y")
+    end_date         = last_sunday.strftime("%Y-%m-%d")
+    start_date       = start_dt.strftime("%Y-%m-%d")
+    this_monday_str  = this_monday.strftime("%Y-%m-%d")
+    as_of_date       = last_sunday.strftime("%B %-d, %Y") if sys.platform != "win32" \
+                       else last_sunday.strftime(f"%B {last_sunday.day}, %Y")
 
     print(f"📅  GA4 date range: {start_date} → {end_date}")
 
@@ -123,42 +125,47 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
 
     # 1. Sessions + New Users by week
     print("⏳  Pulling sessions + new users …")
-    weekly_sessions, weekly_new_users = {}, {}
-    for yw, sess, nu in run(["yearWeek"], ["sessions", "newUsers"]):
-        weekly_sessions[yw] = int_(sess)
-        weekly_new_users[yw] = int_(nu)
+    weekly_sessions, weekly_new_users = defaultdict(int), defaultdict(int)
+    for date_str, sess, nu in run(["date"], ["sessions", "newUsers"]):
+        w = _get_monday_str(date_str)
+        weekly_sessions[w] += int_(sess)
+        weekly_new_users[w] += int_(nu)
 
     # 2. New vs Returning by week
     print("⏳  Pulling new vs returning …")
     weekly_nvr = defaultdict(lambda: {"new": 0, "returning": 0})
-    for yw, nvr, sess in run(["yearWeek", "newVsReturning"], ["sessions"]):
+    for date_str, nvr, sess in run(["date", "newVsReturning"], ["sessions"]):
+        w   = _get_monday_str(date_str)
         key = "new" if nvr.lower() == "new" else "returning"
-        weekly_nvr[yw][key] += int_(sess)
+        weekly_nvr[w][key] += int_(sess)
 
     # 3. Channel by week
     print("⏳  Pulling channel sessions …")
     weekly_channels = defaultdict(lambda: defaultdict(int))
     all_channels = set()
-    for yw, ch, sess in run(["yearWeek", "sessionDefaultChannelGroup"], ["sessions"]):
-        weekly_channels[yw][ch] += int_(sess)
+    for date_str, ch, sess in run(["date", "sessionDefaultChannelGroup"], ["sessions"]):
+        w = _get_monday_str(date_str)
+        weekly_channels[w][ch] += int_(sess)
         all_channels.add(ch)
 
     channel_totals = defaultdict(int)
-    for yw_data in weekly_channels.values():
-        for ch, v in yw_data.items():
+    for w_data in weekly_channels.values():
+        for ch, v in w_data.items():
             channel_totals[ch] += v
     top_channels = [c for c, _ in sorted(channel_totals.items(), key=lambda x: -x[1])[:15]]
 
     # 4. US vs Non-US by week
     print("⏳  Pulling geo sessions …")
     weekly_geo = defaultdict(lambda: {"us": 0, "nonUs": 0})
-    for yw, country, sess in run(["yearWeek", "country"], ["sessions"]):
+    for date_str, country, sess in run(["date", "country"], ["sessions"],
+                                       row_limit=500_000):
+        w = _get_monday_str(date_str)
         if country == "United States":
-            weekly_geo[yw]["us"] += int_(sess)
+            weekly_geo[w]["us"] += int_(sess)
         else:
-            weekly_geo[yw]["nonUs"] += int_(sess)
+            weekly_geo[w]["nonUs"] += int_(sess)
 
-    # 5. Top Landing Pages (aggregate)
+    # 5. Top Landing Pages (aggregate over full date range — no weekly grouping needed)
     print("⏳  Pulling landing pages …")
     landing_pages_raw = []
     for row in run(["landingPagePlusQueryString"], ["sessions", "newUsers", "bounceRate"],
@@ -182,37 +189,36 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
         )
     )
     weekly_events = defaultdict(lambda: {e: 0 for e in TARGET_EVENTS})
-    for yw, evt, cnt in run(["yearWeek", "eventName"], ["eventCount"],
-                            dim_filter=event_filter):
+    for date_str, evt, cnt in run(["date", "eventName"], ["eventCount"],
+                                  dim_filter=event_filter):
         if evt in TARGET_EVENTS:
-            weekly_events[yw][evt] += int_(cnt)
+            w = _get_monday_str(date_str)
+            weekly_events[w][evt] += int_(cnt)
 
-    # Assemble sorted week list
+    # Assemble sorted week list — complete Mon–Sun weeks only (week Monday < this Monday)
     all_weeks = sorted(set(
         list(weekly_sessions.keys()) + list(weekly_nvr.keys()) +
         list(weekly_channels.keys()) + list(weekly_geo.keys()) +
         list(weekly_events.keys())
     ))
+    all_weeks = [w for w in all_weeks if w < this_monday_str]
 
     week_labels = {}
-    for yw in all_weeks:
-        try:
-            week_labels[yw] = _fmt_label(_yw_to_monday(yw))
-        except Exception:
-            week_labels[yw] = yw
+    for w in all_weeks:
+        week_labels[w] = _fmt_label(datetime.strptime(w, "%Y-%m-%d").date())
 
     payload = {
         "asOfDate":    as_of_date,
         "weeks":       all_weeks,
         "weekLabels":  [week_labels.get(w, w) for w in all_weeks],
-        "sessions":    {w: weekly_sessions.get(w, 0)  for w in all_weeks},
-        "newUsers":    {w: weekly_new_users.get(w, 0) for w in all_weeks},
-        "nvr":         {w: weekly_nvr.get(w, {"new": 0, "returning": 0}) for w in all_weeks},
+        "sessions":    {w: int(weekly_sessions.get(w, 0))  for w in all_weeks},
+        "newUsers":    {w: int(weekly_new_users.get(w, 0)) for w in all_weeks},
+        "nvr":         {w: dict(weekly_nvr.get(w, {"new": 0, "returning": 0})) for w in all_weeks},
         "channels":    {w: {ch: weekly_channels[w].get(ch, 0) for ch in top_channels} for w in all_weeks},
         "topChannels": top_channels,
-        "geo":         {w: weekly_geo.get(w, {"us": 0, "nonUs": 0}) for w in all_weeks},
+        "geo":         {w: dict(weekly_geo.get(w, {"us": 0, "nonUs": 0})) for w in all_weeks},
         "landingPages": top_landing_pages,
-        "events":      {w: weekly_events.get(w, {e: 0 for e in TARGET_EVENTS}) for w in all_weeks},
+        "events":      {w: dict(weekly_events.get(w, {e: 0 for e in TARGET_EVENTS})) for w in all_weeks},
     }
 
     print(f"✅  GA4 collected — {len(all_weeks)} weeks, {len(top_channels)} channels")
