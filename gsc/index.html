@@ -1,63 +1,1107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<link rel="icon" type="image/png" href="https://www.visme.co/favicon-32x32.png"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>GSC SEO Performance — Visme Marketing</title>
+<link rel="icon" type="image/png" href="https://www.visme.co/favicon-32x32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#F8FAFB;--surface:#FFFFFF;--surface2:#EFF6FC;--sidebar:#1E2A35;--text:#293745;--text-muted:#7F859D;--accent:#3CACD7;--border:#BBD0E5;--sidebar-w:232px;--topbar-h:72px;--radius:10px;--font-ui:'Lato',sans-serif;--font-display:'Montserrat',sans-serif;}
-html{font-size:15px;-webkit-font-smoothing:antialiased}
-body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-height:100vh;}
-#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--sidebar);display:flex;flex-direction:column;z-index:100;}
-.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07);}
-.sidebar-logo-mark{display:flex;align-items:center;gap:9px;}
-.logo-gem{width:28px;height:28px;background:linear-gradient(135deg,#3CACD7 0%,#3D92E7 100%);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;}
-.logo-text{font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;}
-.logo-sub{font-size:9.5px;color:rgba(255,255,255,.3);margin-top:1px;letter-spacing:.4px;text-transform:uppercase;}
-.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;}
-#main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
-#topbar{height:var(--topbar-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;}
-.topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;}
-.topbar-title span{color:var(--accent)}
-#content{padding:64px 32px;display:flex;align-items:center;justify-content:center;flex:1;}
-.coming-soon-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:48px 56px;text-align:center;max-width:480px;box-shadow:0 1px 3px rgba(41,55,69,.07),0 4px 16px rgba(41,55,69,.05);}
-.cs-icon{font-size:48px;margin-bottom:20px;}
-.cs-title{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text);margin-bottom:10px;}
-.cs-desc{font-size:14px;color:var(--text-muted);line-height:1.6;margin-bottom:24px;}
-.cs-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;letter-spacing:.3px;text-transform:uppercase;}
+:root {
+  --bg: #F8FAFB;
+  --surface: #FFFFFF;
+  --surface2: #EFF6FC;
+  --sidebar: #1E2A35;
+  --sidebar-accent: #273542;
+  --text: #293745;
+  --text-muted: #7F859D;
+  --text-dim: #A8B2C0;
+  --accent: #3CACD7;
+  --accent2: #3D92E7;
+  --accent3: #6CC395;
+  --accent-pale: #EFF6FC;
+  --border: #BBD0E5;
+  --border-light: #E7EFF3;
+  --sidebar-w: 232px;
+  --topbar-h: 72px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 3px rgba(41,55,69,.07), 0 4px 16px rgba(41,55,69,.05);
+  --shadow-md: 0 4px 12px rgba(41,55,69,.1), 0 12px 40px rgba(41,55,69,.07);
+  --font-ui: 'Lato', sans-serif;
+  --font-display: 'Montserrat', sans-serif;
+  /* Legacy aliases for existing chart/table CSS */
+  --muted: #7F859D;
+  --green: #1a7f37;
+  --red: #cf222e;
+  --amber: #9a6700;
+  --purple: #8250df;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Sidebar */
+#sidebar {
+  position: fixed; top: 0; left: 0;
+  width: var(--sidebar-w); height: 100vh;
+  background: var(--sidebar);
+  display: flex; flex-direction: column;
+  z-index: 100; overflow-y: auto;
+  scrollbar-width: none;
+}
+#sidebar::-webkit-scrollbar { display: none; }
+
+.sidebar-logo {
+  padding: 18px 16px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+
+.source-group { margin-top: 6px; }
+
+.source-header {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 14px 4px;
+}
+
+.source-dot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+
+.source-label {
+  font-size: 10px; font-weight: 700;
+  color: rgba(255,255,255,.35);
+  letter-spacing: .8px; text-transform: uppercase;
+  flex: 1;
+}
+
+.source-nav { list-style: none; padding: 0 8px 4px; }
+
+.source-nav li a {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: 6px;
+  text-decoration: none;
+  font-size: 12.5px; font-weight: 400;
+  color: rgba(255,255,255,.5);
+  transition: all .12s ease;
+  margin-bottom: 1px;
+}
+.source-nav li a:hover {
+  background: rgba(255,255,255,.07);
+  color: rgba(255,255,255,.85);
+}
+.source-nav li a.active {
+  background: rgba(60,172,215,.14);
+  color: #3CACD7; font-weight: 600;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  font-size: 10px; color: rgba(255,255,255,.18); line-height: 1.6;
+}
+
+/* Topbar */
+#topbar {
+  position: sticky; top: 0; z-index: 50;
+  height: var(--topbar-h);
+  background: rgba(247,246,242,.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 32px; gap: 24px;
+}
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 20px; font-weight: 700;
+  color: var(--text); letter-spacing: -.4px;
+  margin-right: auto;
+}
+.topbar-title span { color: var(--accent); }
+.as-of-badge {
+  font-size: 11.5px; font-weight: 500;
+  color: var(--text-muted);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 5px 12px; border-radius: 20px;
+  white-space: nowrap; flex-shrink: 0;
+}
+
+/* Main */
+#main {
+  margin-left: var(--sidebar-w);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* Section title override */
+.section-title {
+  font-family: var(--font-display);
+  font-size: 17px; font-weight: 700;
+  color: var(--text); letter-spacing: -.3px;
+  margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+
+/* Controls bar */
+#controls {
+  position: sticky; top: var(--topbar-h); z-index: 40;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: 10px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.window-btns{display:flex;gap:4px}
+.window-btns button{
+  padding:5px 12px;border:1px solid var(--border);background:var(--bg);
+  border-radius:6px;cursor:pointer;font-size:13px;color:var(--text);
+  transition:all .15s;
+}
+.window-btns button:hover{background:var(--surface2)}
+.window-btns button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+#period-label{font-size:13px;color:var(--muted)}
+#as-of{margin-left:auto;font-size:12px;color:var(--muted)}
+
+/* Content */
+#content{padding:24px;display:flex;flex-direction:column;gap:32px}
+
+/* Sections */
+.section{scroll-margin-top:56px}
+.section-title{font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+/* Stat cards */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+@media(max-width:900px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px}
+.stat-label{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.stat-value{font-size:24px;font-weight:700;margin:6px 0 4px;line-height:1}
+.stat-yoy{font-size:12px;font-weight:600}
+.stat-yoy.up{color:var(--green)}
+.stat-yoy.down{color:var(--red)}
+.stat-yoy.neutral{color:var(--muted)}
+
+/* Chart grids */
+.chart-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media(max-width:1100px){.chart-grid-4{grid-template-columns:repeat(2,1fr)}}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px}
+.chart-card h3{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px}
+.chart-wrap{position:relative;height:180px}
+.chart-wrap-lg{position:relative;height:300px}
+.chart-wrap-md{position:relative;height:240px}
+
+/* Tables */
+.table-controls{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.search-input{
+  padding:6px 10px;border:1px solid var(--border);border-radius:6px;
+  font-size:13px;width:260px;background:var(--bg);color:var(--text);
+}
+.search-input:focus{outline:none;border-color:var(--accent)}
+.table-note{font-size:12px;color:var(--muted);margin-left:auto}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{
+  background:var(--surface);padding:9px 12px;text-align:left;
+  font-weight:600;font-size:12px;color:var(--muted);
+  border-bottom:1px solid var(--border);white-space:nowrap;
+  cursor:pointer;user-select:none;position:sticky;top:0;
+}
+thead th:hover{color:var(--text)}
+thead th.sort-asc::after{content:" ▲";font-size:10px}
+thead th.sort-desc::after{content:" ▼";font-size:10px}
+tbody tr:hover{background:var(--surface)}
+tbody td{padding:8px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+.yoy-up{color:var(--green);font-weight:600}
+.yoy-down{color:var(--red);font-weight:600}
+.yoy-neutral{color:var(--muted)}
+.tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600}
+.tag-green{background:#dafbe1;color:var(--green)}
+.tag-red{background:#ffebe9;color:var(--red)}
+.tag-amber{background:#fff8c5;color:var(--amber)}
+
+/* CTR benchmark table */
+.ctr-table{width:100%;border-collapse:collapse;font-size:13px}
+.ctr-table th{background:var(--surface);padding:9px 12px;text-align:left;font-weight:600;font-size:12px;color:var(--muted);border-bottom:1px solid var(--border)}
+.ctr-table td{padding:10px 12px;border-bottom:1px solid var(--border)}
+.ctr-table tr:last-child td{border-bottom:none}
+
+/* Dual axis chart */
+.dual-chart-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px}
+.dual-chart-card h3{font-size:13px;font-weight:700;margin-bottom:12px}
+.brand-toggle { display:flex; gap:6px; margin-bottom:10px; }
+.brand-btn { padding:5px 14px; border:1px solid var(--border); border-radius:6px; cursor:pointer; font-size:13px; color:var(--text); background:var(--bg); transition:all .15s; }
+.brand-btn:hover { background:var(--surface2); }
+.brand-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.brand-summary { font-size:12px; color:var(--muted); margin-bottom:10px; padding:8px 12px; background:var(--surface); border:1px solid var(--border); border-radius:6px; }
+.section-desc { font-size:13px; color:var(--muted); margin-bottom:14px; line-height:1.5; }
+.data-note { width:100%; font-size:11px; color:var(--muted); margin-top:6px; padding-top:6px; border-top:1px solid var(--border); }
 </style>
 </head>
 <body>
+
 <nav id="sidebar">
+  <!-- Logo -->
   <div class="sidebar-logo">
-    <a href="https://mattvisme.github.io/visme-dashboards/" style="text-decoration:none;display:block">
-      <div class="sidebar-logo-mark">
-        <div class="logo-gem">V</div>
-        <div><div class="logo-text">Visme</div><div class="logo-sub">Marketing Analytics</div></div>
+    <a href="../index.html" style="text-decoration:none;display:block">
+      <img src="https://www.visme.co/wp-content/themes/visme/images/visme-logo-footer.svg"
+           alt="Visme"
+           style="width:108px;height:auto;display:block;filter:brightness(0) invert(1);opacity:.92">
+      <div style="font-size:9.5px;color:rgba(255,255,255,.3);margin-top:5px;letter-spacing:.4px;text-transform:uppercase;font-weight:400">
+        Marketing Analytics
       </div>
     </a>
   </div>
+
+  <!-- Nav group -->
+  <div class="source-group">
+    <div class="source-header">
+      <div class="source-dot" style="background:#4285F4"></div>
+      <span class="source-label">Google Search Console</span>
+    </div>
+    <ul class="source-nav">
+      <li><a href="#sec-overview" class="active">Overview</a></li>
+      <li><a href="#sec-gap">Clicks vs Impressions</a></li>
+      <li><a href="#sec-queries">Top Queries</a></li>
+      <li><a href="#sec-opportunities">CTR Opportunities</a></li>
+      <li><a href="#sec-pages">Top Pages</a></li>
+      <li><a href="#sec-posdist">Position Distribution</a></li>
+      <li><a href="#sec-ctrpos">CTR by Position</a></li>
+      <li><a href="#sec-countries">Country Breakdown</a></li>
+    </ul>
+  </div>
+
+  <!-- Footer -->
   <div class="sidebar-footer">
-    Google Search Console<br/>
-    <a href="../index.html" style="display:inline-flex;align-items:center;gap:4px;color:rgba(255,255,255,.3);text-decoration:none;font-size:10px;margin-top:4px;">← All Dashboards</a>
+    <a href="../index.html"
+       style="color:rgba(255,255,255,.35);font-size:11px;text-decoration:none;display:block;margin-bottom:8px;">← All Dashboards</a>
+    GSC · Search Console API
   </div>
 </nav>
+
 <div id="main">
   <div id="topbar">
-    <div class="topbar-title">GSC <span>SEO Performance</span></div>
+    <div class="topbar-title">Search Console <span>Performance</span></div>
+    <div class="as-of-badge" id="as-of-badge">Data as of —</div>
   </div>
-  <div id="content">
-    <div class="coming-soon-card">
-      <div class="cs-icon">🔍</div>
-      <div class="cs-title">Google Search Console</div>
-      <div class="cs-desc">This dashboard is coming soon. The GSC data pipeline is being connected. It will show organic search performance, top queries, page impressions, CTR, and position tracking.</div>
-      <div class="cs-badge">🚧 Coming Soon</div>
+  <div id="controls">
+    <div class="window-btns">
+      <button onclick="setWindow(8)"  id="btn-8">8w</button>
+      <button onclick="setWindow(13)" id="btn-13" class="active">13w</button>
+      <button onclick="setWindow(26)" id="btn-26">26w</button>
+      <button onclick="setWindow(52)" id="btn-52">52w</button>
     </div>
+    <span id="period-label"></span>
+    <span id="as-of">Data as of March 23, 2026</span>
+    <div id="data-note" class="data-note"></div>
+  </div>
+
+  <div id="content">
+
+    <!-- Section 1: Overview -->
+    <section id="sec-overview" class="section">
+      <div class="section-title">Overall Search Performance</div>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Clicks</div>
+          <div class="stat-value" id="stat-clicks">—</div>
+          <div id="yoy-clicks" style="color:var(--muted);font-size:11px;">YoY n/a — GSC only covers 16 months</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Impressions</div>
+          <div class="stat-value" id="stat-impr">—</div>
+          <div id="yoy-impr" style="color:var(--muted);font-size:11px;">YoY n/a — GSC only covers 16 months</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg CTR</div>
+          <div class="stat-value" id="stat-ctr">—</div>
+          <div id="yoy-ctr" style="color:var(--muted);font-size:11px;">YoY n/a — GSC only covers 16 months</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Position (lower is better)</div>
+          <div class="stat-value" id="stat-pos">—</div>
+          <div id="yoy-pos" style="color:var(--muted);font-size:11px;">YoY n/a — GSC only covers 16 months</div>
+        </div>
+      </div>
+      <div class="chart-grid-4">
+        <div class="chart-card">
+          <h3>Weekly Clicks</h3>
+          <div class="chart-wrap"><canvas id="ch-clicks"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Weekly Impressions</h3>
+          <div class="chart-wrap"><canvas id="ch-impr"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Weekly CTR</h3>
+          <div class="chart-wrap"><canvas id="ch-ctr"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Avg Position (lower is better)</h3>
+          <div class="chart-wrap"><canvas id="ch-pos"></canvas></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Dual axis -->
+    <section id="sec-gap" class="section">
+      <div class="section-title">Clicks vs Impressions Gap</div>
+      <div class="dual-chart-card">
+        <h3>Weekly Clicks (left) vs Impressions (right)</h3>
+        <div class="chart-wrap-md"><canvas id="ch-dual"></canvas></div>
+      </div>
+    </section>
+
+    <!-- Section 3: Top Queries -->
+    <section id="sec-queries" class="section">
+      <div class="section-title">Top Queries</div>
+      <div class="brand-toggle">
+        <button id="btn-all" class="brand-btn" onclick="setBrandFilter('all')">All Queries</button>
+        <button id="btn-nonbrand" class="brand-btn active" onclick="setBrandFilter('nonbrand')">Non-Branded</button>
+        <button id="btn-brand" class="brand-btn" onclick="setBrandFilter('brand')">Branded Only</button>
+      </div>
+      <div id="brand-summary" class="brand-summary"></div>
+      <div class="table-controls">
+        <input class="search-input" id="q-search" placeholder="Search queries..." oninput="renderQueries()">
+        <span class="table-note" id="q-note">Showing top 100 for selected window</span>
+      </div>
+      <div class="tbl-wrap" style="max-height:480px;overflow-y:auto">
+        <table id="tbl-queries">
+          <thead>
+            <tr>
+              <th onclick="sortTable('queries',0,'str')">Query</th>
+              <th onclick="sortTable('queries',1,'num')">Clicks</th>
+              <th onclick="sortTable('queries',2,'num')">Impressions</th>
+              <th onclick="sortTable('queries',3,'num')">CTR</th>
+              <th onclick="sortTable('queries',4,'num')">Avg Pos</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-queries"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section: CTR Opportunities -->
+    <section class="section" id="sec-opportunities">
+      <div class="section-title">CTR Opportunities</div>
+      <p class="section-desc">These queries rank on page 1–2 but have low click-through rates. Improving title tags and meta descriptions for these pages could significantly increase clicks with no change in rankings.</p>
+      <div class="table-controls">
+        <input type="text" id="search-opps" class="search-input" placeholder="Filter queries..." oninput="renderOppsTable()">
+      </div>
+      <div id="table-opps"></div>
+    </section>
+
+    <!-- Section 4: Top Pages -->
+    <section id="sec-pages" class="section">
+      <div class="section-title">Top Pages</div>
+      <div class="table-controls">
+        <input class="search-input" id="p-search" placeholder="Search pages..." oninput="renderPages()">
+        <span class="table-note" id="p-note">Showing top 100 for selected window</span>
+      </div>
+      <div class="tbl-wrap" style="max-height:480px;overflow-y:auto">
+        <table id="tbl-pages">
+          <thead>
+            <tr>
+              <th onclick="sortTable('pages',0,'str')">URL</th>
+              <th onclick="sortTable('pages',1,'num')">Clicks</th>
+              <th onclick="sortTable('pages',2,'num')">Impressions</th>
+              <th onclick="sortTable('pages',3,'num')">CTR</th>
+              <th onclick="sortTable('pages',4,'num')">Avg Pos</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-pages"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 5: Position Distribution -->
+    <section id="sec-posdist" class="section">
+      <div class="section-title">Position Distribution Over Time</div>
+      <div class="chart-card">
+        <div class="chart-wrap-lg"><canvas id="ch-posdist"></canvas></div>
+      </div>
+    </section>
+
+    <!-- Section 6: CTR by Position -->
+    <section id="sec-ctrpos" class="section">
+      <div class="section-title">CTR by Position Bucket</div>
+      <div class="tbl-wrap">
+        <table class="ctr-table" id="tbl-ctrpos">
+          <thead>
+            <tr>
+              <th>Position Bucket</th>
+              <th>Visme CTR</th>
+              <th>Benchmark</th>
+              <th>vs Benchmark</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-ctrpos"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 7: Countries -->
+    <section id="sec-countries" class="section">
+      <div class="section-title">Country Breakdown</div>
+      <div class="table-controls">
+        <input class="search-input" id="c-search" placeholder="Search countries..." oninput="renderCountries()">
+      </div>
+      <div class="tbl-wrap" style="max-height:480px;overflow-y:auto">
+        <table id="tbl-countries">
+          <thead>
+            <tr>
+              <th onclick="sortTable('countries',0,'str')">Country</th>
+              <th onclick="sortTable('countries',1,'num')">Clicks</th>
+              <th onclick="sortTable('countries',2,'num')">Impressions</th>
+              <th onclick="sortTable('countries',3,'num')">CTR</th>
+              <th onclick="sortTable('countries',4,'num')">Avg Pos</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-countries"></tbody>
+        </table>
+      </div>
+    </section>
+
   </div>
 </div>
+
+<script>
+const D = {"generatedAt":"March 26, 2026","startDate":"2024-11-15","endDate":"2026-03-23","weeks":["2024-11-11","2024-11-18","2024-11-25","2024-12-02","2024-12-09","2024-12-16","2024-12-23","2024-12-30","2025-01-06","2025-01-13","2025-01-20","2025-01-27","2025-02-03","2025-02-10","2025-02-17","2025-02-24","2025-03-03","2025-03-10","2025-03-17","2025-03-24","2025-03-31","2025-04-07","2025-04-14","2025-04-21","2025-04-28","2025-05-05","2025-05-12","2025-05-19","2025-05-26","2025-06-02","2025-06-09","2025-06-16","2025-06-23","2025-06-30","2025-07-07","2025-07-14","2025-07-21","2025-07-28","2025-08-04","2025-08-11","2025-08-18","2025-08-25","2025-09-01","2025-09-08","2025-09-15","2025-09-22","2025-09-29","2025-10-06","2025-10-13","2025-10-20","2025-10-27","2025-11-03","2025-11-10","2025-11-17","2025-11-24","2025-12-01","2025-12-08","2025-12-15","2025-12-22","2025-12-29","2026-01-05","2026-01-12","2026-01-19","2026-01-26","2026-02-02","2026-02-09","2026-02-16","2026-02-23","2026-03-02","2026-03-09","2026-03-16"],"wClicks":{"2024-11-11":108800,"2024-11-18":299922,"2024-11-25":271346,"2024-12-02":266876,"2024-12-09":249842,"2024-12-16":208137,"2024-12-23":155810,"2024-12-30":152200,"2025-01-06":200617,"2025-01-13":218736,"2025-01-20":216803,"2025-01-27":223518,"2025-02-03":235114,"2025-02-10":237929,"2025-02-17":243335,"2025-02-24":239610,"2025-03-03":227316,"2025-03-10":229698,"2025-03-17":230109,"2025-03-24":221584,"2025-03-31":219230,"2025-04-07":212792,"2025-04-14":185785,"2025-04-21":192828,"2025-04-28":169800,"2025-05-05":170827,"2025-05-12":187738,"2025-05-19":182165,"2025-05-26":169990,"2025-06-02":153337,"2025-06-09":145811,"2025-06-16":134269,"2025-06-23":130340,"2025-06-30":117952,"2025-07-07":117632,"2025-07-14":112641,"2025-07-21":114267,"2025-07-28":106615,"2025-08-04":100002,"2025-08-11":101901,"2025-08-18":108812,"2025-08-25":111210,"2025-09-01":120607,"2025-09-08":125309,"2025-09-15":127171,"2025-09-22":128264,"2025-09-29":124394,"2025-10-06":125163,"2025-10-13":128764,"2025-10-20":137813,"2025-10-27":125938,"2025-11-03":126907,"2025-11-10":123644,"2025-11-17":126683,"2025-11-24":114221,"2025-12-01":112934,"2025-12-08":106854,"2025-12-15":98209,"2025-12-22":73985,"2025-12-29":67557,"2026-01-05":86029,"2026-01-12":91922,"2026-01-19":100728,"2026-01-26":100585,"2026-02-02":100321,"2026-02-09":96934,"2026-02-16":97772,"2026-02-23":101442,"2026-03-02":102426,"2026-03-09":105916,"2026-03-16":95711},"wImpressions":{"2024-11-11":2675864,"2024-11-18":7024490,"2024-11-25":6166134,"2024-12-02":6438144,"2024-12-09":6113369,"2024-12-16":5293219,"2024-12-23":4499647,"2024-12-30":4821711,"2025-01-06":5523246,"2025-01-13":5567286,"2025-01-20":5786206,"2025-01-27":5864394,"2025-02-03":6132426,"2025-02-10":5956000,"2025-02-17":6293974,"2025-02-24":6298046,"2025-03-03":5898102,"2025-03-10":5810761,"2025-03-17":5825309,"2025-03-24":5728159,"2025-03-31":5900772,"2025-04-07":5649555,"2025-04-14":5088684,"2025-04-21":6018555,"2025-04-28":5843725,"2025-05-05":6066213,"2025-05-12":6029620,"2025-05-19":6042978,"2025-05-26":6117588,"2025-06-02":5958291,"2025-06-09":5692511,"2025-06-16":5638672,"2025-06-23":5551997,"2025-06-30":5404649,"2025-07-07":5436598,"2025-07-14":5779223,"2025-07-21":5739685,"2025-07-28":5507249,"2025-08-04":5353588,"2025-08-11":5358776,"2025-08-18":5945771,"2025-08-25":6067068,"2025-09-01":6458805,"2025-09-08":5002089,"2025-09-15":4210897,"2025-09-22":3922406,"2025-09-29":3884166,"2025-10-06":3652110,"2025-10-13":3794597,"2025-10-20":3789167,"2025-10-27":3789450,"2025-11-03":4112031,"2025-11-10":4374081,"2025-11-17":4172002,"2025-11-24":3904646,"2025-12-01":4251951,"2025-12-08":4267839,"2025-12-15":4047406,"2025-12-22":3221263,"2025-12-29":3250029,"2026-01-05":4212824,"2026-01-12":4205356,"2026-01-19":4683257,"2026-01-26":5027044,"2026-02-02":5272129,"2026-02-09":6271102,"2026-02-16":5676277,"2026-02-23":5613913,"2026-03-02":5409472,"2026-03-09":5121684,"2026-03-16":4664475},"wCtr":{"2024-11-11":0.040659764472334915,"2024-11-18":0.04269662281532183,"2024-11-25":0.044005855208466116,"2024-12-02":0.041452319177700904,"2024-12-09":0.040868136701710626,"2024-12-16":0.03932144126286859,"2024-12-23":0.03462716075283239,"2024-12-30":0.03156555836714395,"2025-01-06":0.03632230032846627,"2025-01-13":0.03928952096227857,"2025-01-20":0.03746893905954956,"2025-01-27":0.03811442409906292,"2025-02-03":0.038339476089886776,"2025-02-10":0.03994778374748153,"2025-02-17":0.038661583285854055,"2025-02-24":0.0380451333635861,"2025-03-03":0.03854053388700297,"2025-03-10":0.039529762108611935,"2025-03-17":0.03950159553767878,"2025-03-24":0.0386832837566136,"2025-03-31":0.03715276577369876,"2025-04-07":0.03766526744141795,"2025-04-14":0.036509439375681414,"2025-04-21":0.032038919641010175,"2025-04-28":0.02905680879918203,"2025-05-05":0.02816040254438807,"2025-05-12":0.031135958816641846,"2025-05-19":0.030144905376124156,"2025-05-26":0.02778709517541881,"2025-06-02":0.0257350639638111,"2025-06-09":0.025614531091815194,"2025-06-16":0.02381216712020135,"2025-06-23":0.023476237469148488,"2025-06-30":0.021824173965783903,"2025-07-07":0.021637060529397244,"2025-07-14":0.019490682397962495,"2025-07-21":0.019908235382255297,"2025-07-28":0.01935903025267243,"2025-08-04":0.018679435175063902,"2025-08-11":0.019015722993459702,"2025-08-18":0.01830073845763653,"2025-08-25":0.01833010607430146,"2025-09-01":0.018673268507099997,"2025-09-08":0.02505133355284162,"2025-09-15":0.03020045372755496,"2025-09-22":0.03270033749693428,"2025-09-29":0.0320259226819863,"2025-10-06":0.03427142117844205,"2025-10-13":0.033933511252973635,"2025-10-20":0.03637026291002746,"2025-10-27":0.03323384660043014,"2025-11-03":0.030862364607659815,"2025-11-10":0.02826742348849964,"2025-11-17":0.030365038175916504,"2025-11-24":0.02925258781461879,"2025-12-01":0.026560513044482405,"2025-12-08":0.025037026935645884,"2025-12-15":0.024264677178419954,"2025-12-22":0.022967699315454837,"2025-12-29":0.020786583750483457,"2026-01-05":0.02042074390005374,"2026-01-12":0.021858315919032777,"2026-01-19":0.021508108566324676,"2026-01-26":0.0200087765295072,"2026-02-02":0.019028555636631805,"2026-02-09":0.015457251373044163,"2026-02-16":0.017224670325285393,"2026-02-23":0.018069749210577364,"2026-03-02":0.018934565147947897,"2026-03-09":0.02067991699605052,"2026-03-16":0.02051913666596991},"wPosition":{"2024-11-11":20.48516180194509,"2024-11-18":19.671812330859606,"2024-11-25":19.13786466528298,"2024-12-02":20.454127307497316,"2024-12-09":20.67741305980385,"2024-12-16":22.726296040273414,"2024-12-23":25.144167309124473,"2024-12-30":25.29436189767491,"2025-01-06":21.165653494340102,"2025-01-13":19.634648552274843,"2025-01-20":20.305391650418255,"2025-01-27":20.30525131838004,"2025-02-03":20.525591503264778,"2025-02-10":19.94765211551377,"2025-02-17":21.31973265221623,"2025-02-24":21.875320059586734,"2025-03-03":21.574759982109498,"2025-03-10":20.930229792620967,"2025-03-17":21.804377244194256,"2025-03-24":21.870838257108435,"2025-03-31":22.5716462184948,"2025-04-07":21.475258493810575,"2025-04-14":22.76085447632433,"2025-04-21":24.833303010440215,"2025-04-28":24.402185592237828,"2025-05-05":23.605132559638115,"2025-05-12":23.13325433443567,"2025-05-19":23.476827650208225,"2025-05-26":25.219180664013333,"2025-06-02":24.856743653507355,"2025-06-09":24.41981754624629,"2025-06-16":25.193020626133247,"2025-06-23":24.65804124173698,"2025-06-30":25.441644036458243,"2025-07-07":25.567687366253676,"2025-07-14":26.98349501308394,"2025-07-21":26.877346056447347,"2025-07-28":26.788622413840375,"2025-08-04":27.327299000221906,"2025-08-11":27.329740597479724,"2025-08-18":28.62460444574808,"2025-08-25":28.331646521845478,"2025-09-01":27.853842312935598,"2025-09-08":19.879544926129864,"2025-09-15":13.704370588974273,"2025-09-22":12.92608235863396,"2025-09-29":13.640661856367622,"2025-10-06":13.337317057810417,"2025-10-13":13.06481795036469,"2025-10-20":11.944154216480825,"2025-10-27":12.096605576007072,"2025-11-03":11.641146431045875,"2025-11-10":11.370704612008785,"2025-11-17":12.651684251349831,"2025-11-24":13.532223407704565,"2025-12-01":16.061623711091684,"2025-12-08":17.86693640505183,"2025-12-15":17.957284986976845,"2025-12-22":19.584425425679306,"2025-12-29":18.958686830179055,"2026-01-05":19.63168767553546,"2026-01-12":17.971946964775395,"2026-01-19":18.263555897103235,"2026-01-26":18.543977136464292,"2026-02-02":15.066558121017145,"2026-02-09":12.526974206447289,"2026-02-16":11.293006489993353,"2026-02-23":11.472497169086873,"2026-03-02":11.707562956236764,"2026-03-09":11.393573480909794,"2026-03-16":11.993514168261166},"positionDist":{"2025-10-20":{"top3":72182,"top10":168422,"top20":0,"other":1968},"2025-11-17":{"top3":69430,"top10":130449,"top20":37917,"other":1763},"2025-02-17":{"top3":68143,"top10":319045,"top20":1017,"other":2723},"2025-03-10":{"top3":81619,"top10":228758,"top20":482,"other":1817},"2024-11-18":{"top3":82812,"top10":632033,"top20":3283,"other":0},"2025-03-17":{"top3":81394,"top10":209371,"top20":417,"other":1434},"2025-03-24":{"top3":75201,"top10":217157,"top20":210,"other":1748},"2024-11-25":{"top3":71064,"top10":486629,"top20":392,"other":101},"2025-03-03":{"top3":72724,"top10":240774,"top20":5259,"other":854},"2025-02-10":{"top3":62378,"top10":356043,"top20":173,"other":4068},"2025-02-24":{"top3":73006,"top10":308214,"top20":240,"other":1813},"2025-04-07":{"top3":82446,"top10":201379,"top20":4474,"other":4629},"2024-12-02":{"top3":69498,"top10":522246,"top20":0,"other":0},"2025-03-31":{"top3":86299,"top10":211409,"top20":0,"other":3572},"2025-02-03":{"top3":59190,"top10":380362,"top20":10995,"other":3533},"2025-05-26":{"top3":66648,"top10":121632,"top20":5506,"other":244},"2024-12-09":{"top3":64922,"top10":447505,"top20":0,"other":678},"2025-10-13":{"top3":64816,"top10":137268,"top20":23414,"other":1395},"2025-05-19":{"top3":73000,"top10":160074,"top20":1881,"other":604},"2025-10-27":{"top3":53061,"top10":126344,"top20":0,"other":2737},"2025-05-12":{"top3":86509,"top10":170755,"top20":0,"other":2676},"2025-01-27":{"top3":54659,"top10":345526,"top20":6932,"other":2813},"2025-10-06":{"top3":60448,"top10":101685,"top20":1388,"other":2011},"2025-09-01":{"top3":56060,"top10":73290,"top20":6914,"other":3544},"2025-09-29":{"top3":59651,"top10":125328,"top20":11308,"other":1213},"2025-09-22":{"top3":73559,"top10":153420,"top20":0,"other":119},"2025-11-03":{"top3":63472,"top10":162735,"top20":63,"other":2200},"2025-09-15":{"top3":90771,"top10":113759,"top20":3799,"other":910},"2025-09-08":{"top3":49190,"top10":100875,"top20":3859,"other":965},"2025-12-01":{"top3":54297,"top10":170631,"top20":8512,"other":2509},"2025-06-02":{"top3":60109,"top10":101223,"top20":0,"other":0},"2025-04-14":{"top3":66384,"top10":178841,"top20":1332,"other":2578},"2025-11-24":{"top3":52764,"top10":111920,"top20":77,"other":1556},"2025-11-10":{"top3":48480,"top10":179824,"top20":8489,"other":1915},"2025-06-09":{"top3":60992,"top10":92528,"top20":0,"other":739},"2025-04-21":{"top3":79325,"top10":199190,"top20":0,"other":3865},"2024-12-16":{"top3":47614,"top10":293502,"top20":0,"other":355},"2024-11-11":{"top3":25220,"top10":211278,"top20":916,"other":0},"2025-12-08":{"top3":33587,"top10":140820,"top20":13761,"other":2594},"2025-08-25":{"top3":73222,"top10":67210,"top20":0,"other":4118},"2025-08-18":{"top3":90083,"top10":66569,"top20":8044,"other":1391},"2025-06-16":{"top3":50121,"top10":83998,"top20":4871,"other":0},"2025-06-23":{"top3":132286,"top10":66344,"top20":2897,"other":321},"2025-07-07":{"top3":179076,"top10":46576,"top20":4605,"other":151},"2025-04-28":{"top3":75404,"top10":156363,"top20":0,"other":3217},"2025-08-11":{"top3":54798,"top10":48050,"top20":4345,"other":1438},"2025-06-30":{"top3":127290,"top10":54117,"top20":3365,"other":725},"2026-01-19":{"top3":69160,"top10":88787,"top20":11607,"other":3802},"2026-03-09":{"top3":223158,"top10":121451,"top20":309,"other":7080},"2025-07-14":{"top3":128323,"top10":38660,"top20":12361,"other":0},"2025-08-04":{"top3":94705,"top10":46914,"top20":2837,"other":3420},"2025-07-21":{"top3":128920,"top10":41797,"top20":2320,"other":1779},"2025-07-28":{"top3":119804,"top10":48576,"top20":5647,"other":2624},"2025-05-05":{"top3":78340,"top10":158946,"top20":0,"other":2763},"2026-01-26":{"top3":68404,"top10":101783,"top20":11224,"other":5243},"2026-02-16":{"top3":461600,"top10":87543,"top20":552,"other":6501},"2025-01-20":{"top3":55043,"top10":342873,"top20":171,"other":2684},"2025-01-13":{"top3":52580,"top10":364112,"top20":5224,"other":2840},"2026-02-02":{"top3":351298,"top10":133772,"top20":8795,"other":4140},"2026-03-02":{"top3":269607,"top10":117184,"top20":432,"other":6570},"2025-12-15":{"top3":32499,"top10":143720,"top20":5792,"other":2528},"2026-03-16":{"top3":171596,"top10":130016,"top20":567,"other":5236},"2026-02-09":{"top3":666137,"top10":90195,"top20":8603,"other":5004},"2026-01-05":{"top3":32546,"top10":103170,"top20":4276,"other":3074},"2026-01-12":{"top3":45401,"top10":106228,"top20":3676,"other":3124},"2025-01-06":{"top3":44685,"top10":292760,"top20":229,"other":1481},"2026-02-23":{"top3":401558,"top10":131157,"top20":39,"other":4865},"2025-12-22":{"top3":16557,"top10":41209,"top20":3064,"other":2689},"2024-12-23":{"top3":29772,"top10":177038,"top20":0,"other":332},"2025-12-29":{"top3":19055,"top10":46325,"top20":725,"other":3536},"2024-12-30":{"top3":31344,"top10":151793,"top20":4243,"other":318}},"ctrByPos":{"top3":0.2841082581139885,"top10":0.04797371401129834,"top20":0.019113553887890638,"other":0.10695435911112214},"queryWindows":{"8":{"cur":[{"q":"visme","clicks":114023,"clicks_py":235257,"impr":2431071,"ctr":0.04690237348065935,"pos":1.0271160323988893},{"q":"graph maker","clicks":38140,"clicks_py":33194,"impr":153402,"ctr":0.24862778842518352,"pos":2.788203543630461},{"q":"visme ai","clicks":11921,"clicks_py":17045,"impr":22417,"ctr":0.531783913993844,"pos":1.4289155551590311},{"q":"ai image generator","clicks":3713,"clicks_py":1198,"impr":26430,"ctr":0.14048429814604615,"pos":36.89254634884601},{"q":"graph generator","clicks":3676,"clicks_py":3159,"impr":28265,"ctr":0.13005483813904123,"pos":5.574915973819211},{"q":"visme tripticos","clicks":2391,"clicks_py":4755,"impr":2839,"ctr":0.8421979570271222,"pos":1.1084889045438535},{"q":"chart maker","clicks":2382,"clicks_py":4022,"impr":25099,"ctr":0.09490417944938045,"pos":7.298099525877525},{"q":"graph","clicks":2050,"clicks_py":455,"impr":374003,"ctr":0.005481239455298487,"pos":7.969949438908244},{"q":"powerpoint online","clicks":1957,"clicks_py":3056,"impr":190459,"ctr":0.010275177334754462,"pos":8.057697457195513},{"q":"timeline maker","clicks":1793,"clicks_py":1041,"impr":28356,"ctr":0.06323176752715474,"pos":8.959620538863028},{"q":"visme login","clicks":1597,"clicks_py":617,"impr":2959,"ctr":0.5397093612706996,"pos":2.3247718823927004},{"q":"graph maker online","clicks":1588,"clicks_py":1457,"impr":7045,"ctr":0.2254080908445706,"pos":5.171611071682044},{"q":"ai image generator free","clicks":1418,"clicks_py":170,"impr":6680,"ctr":0.2122754491017964,"pos":30.04760479041916},{"q":"visme timeline","clicks":1293,"clicks_py":3666,"impr":2641,"ctr":0.4895872775463839,"pos":2.0265051117001134},{"q":"free ai image generator","clicks":1240,"clicks_py":78,"impr":6003,"ctr":0.2065633849741796,"pos":31.942695319007164},{"q":"graph creator","clicks":1208,"clicks_py":1615,"impr":15739,"ctr":0.07675201728191118,"pos":7.716500412986848},{"q":"online graph maker","clicks":1176,"clicks_py":1365,"impr":7011,"ctr":0.16773641420624733,"pos":6.912993866780773},{"q":"visme.co","clicks":1175,"clicks_py":2080,"impr":1985,"ctr":0.5919395465994962,"pos":3.903274559193955},{"q":"image to image ai","clicks":997,"clicks_py":179,"impr":4072,"ctr":0.24484282907662083,"pos":30.721758349705304},{"q":"presentation maker","clicks":988,"clicks_py":7400,"impr":46723,"ctr":0.021145902446332642,"pos":9.612738908032446},{"q":"fake report maker","clicks":972,"clicks_py":908,"impr":2324,"ctr":0.41824440619621345,"pos":2.759466437177281},{"q":"offer letter format","clicks":954,"clicks_py":65,"impr":35519,"ctr":0.026858864269827417,"pos":1.2306934316844507},{"q":"map generator","clicks":791,"clicks_py":698,"impr":6967,"ctr":0.11353523754844266,"pos":8.578871824314625},{"q":"visme gratis","clicks":769,"clicks_py":1315,"impr":1454,"ctr":0.5288858321870702,"pos":1.5839064649243466},{"q":"\u043f\u043e\u0432\u0435\u0440 \u043f\u043e\u0438\u043d\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":720,"clicks_py":2348,"impr":26571,"ctr":0.027097211245342666,"pos":6.331526852583644},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0438\u0438","clicks":702,"clicks_py":1843,"impr":14474,"ctr":0.048500759983418545,"pos":7.56059140527843},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0438\u0438 \u0431\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e","clicks":676,"clicks_py":701,"impr":7251,"ctr":0.09322852020410978,"pos":6.268790511653565},{"q":"visme ia","clicks":668,"clicks_py":1045,"impr":1261,"ctr":0.5297383029341792,"pos":1.5733544805709754},{"q":"ppt maker online free","clicks":652,"clicks_py":4925,"impr":12612,"ctr":0.051696796701554075,"pos":7.6228195369489375},{"q":"ai photo generator","clicks":642,"clicks_py":99,"impr":4382,"ctr":0.14650844363304427,"pos":37.902327704244634},{"q":"ai image generator from image","clicks":621,"clicks_py":166,"impr":5336,"ctr":0.11637931034482758,"pos":29.442278860569715},{"q":"\u0441\u043e\u0437\u0434\u0430\u0442\u044c \u0431\u0443\u043a\u043b\u0435\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":620,"clicks_py":1295,"impr":2563,"ctr":0.24190401872805306,"pos":3.07140070230199},{"q":"presentation templates","clicks":608,"clicks_py":1489,"impr":33331,"ctr":0.018241276889382256,"pos":8.089076235336474},{"q":"thumbnail maker","clicks":599,"clicks_py":5687,"impr":21056,"ctr":0.028447948328267476,"pos":10.482617781155016},{"q":"viseme","clicks":593,"clicks_py":847,"impr":2645,"ctr":0.22419659735349717,"pos":2.6291115311909263},{"q":"ppt editor online free","clicks":588,"clicks_py":636,"impr":6666,"ctr":0.08820882088208822,"pos":6.671017101710171},{"q":"document maker","clicks":576,"clicks_py":1243,"impr":8252,"ctr":0.0698012603005332,"pos":6.872152205525933},{"q":"vizme","clicks":576,"clicks_py":1179,"impr":1207,"ctr":0.4772162386081193,"pos":1.7854183927091962},{"q":"visme presentation","clicks":565,"clicks_py":889,"impr":1232,"ctr":0.4586038961038961,"pos":1.765422077922078},{"q":"visme ebook","clicks":556,"clicks_py":443,"impr":713,"ctr":0.7798036465638148,"pos":1.0490883590462834},{"q":"visme triptico","clicks":555,"clicks_py":1619,"impr":711,"ctr":0.7805907172995781,"pos":1.2981715893108299},{"q":"presentation","clicks":550,"clicks_py":777,"impr":184047,"ctr":0.002988367101881585,"pos":7.648970100028797},{"q":"infographic maker","clicks":549,"clicks_py":1550,"impr":19145,"ctr":0.028675894489422826,"pos":9.045129276573517},{"q":"\u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044e \u043e\u043d\u043b\u0430\u0439\u043d","clicks":546,"clicks_py":472,"impr":1182,"ctr":0.4619289340101523,"pos":2.274957698815567},{"q":"visme ai presentation maker","clicks":540,"clicks_py":2140,"impr":1560,"ctr":0.34615384615384615,"pos":1.417948717948718},{"q":"infographic","clicks":531,"clicks_py":1022,"impr":461241,"ctr":0.0011512419754531795,"pos":3.8543082683456156},{"q":"image to image ai free","clicks":518,"clicks_py":89,"impr":1863,"ctr":0.27804616210413313,"pos":27.53515834675255},{"q":"\u0438\u0438 \u0434\u043b\u044f \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u0439","clicks":511,"clicks_py":1619,"impr":5965,"ctr":0.08566638725901089,"pos":5.941994970662196},{"q":"\u0432\u0438\u0441\u043c\u0435","clicks":504,"clicks_py":1063,"impr":616,"ctr":0.8181818181818182,"pos":1.0032467532467533},{"q":"\u0438\u043d\u0444\u043e\u0433\u0440\u0430\u0444\u0438\u043a\u0430 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":502,"clicks_py":1420,"impr":2382,"ctr":0.21074727120067172,"pos":3.2317380352644838},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u043e\u043d\u043b\u0430\u0439\u043d","clicks":491,"clicks_py":4469,"impr":16070,"ctr":0.030553827006845054,"pos":8.698382078406969},{"q":"ai brochure maker","clicks":488,"clicks_py":1878,"impr":6605,"ctr":0.07388342165026496,"pos":10.470249810749433},{"q":"visme ai brochure maker","clicks":487,"clicks_py":129,"impr":818,"ctr":0.5953545232273839,"pos":1.374083129584352},{"q":"visme.com","clicks":467,"clicks_py":784,"impr":1006,"ctr":0.46421471172962225,"pos":1.89662027833002},{"q":"\u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0431\u0443\u043a\u043b\u0435\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":437,"clicks_py":1127,"impr":1909,"ctr":0.2289156626506024,"pos":3.5479308538501835},{"q":"timeline creator","clicks":431,"clicks_py":298,"impr":10596,"ctr":0.040675726689316724,"pos":12.39675349188373},{"q":"lesson plan maker","clicks":428,"clicks_py":124,"impr":14530,"ctr":0.02945629731589814,"pos":5.962835512732278},{"q":"image generator ai","clicks":425,"clicks_py":124,"impr":2959,"ctr":0.14362960459614735,"pos":41.15005069280162},{"q":"ai generator","clicks":424,"clicks_py":0,"impr":4156,"ctr":0.10202117420596728,"pos":45.939364773820984},{"q":"image generator","clicks":421,"clicks_py":98,"impr":3588,"ctr":0.1173355629877369,"pos":47.86817168338907},{"q":"ebook template","clicks":404,"clicks_py":790,"impr":6535,"ctr":0.06182096403978577,"pos":9.515990818668707},{"q":"image to image ai generator","clicks":401,"clicks_py":60,"impr":1997,"ctr":0.20080120180270405,"pos":40.687531296945416},{"q":"one pager template","clicks":386,"clicks_py":947,"impr":18639,"ctr":0.020709265518536402,"pos":5.414346263211546},{"q":"ai image","clicks":380,"clicks_py":59,"impr":2879,"ctr":0.13199027440083363,"pos":43.13372698853769},{"q":"visme ai ebook generator","clicks":379,"clicks_py":26,"impr":754,"ctr":0.5026525198938993,"pos":1.4456233421750664},{"q":"free graph maker","clicks":378,"clicks_py":371,"impr":4479,"ctr":0.08439383791024782,"pos":11.46796159857111},{"q":"ai image to image generator","clicks":375,"clicks_py":43,"impr":1580,"ctr":0.23734177215189872,"pos":34.9879746835443},{"q":"visme free","clicks":372,"clicks_py":820,"impr":623,"ctr":0.5971107544141252,"pos":1.826645264847512},{"q":"banner maker","clicks":371,"clicks_py":712,"impr":26912,"ctr":0.013785671819262782,"pos":13.507394470868014},{"q":"ai portfolio generator","clicks":370,"clicks_py":700,"impr":3123,"ctr":0.11847582452769773,"pos":5.495036823567083},{"q":"wallpaper maker","clicks":366,"clicks_py":3015,"impr":15948,"ctr":0.02294958615500376,"pos":10.907072987208428},{"q":"portfolio maker ai","clicks":365,"clicks_py":624,"impr":2414,"ctr":0.1512013256006628,"pos":3.328500414250207},{"q":"graphs","clicks":362,"clicks_py":155,"impr":58668,"ctr":0.006170314311038386,"pos":6.972557441876321},{"q":"\u0438\u0438 \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f","clicks":362,"clicks_py":1035,"impr":5622,"ctr":0.06438989683386695,"pos":6.810387762362149},{"q":"graph maker free","clicks":355,"clicks_py":253,"impr":3656,"ctr":0.09710065645514224,"pos":7.00109409190372},{"q":"make a graph","clicks":353,"clicks_py":210,"impr":7745,"ctr":0.04557779212395094,"pos":5.727307940606843},{"q":"ebook maker","clicks":345,"clicks_py":252,"impr":6344,"ctr":0.054382093316519546,"pos":9.954760403530896},{"q":"vism","clicks":342,"clicks_py":631,"impr":4321,"ctr":0.07914834529044203,"pos":4.465401527424207},{"q":"graphmaker","clicks":333,"clicks_py":398,"impr":1983,"ctr":0.16792738275340394,"pos":2.735249621785174},{"q":"vismi","clicks":333,"clicks_py":476,"impr":882,"ctr":0.37755102040816324,"pos":1.2233560090702948},{"q":"proposal link","clicks":325,"clicks_py":35,"impr":618,"ctr":0.5258899676375405,"pos":1.9757281553398058},{"q":"report maker","clicks":323,"clicks_py":665,"impr":3174,"ctr":0.1017643352236925,"pos":16.754253308128547},{"q":"brochure maker ai","clicks":322,"clicks_py":1458,"impr":3269,"ctr":0.09850107066381156,"pos":5.187519118996635},{"q":"\u0432\u0438\u0437\u043c\u0438","clicks":319,"clicks_py":400,"impr":383,"ctr":0.8328981723237598,"pos":1.1671018276762402},{"q":"ppt editor","clicks":317,"clicks_py":980,"impr":5400,"ctr":0.0587037037037037,"pos":8.275185185185185},{"q":"graphique en ligne","clicks":307,"clicks_py":568,"impr":2996,"ctr":0.10246995994659545,"pos":9.62516688918558},{"q":"slayt haz\u0131rlama","clicks":304,"clicks_py":568,"impr":21734,"ctr":0.013987301003036717,"pos":8.673552958498206},{"q":"\u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u0439 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":303,"clicks_py":287,"impr":784,"ctr":0.3864795918367347,"pos":3.4119897959183674},{"q":"\u0441\u043e\u0437\u0434\u0430\u0442\u044c \u0431\u0443\u043a\u043b\u0435\u0442 \u043d\u0435\u0439\u0440\u043e\u0441\u0435\u0442\u044c","clicks":295,"clicks_py":405,"impr":638,"ctr":0.46238244514106586,"pos":1.8699059561128526},{"q":"ai picture generator","clicks":294,"clicks_py":60,"impr":2649,"ctr":0.11098527746319366,"pos":46.52661381653454},{"q":"infographics","clicks":294,"clicks_py":468,"impr":99202,"ctr":0.002963649926412774,"pos":4.119564121691095},{"q":"ai image to image","clicks":291,"clicks_py":26,"impr":1354,"ctr":0.21491875923190545,"pos":38.27326440177253},{"q":"document creator","clicks":287,"clicks_py":594,"impr":5803,"ctr":0.04945717732207479,"pos":7.406513872135102},{"q":"ai photo generator free","clicks":286,"clicks_py":47,"impr":1533,"ctr":0.18656229615133724,"pos":42.37899543378995},{"q":"online powerpoint","clicks":284,"clicks_py":454,"impr":21942,"ctr":0.012943213927627381,"pos":7.920517728557105},{"q":"\u0441\u043e\u0437\u0434\u0430\u0442\u044c \u0431\u0443\u043a\u043b\u0435\u0442 \u043e\u043d\u043b\u0430\u0439\u043d \u043d\u0435\u0439\u0440\u043e\u0441\u0435\u0442\u044c","clicks":282,"clicks_py":103,"impr":621,"ctr":0.45410628019323673,"pos":2.109500805152979},{"q":"edit powerpoint online","clicks":277,"clicks_py":304,"impr":2030,"ctr":0.13645320197044336,"pos":3.6167487684729065},{"q":"offer letter","clicks":277,"clicks_py":0,"impr":68288,"ctr":0.004056349578256795,"pos":1.3579838331771321},{"q":"letter of recommendation template","clicks":274,"clicks_py":0,"impr":55126,"ctr":0.0049704313753945505,"pos":1.5638355766788812},{"q":"\u0432\u0438\u0441\u043c\u0438","clicks":274,"clicks_py":553,"impr":347,"ctr":0.7896253602305475,"pos":1.005763688760807}],"prior":[]},"13":{"cur":[{"q":"visme","clicks":177242,"clicks_py":294576,"impr":2566066,"ctr":0.06907148919786163,"pos":1.0362286083054761},{"q":"graph maker","clicks":52231,"clicks_py":40971,"impr":217367,"ctr":0.24028946436211568,"pos":2.995141856859597},{"q":"visme ai","clicks":18356,"clicks_py":20462,"impr":33641,"ctr":0.5456437085698999,"pos":1.926012900924467},{"q":"ai image generator","clicks":5566,"clicks_py":1709,"impr":38454,"ctr":0.14474436989649972,"pos":37.86823217350601},{"q":"graph generator","clicks":5421,"clicks_py":4463,"impr":43705,"ctr":0.12403615147008351,"pos":6.083697517446517},{"q":"chart maker","clicks":3979,"clicks_py":5728,"impr":40025,"ctr":0.09941286695815116,"pos":7.581211742660837},{"q":"powerpoint online","clicks":3204,"clicks_py":5031,"impr":305768,"ctr":0.010478532743779597,"pos":8.156684152690929},{"q":"visme tripticos","clicks":2912,"clicks_py":5695,"impr":3473,"ctr":0.8384681831269796,"pos":1.1600921393607833},{"q":"graph","clicks":2787,"clicks_py":526,"impr":520924,"ctr":0.005350108653085671,"pos":8.235587148989104},{"q":"visme login","clicks":2317,"clicks_py":896,"impr":4503,"ctr":0.5145458583166778,"pos":2.8998445480790584},{"q":"graph maker online","clicks":2190,"clicks_py":1924,"impr":10729,"ctr":0.20411967564544692,"pos":6.933451393419704},{"q":"timeline maker","clicks":2025,"clicks_py":1394,"impr":36870,"ctr":0.054922701383238404,"pos":11.5586655817738},{"q":"ai image generator free","clicks":2001,"clicks_py":247,"impr":9693,"ctr":0.20643763540699475,"pos":30.795935210976992},{"q":"visme.co","clicks":1787,"clicks_py":2494,"impr":3047,"ctr":0.5864785034460125,"pos":4.925828683951428},{"q":"fake report maker","clicks":1726,"clicks_py":1366,"impr":3729,"ctr":0.4628586752480558,"pos":2.188522392062215},{"q":"free ai image generator","clicks":1679,"clicks_py":125,"impr":8326,"ctr":0.20165745856353592,"pos":34.057890944030746},{"q":"online graph maker","clicks":1595,"clicks_py":1791,"impr":10911,"ctr":0.14618275135184677,"pos":8.491339015672256},{"q":"visme timeline","clicks":1555,"clicks_py":4236,"impr":3196,"ctr":0.4865456821026283,"pos":2.6029411764705883},{"q":"graph creator","clicks":1535,"clicks_py":2081,"impr":22050,"ctr":0.06961451247165533,"pos":8.501587301587302},{"q":"offer letter format","clicks":1531,"clicks_py":92,"impr":57092,"ctr":0.026816366566243956,"pos":1.271789392559378},{"q":"image to image ai","clicks":1381,"clicks_py":240,"impr":5920,"ctr":0.23327702702702702,"pos":32.54797297297297},{"q":"bank id card","clicks":1360,"clicks_py":0,"impr":7543,"ctr":0.18029961553758453,"pos":4.025984356356887},{"q":"presentation maker","clicks":1322,"clicks_py":11465,"impr":67831,"ctr":0.019489613893352596,"pos":11.161976087629549},{"q":"thumbnail maker","clicks":1289,"clicks_py":10867,"impr":40591,"ctr":0.03175580793772018,"pos":9.90079081569806},{"q":"\u043f\u043e\u0432\u0435\u0440 \u043f\u043e\u0438\u043d\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":1205,"clicks_py":3381,"impr":40691,"ctr":0.029613428030768475,"pos":6.097761175689956},{"q":"map generator","clicks":1131,"clicks_py":1081,"impr":10108,"ctr":0.11189157103284528,"pos":10.213197467352591},{"q":"presentation templates","clicks":1066,"clicks_py":2373,"impr":55338,"ctr":0.019263435613863893,"pos":7.7499367523220934},{"q":"ai image generator from image","clicks":1044,"clicks_py":400,"impr":7724,"ctr":0.13516312791299845,"pos":34.04181771103055},{"q":"ppt maker online free","clicks":1034,"clicks_py":7472,"impr":20430,"ctr":0.05061184532550171,"pos":7.841409691629956},{"q":"visme gratis","clicks":998,"clicks_py":1638,"impr":1916,"ctr":0.5208768267223383,"pos":1.9733820459290188},{"q":"presentation","clicks":986,"clicks_py":1292,"impr":287563,"ctr":0.0034288138599193915,"pos":8.000758094747933},{"q":"document maker","clicks":971,"clicks_py":1926,"impr":12931,"ctr":0.07509086690897843,"pos":7.039285438094502},{"q":"visme ia","clicks":960,"clicks_py":1207,"impr":1747,"ctr":0.5495134516313681,"pos":1.7023468803663424},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0438\u0438","clicks":926,"clicks_py":2256,"impr":20409,"ctr":0.04537213974227057,"pos":7.5094321132833555},{"q":"visme ai presentation maker","clicks":918,"clicks_py":2871,"impr":2619,"ctr":0.35051546391752575,"pos":1.4994272623138603},{"q":"ai photo generator","clicks":909,"clicks_py":137,"impr":6248,"ctr":0.14548655569782332,"pos":41.33898847631242},{"q":"viseme","clicks":898,"clicks_py":1213,"impr":4125,"ctr":0.2176969696969697,"pos":3.002666666666667},{"q":"visme ebook","clicks":897,"clicks_py":635,"impr":1163,"ctr":0.7712811693895099,"pos":1.5021496130696474},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0438\u0438 \u0431\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e","clicks":865,"clicks_py":890,"impr":9377,"ctr":0.092246987309374,"pos":6.274074864029007},{"q":"vizme","clicks":837,"clicks_py":1512,"impr":1741,"ctr":0.4807581849511775,"pos":1.6553704767375073},{"q":"visme presentation","clicks":834,"clicks_py":1071,"impr":1772,"ctr":0.4706546275395034,"pos":1.6354401805869074},{"q":"\u0438\u043d\u0444\u043e\u0433\u0440\u0430\u0444\u0438\u043a\u0430 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":810,"clicks_py":2088,"impr":3642,"ctr":0.22240527182866557,"pos":2.959637561779242},{"q":"ppt editor online free","clicks":804,"clicks_py":866,"impr":9280,"ctr":0.08663793103448277,"pos":6.911206896551724},{"q":"\u0441\u043e\u0437\u0434\u0430\u0442\u044c \u0431\u0443\u043a\u043b\u0435\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":787,"clicks_py":1736,"impr":3248,"ctr":0.24230295566502463,"pos":3.0360221674876846},{"q":"\u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044e \u043e\u043d\u043b\u0430\u0439\u043d","clicks":785,"clicks_py":635,"impr":1655,"ctr":0.4743202416918429,"pos":2.2797583081571},{"q":"bank id card generate","clicks":776,"clicks_py":0,"impr":2148,"ctr":0.3612662942271881,"pos":2.85195530726257},{"q":"\u0432\u0438\u0441\u043c\u0435","clicks":769,"clicks_py":1424,"impr":926,"ctr":0.8304535637149028,"pos":1.0021598272138228},{"q":"infographic","clicks":759,"clicks_py":1655,"impr":624860,"ctr":0.0012146720865473866,"pos":5.188735076657172},{"q":"image to image ai free","clicks":756,"clicks_py":163,"impr":2718,"ctr":0.2781456953642384,"pos":27.9896983075791},{"q":"visme ai brochure maker","clicks":729,"clicks_py":160,"impr":1194,"ctr":0.6105527638190955,"pos":1.3450586264656617},{"q":"infographic maker","clicks":702,"clicks_py":2110,"impr":28297,"ctr":0.024808283563628655,"pos":10.913453723009507},{"q":"ebook template","clicks":696,"clicks_py":1224,"impr":11193,"ctr":0.062181720718306084,"pos":10.360850531582239},{"q":"calendar maker","clicks":681,"clicks_py":575,"impr":12795,"ctr":0.05322391559202814,"pos":15.32356389214537},{"q":"\u0438\u0438 \u0434\u043b\u044f \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u0439","clicks":681,"clicks_py":2069,"impr":8258,"ctr":0.0824654880116251,"pos":6.105836764349721},{"q":"image generator","clicks":680,"clicks_py":152,"impr":5422,"ctr":0.12541497602360752,"pos":46.94909627443748},{"q":"ai brochure maker","clicks":677,"clicks_py":2846,"impr":10362,"ctr":0.06533487743678826,"pos":13.78884385253812},{"q":"visme triptico","clicks":675,"clicks_py":1973,"impr":870,"ctr":0.7758620689655172,"pos":1.513793103448276},{"q":"image generator ai","clicks":666,"clicks_py":177,"impr":4469,"ctr":0.14902662788095772,"pos":41.74916088610427},{"q":"portfolio maker ai","clicks":651,"clicks_py":675,"impr":3976,"ctr":0.1637323943661972,"pos":2.8782696177062377},{"q":"ai image","clicks":649,"clicks_py":96,"impr":4946,"ctr":0.13121714516781238,"pos":46.23433077234129},{"q":"visme.com","clicks":642,"clicks_py":990,"impr":1434,"ctr":0.4476987447698745,"pos":1.9511854951185494},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u043e\u043d\u043b\u0430\u0439\u043d","clicks":624,"clicks_py":6392,"impr":21964,"ctr":0.02841012566017119,"pos":8.697914769623019},{"q":"ai portfolio generator","clicks":610,"clicks_py":842,"impr":5219,"ctr":0.11688062847288752,"pos":9.452960337229355},{"q":"ebook maker","clicks":605,"clicks_py":412,"impr":10597,"ctr":0.057091629706520715,"pos":10.853260356704729},{"q":"ai generator","clicks":602,"clicks_py":0,"impr":6038,"ctr":0.09970188804239814,"pos":49.51987413050679},{"q":"one pager template","clicks":599,"clicks_py":1406,"impr":27647,"ctr":0.02166600354468839,"pos":6.095706586609759},{"q":"wallpaper maker","clicks":599,"clicks_py":4928,"impr":26255,"ctr":0.022814701961531136,"pos":11.225595124738145},{"q":"visme free","clicks":595,"clicks_py":1081,"impr":964,"ctr":0.6172199170124482,"pos":1.9024896265560165},{"q":"vism","clicks":582,"clicks_py":908,"impr":7311,"ctr":0.07960607304062371,"pos":4.260839830392559},{"q":"image to image ai generator","clicks":574,"clicks_py":99,"impr":2883,"ctr":0.1990981616371835,"pos":41.98924731182796},{"q":"report maker","clicks":568,"clicks_py":1016,"impr":5054,"ctr":0.11238622872971904,"pos":16.75603482390186},{"q":"banner maker","clicks":566,"clicks_py":1240,"impr":41923,"ctr":0.013500942203563676,"pos":14.414951220093982},{"q":"\u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0431\u0443\u043a\u043b\u0435\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":547,"clicks_py":1487,"impr":2439,"ctr":0.2242722427224272,"pos":3.6203362033620334},{"q":"ai image to image generator","clicks":541,"clicks_py":62,"impr":2217,"ctr":0.24402345511953089,"pos":33.674334686513305},{"q":"offer letter","clicks":541,"clicks_py":0,"impr":112628,"ctr":0.004803423660191071,"pos":1.3526920481585396},{"q":"lesson plan maker","clicks":534,"clicks_py":170,"impr":19988,"ctr":0.026716029617770663,"pos":6.669101460876526},{"q":"visme ai ebook generator","clicks":532,"clicks_py":0,"impr":1036,"ctr":0.5135135135135135,"pos":1.4015444015444016},{"q":"free graph maker","clicks":521,"clicks_py":513,"impr":6772,"ctr":0.07693443591258121,"pos":13.310838747784997},{"q":"timeline creator","clicks":514,"clicks_py":395,"impr":14214,"ctr":0.03616153088504292,"pos":15.151892500351765},{"q":"make a graph","clicks":511,"clicks_py":290,"impr":10305,"ctr":0.04958757884522077,"pos":5.897428432799612},{"q":"graphique en ligne","clicks":498,"clicks_py":809,"impr":4912,"ctr":0.10138436482084691,"pos":10.25793973941368},{"q":"vismi","clicks":493,"clicks_py":579,"impr":1340,"ctr":0.367910447761194,"pos":1.2708955223880598},{"q":"graphs","clicks":489,"clicks_py":181,"impr":83046,"ctr":0.005888302868289863,"pos":7.363124051730367},{"q":"document creator","clicks":478,"clicks_py":903,"impr":9052,"ctr":0.05280600972160848,"pos":7.936920017675652},{"q":"online powerpoint","clicks":470,"clicks_py":824,"impr":37826,"ctr":0.012425315920266484,"pos":8.22151430233173},{"q":"ai picture generator","clicks":468,"clicks_py":110,"impr":4235,"ctr":0.11050767414403778,"pos":50.98677685950413},{"q":"\u0438\u0438 \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f","clicks":467,"clicks_py":1321,"impr":7162,"ctr":0.0652052499301871,"pos":6.802987992180955},{"q":"ppt editor","clicks":465,"clicks_py":1293,"impr":7651,"ctr":0.06077636910207816,"pos":8.285060776369102},{"q":"ai portfolio maker","clicks":455,"clicks_py":670,"impr":4192,"ctr":0.10854007633587787,"pos":13.129293893129772},{"q":"graphmaker","clicks":453,"clicks_py":504,"impr":2778,"ctr":0.1630669546436285,"pos":2.8948884089272857},{"q":"portfolio ai","clicks":448,"clicks_py":683,"impr":3179,"ctr":0.14092481912551116,"pos":3.471217363950928},{"q":"\u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u0439 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":447,"clicks_py":414,"impr":1091,"ctr":0.40971585701191565,"pos":3.1255728689275895},{"q":"brochure maker ai","clicks":446,"clicks_py":1891,"impr":4959,"ctr":0.08993748739665255,"pos":6.104053236539625},{"q":"powerpoint editor","clicks":446,"clicks_py":576,"impr":4122,"ctr":0.10819990295972828,"pos":5.132459970887918},{"q":"infographics","clicks":445,"clicks_py":683,"impr":136698,"ctr":0.0032553512121611143,"pos":5.275717274576073},{"q":"graph maker free","clicks":444,"clicks_py":341,"impr":5289,"ctr":0.08394781622234827,"pos":8.347324636037058},{"q":"edit powerpoint online","clicks":433,"clicks_py":480,"impr":3137,"ctr":0.13802996493465094,"pos":3.6748485814472427},{"q":"online ppt maker","clicks":432,"clicks_py":3726,"impr":18658,"ctr":0.02315360703183621,"pos":8.87002894200879},{"q":"\u0432\u0438\u0437\u043c\u0438","clicks":429,"clicks_py":526,"impr":512,"ctr":0.837890625,"pos":1.125},{"q":"ai photo generator free","clicks":410,"clicks_py":64,"impr":2237,"ctr":0.18328118015198927,"pos":42.19579794367456}],"prior":[]},"26":{"cur":[{"q":"visme","clicks":486443,"clicks_py":451959,"impr":3007398,"ctr":0.16174879414031665,"pos":1.0385040490151287},{"q":"graph maker","clicks":101898,"clicks_py":54728,"impr":492512,"ctr":0.20689445130270936,"pos":3.199609349619908},{"q":"visme ai","clicks":40418,"clicks_py":30673,"impr":71194,"ctr":0.5677163805938703,"pos":1.5994746748321487},{"q":"graph generator","clicks":12115,"clicks_py":6179,"impr":100967,"ctr":0.11998969960482138,"pos":5.156932463081997},{"q":"visme tripticos","clicks":10659,"clicks_py":10491,"impr":12361,"ctr":0.8623088746865141,"pos":1.0721624464040127},{"q":"chart maker","clicks":9997,"clicks_py":8992,"impr":93997,"ctr":0.10635445812100386,"pos":6.185516559039118},{"q":"ai image generator","clicks":8185,"clicks_py":2109,"impr":62140,"ctr":0.1317186997103315,"pos":40.278307048599935},{"q":"powerpoint online","clicks":7215,"clicks_py":9265,"impr":668269,"ctr":0.010796550490895134,"pos":8.177715859930657},{"q":"presentation maker","clicks":5017,"clicks_py":17720,"impr":175243,"ctr":0.028628818269488654,"pos":8.585039060048047},{"q":"graph","clicks":4884,"clicks_py":617,"impr":919763,"ctr":0.005310063570724197,"pos":8.464057588748407},{"q":"visme login","clicks":4529,"clicks_py":1514,"impr":10765,"ctr":0.4207152810032513,"pos":2.303855085926614},{"q":"graph maker online","clicks":4523,"clicks_py":2762,"impr":24548,"ctr":0.1842512628320026,"pos":5.667875183314323},{"q":"visme.co","clicks":4094,"clicks_py":3925,"impr":6634,"ctr":0.6171239071450105,"pos":3.4083509195055774},{"q":"fake report maker","clicks":3877,"clicks_py":1920,"impr":7674,"ctr":0.5052124055251499,"pos":1.611024237685692},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0438\u0438","clicks":3770,"clicks_py":3561,"impr":77169,"ctr":0.04885381435550545,"pos":6.6120722051601035},{"q":"presentation templates","clicks":3745,"clicks_py":3850,"impr":160130,"ctr":0.023387247861112844,"pos":7.2993255479922565},{"q":"visme timeline","clicks":3745,"clicks_py":5377,"impr":7976,"ctr":0.46953360080240725,"pos":2.3253510531594785},{"q":"\u043f\u043e\u0432\u0435\u0440 \u043f\u043e\u0438\u043d\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":3644,"clicks_py":5999,"impr":113845,"ctr":0.03200843251789714,"pos":5.452668101365893},{"q":"online graph maker","clicks":3221,"clicks_py":2433,"impr":24712,"ctr":0.13034153447717708,"pos":7.178860472644869},{"q":"ppt maker online free","clicks":3215,"clicks_py":10427,"impr":52739,"ctr":0.06096057945732759,"pos":7.1650391550844725},{"q":"visme triptico","clicks":3191,"clicks_py":3648,"impr":3833,"ctr":0.8325071745369163,"pos":1.241847117140621},{"q":"graph creator","clicks":3152,"clicks_py":2885,"impr":48790,"ctr":0.06460340233654438,"pos":7.945952039352326},{"q":"timeline maker","clicks":3150,"clicks_py":2534,"impr":63591,"ctr":0.04953531160069821,"pos":10.911701341384788},{"q":"visme ai presentation maker","clicks":3119,"clicks_py":4332,"impr":8128,"ctr":0.38373523622047245,"pos":1.2941683070866141},{"q":"ai image generator free","clicks":2993,"clicks_py":444,"impr":15141,"ctr":0.19767518657948616,"pos":32.32950267485635},{"q":"thumbnail maker","clicks":2587,"clicks_py":16412,"impr":101592,"ctr":0.025464603512087566,"pos":9.260650444916923},{"q":"visme gratis","clicks":2561,"clicks_py":2596,"impr":4550,"ctr":0.5628571428571428,"pos":1.4868131868131869},{"q":"free ai image generator","clicks":2413,"clicks_py":241,"impr":12433,"ctr":0.19408027024853214,"pos":34.98801576449771},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0438\u0438 \u0431\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e","clicks":2409,"clicks_py":1485,"impr":21022,"ctr":0.11459423461135952,"pos":5.569403482066407},{"q":"map generator","clicks":2371,"clicks_py":1808,"impr":20689,"ctr":0.11460196239547586,"pos":8.968582338440719},{"q":"presentation","clicks":2331,"clicks_py":2367,"impr":717407,"ctr":0.0032492016386792993,"pos":9.069291211265014},{"q":"document maker","clicks":2164,"clicks_py":2812,"impr":26079,"ctr":0.08297864181908815,"pos":6.132558763756279},{"q":"viseme","clicks":2128,"clicks_py":1825,"impr":8630,"ctr":0.24658169177288528,"pos":2.855619930475087},{"q":"\u0438\u0438 \u0434\u043b\u044f \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u0439","clicks":2092,"clicks_py":4044,"impr":29137,"ctr":0.07179874386518859,"pos":6.03298211895528},{"q":"image to image ai","clicks":2078,"clicks_py":321,"impr":8909,"ctr":0.23324727803344933,"pos":33.54562801661241},{"q":"visme ia","clicks":2073,"clicks_py":1790,"impr":3743,"ctr":0.5538338231365215,"pos":1.3529254608602725},{"q":"vizme","clicks":2058,"clicks_py":2223,"impr":3886,"ctr":0.5295934122490993,"pos":1.3327328872876993},{"q":"\u0438\u043d\u0444\u043e\u0433\u0440\u0430\u0444\u0438\u043a\u0430 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":2046,"clicks_py":3391,"impr":8450,"ctr":0.2421301775147929,"pos":2.626627218934911},{"q":"\u0432\u0438\u0441\u043c\u0435","clicks":2038,"clicks_py":2312,"impr":2467,"ctr":0.8261045804620997,"pos":1.0162140251317389},{"q":"offer letter format","clicks":1810,"clicks_py":193,"impr":111722,"ctr":0.01620092730169528,"pos":1.4881939098834607},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u043e\u043d\u043b\u0430\u0439\u043d","clicks":1809,"clicks_py":12149,"impr":61857,"ctr":0.029244871235268442,"pos":8.379391176423042},{"q":"infographic","clicks":1765,"clicks_py":2484,"impr":1436600,"ctr":0.0012285952944452179,"pos":7.113279966587776},{"q":"report maker","clicks":1715,"clicks_py":1603,"impr":10945,"ctr":0.1566925536774783,"pos":10.053083599817269},{"q":"portfolio maker ai","clicks":1648,"clicks_py":680,"impr":8400,"ctr":0.1961904761904762,"pos":2.276190476190476},{"q":"\u0441\u043e\u0437\u0434\u0430\u0442\u044c \u0431\u0443\u043a\u043b\u0435\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":1646,"clicks_py":2625,"impr":6397,"ctr":0.2573081131780522,"pos":2.837111145849617},{"q":"\u0438\u0438 \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f","clicks":1630,"clicks_py":2236,"impr":25469,"ctr":0.06399937178530762,"pos":6.308257096862853},{"q":"visme ebook","clicks":1610,"clicks_py":856,"impr":2173,"ctr":0.7409111826967326,"pos":1.2747353888633226},{"q":"\u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044e \u043e\u043d\u043b\u0430\u0439\u043d","clicks":1604,"clicks_py":1086,"impr":3994,"ctr":0.4016024036054081,"pos":2.608913370055083},{"q":"visme presentation","clicks":1583,"clicks_py":1851,"impr":3331,"ctr":0.4752326628640048,"pos":1.4109876913839687},{"q":"bank id card","clicks":1568,"clicks_py":0,"impr":8909,"ctr":0.17600179593669324,"pos":4.275788528454372},{"q":"vism","clicks":1541,"clicks_py":1487,"impr":16923,"ctr":0.09105950481593098,"pos":4.084441292914968},{"q":"ppt editor online free","clicks":1517,"clicks_py":1251,"impr":19855,"ctr":0.0764039284814908,"pos":7.0988667841853434},{"q":"infographic maker","clicks":1467,"clicks_py":3041,"impr":67132,"ctr":0.021852469761067746,"pos":9.709467913960555},{"q":"easy webcontent, llc","clicks":1463,"clicks_py":0,"impr":5239,"ctr":0.2792517656041229,"pos":1.2048100782592097},{"q":"online ppt maker","clicks":1457,"clicks_py":6155,"impr":55943,"ctr":0.026044366587419338,"pos":8.063242943710563},{"q":"ebook template","clicks":1448,"clicks_py":1749,"impr":22625,"ctr":0.064,"pos":7.336883977900553},{"q":"one pager template","clicks":1448,"clicks_py":1966,"impr":61955,"ctr":0.023371802114437897,"pos":4.736841255750141},{"q":"visme free","clicks":1420,"clicks_py":1700,"impr":2399,"ctr":0.5919132972071697,"pos":1.5197999166319298},{"q":"visme.com","clicks":1410,"clicks_py":1900,"impr":3636,"ctr":0.38778877887788776,"pos":2.1540154015401543},{"q":"ai image generator from image","clicks":1407,"clicks_py":698,"impr":10412,"ctr":0.1351325393776412,"pos":35.227525931617365},{"q":"wallpaper maker","clicks":1377,"clicks_py":7417,"impr":49686,"ctr":0.02771404419756068,"pos":10.199432435696172},{"q":"visme ai brochure maker","clicks":1359,"clicks_py":217,"impr":2424,"ctr":0.5606435643564357,"pos":1.3428217821782178},{"q":"\u043f\u043e\u0432\u0435\u0440\u043f\u043e\u0438\u043d\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":1330,"clicks_py":1279,"impr":38339,"ctr":0.034690524009494246,"pos":5.1250945512402515},{"q":"ai portfolio generator","clicks":1319,"clicks_py":849,"impr":9999,"ctr":0.1319131913191319,"pos":7.580758075807581},{"q":"portfolio ai","clicks":1272,"clicks_py":686,"impr":6804,"ctr":0.18694885361552027,"pos":2.423133450911229},{"q":"ai brochure maker","clicks":1258,"clicks_py":4005,"impr":20837,"ctr":0.060373374286125644,"pos":11.280558621682584},{"q":"ai photo generator","clicks":1242,"clicks_py":163,"impr":9714,"ctr":0.1278567016676961,"pos":46.1266213712168},{"q":"image to image ai free","clicks":1242,"clicks_py":260,"impr":4303,"ctr":0.28863583546363003,"pos":27.330699511968394},{"q":"ebook maker","clicks":1240,"clicks_py":623,"impr":22853,"ctr":0.054259834595020345,"pos":8.414343849822782},{"q":"calendar maker","clicks":1236,"clicks_py":935,"impr":22324,"ctr":0.055366421788209996,"pos":12.85352087439527},{"q":"vismi","clicks":1152,"clicks_py":891,"impr":3043,"ctr":0.3785737758790667,"pos":1.4291817285573447},{"q":"\u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0431\u0443\u043a\u043b\u0435\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":1149,"clicks_py":2173,"impr":4797,"ctr":0.2395247029393371,"pos":3.421096518657494},{"q":"make a graph","clicks":1132,"clicks_py":378,"impr":21661,"ctr":0.05225982179954757,"pos":6.096255943862241},{"q":"\u0441\u0434\u0435\u043b\u0430\u0442\u044c \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044e \u043e\u043d\u043b\u0430\u0439\u043d","clicks":1127,"clicks_py":9525,"impr":25695,"ctr":0.043860673282739834,"pos":8.141039112667833},{"q":"my visme","clicks":1109,"clicks_py":1496,"impr":1730,"ctr":0.6410404624277457,"pos":1.1826589595375723},{"q":"document creator","clicks":1105,"clicks_py":1292,"impr":17910,"ctr":0.061697375767727526,"pos":6.706700167504188},{"q":"ai portfolio maker","clicks":1075,"clicks_py":680,"impr":8509,"ctr":0.12633681983781878,"pos":10.861440827359267},{"q":"\u0438\u0438 \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0431\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e","clicks":1074,"clicks_py":1447,"impr":11473,"ctr":0.09361108689967751,"pos":5.9894534995206135},{"q":"visme.co ai presentation","clicks":1053,"clicks_py":0,"impr":3170,"ctr":0.33217665615141956,"pos":1.001577287066246},{"q":"online powerpoint","clicks":1052,"clicks_py":1418,"impr":89763,"ctr":0.011719750899591146,"pos":7.958758062898967},{"q":"\u0438\u0438 \u0434\u043b\u044f \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u0439 \u0431\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e","clicks":1046,"clicks_py":2369,"impr":11298,"ctr":0.0925827580102673,"pos":5.764029031687024},{"q":"free presentation maker","clicks":1044,"clicks_py":3102,"impr":28095,"ctr":0.03715963694607581,"pos":10.324150204662752},{"q":"infographics","clicks":1031,"clicks_py":975,"impr":306012,"ctr":0.0033691489222644863,"pos":5.777832241872868},{"q":"free graph maker","clicks":1019,"clicks_py":790,"impr":13607,"ctr":0.07488792533254943,"pos":10.550304990078637},{"q":"image generator ai","clicks":1014,"clicks_py":208,"impr":7192,"ctr":0.14098998887652947,"pos":41.72107897664071},{"q":"\u0441\u043e\u0437\u0434\u0430\u0442\u044c \u043a\u0430\u043b\u0435\u043d\u0434\u0430\u0440\u044c \u043e\u043d\u043b\u0430\u0439\u043d \u0431\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e","clicks":1013,"clicks_py":1637,"impr":3122,"ctr":0.3244714926329276,"pos":2.3241511851377323},{"q":"image generator","clicks":1012,"clicks_py":201,"impr":8290,"ctr":0.12207478890229191,"pos":48.24800965018094},{"q":"\u0432\u0438\u0441\u043c\u0438","clicks":982,"clicks_py":1381,"impr":1206,"ctr":0.814262023217247,"pos":1.0016583747927033},{"q":"powerpoint editor","clicks":978,"clicks_py":848,"impr":9019,"ctr":0.10843774254351923,"pos":4.888125069298148},{"q":"online chart maker","clicks":977,"clicks_py":1243,"impr":13255,"ctr":0.07370803470388533,"pos":8.541606940777065},{"q":"ai image","clicks":972,"clicks_py":137,"impr":7793,"ctr":0.12472731938919543,"pos":47.18542281534711},{"q":"\u0440\u0435\u0434\u0430\u043a\u0442\u043e\u0440 \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u0439 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":962,"clicks_py":728,"impr":2418,"ctr":0.3978494623655914,"pos":2.6360628618693136},{"q":"visme forms","clicks":953,"clicks_py":1331,"impr":1427,"ctr":0.6678346180798879,"pos":2.3728100911002104},{"q":"chart maker online","clicks":950,"clicks_py":1161,"impr":12661,"ctr":0.07503356764868493,"pos":10.947397519943133},{"q":"banner maker","clicks":949,"clicks_py":2068,"impr":69807,"ctr":0.013594625180855788,"pos":12.97516008423224},{"q":"graphmaker","clicks":949,"clicks_py":733,"impr":7328,"ctr":0.1295032751091703,"pos":3.0578602620087336},{"q":"ppt editor","clicks":947,"clicks_py":1830,"impr":15515,"ctr":0.06103770544634225,"pos":8.118852723171123},{"q":"wisme","clicks":947,"clicks_py":1063,"impr":6542,"ctr":0.1447569550596148,"pos":2.0502904310608376},{"q":"visme app","clicks":940,"clicks_py":1475,"impr":2656,"ctr":0.3539156626506024,"pos":3.9954819277108435},{"q":"edit powerpoint online","clicks":934,"clicks_py":697,"impr":6931,"ctr":0.1347568893377579,"pos":3.6745058433126534}],"prior":[]},"52":{"cur":[{"q":"visme","clicks":1033863,"clicks_py":451959,"impr":3812469,"ctr":0.271179385327461,"pos":1.0321537040694626},{"q":"graph maker","clicks":191428,"clicks_py":54728,"impr":926652,"ctr":0.20658024803270267,"pos":2.9897275352559536},{"q":"visme ai","clicks":83979,"clicks_py":30673,"impr":141865,"ctr":0.5919641913086385,"pos":1.30443731716773},{"q":"visme tripticos","clicks":27418,"clicks_py":10491,"impr":31527,"ctr":0.8696672693247058,"pos":1.0282932089954642},{"q":"graph generator","clicks":23110,"clicks_py":6179,"impr":192538,"ctr":0.12002825416281461,"pos":4.433540392026509},{"q":"presentation maker","clicks":20821,"clicks_py":17720,"impr":367005,"ctr":0.05673219710903121,"pos":6.028253021076007},{"q":"chart maker","clicks":19594,"clicks_py":8992,"impr":202000,"ctr":0.097,"pos":5.663955445544555},{"q":"powerpoint online","clicks":12634,"clicks_py":9265,"impr":1064072,"ctr":0.011873256696915246,"pos":8.526272658241172},{"q":"ppt maker online free","clicks":11171,"clicks_py":10427,"impr":118763,"ctr":0.09406128171231781,"pos":5.589038673660989},{"q":"ai image generator","clicks":10963,"clicks_py":2109,"impr":129693,"ctr":0.0845303910002853,"pos":48.9806080513212},{"q":"\u0441\u0434\u0435\u043b\u0430\u0442\u044c \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044e \u043e\u043d\u043b\u0430\u0439\u043d","clicks":10523,"clicks_py":9525,"impr":64750,"ctr":0.16251737451737452,"pos":5.174023166023166},{"q":"visme timeline","clicks":10318,"clicks_py":5377,"impr":19609,"ctr":0.5261869549696568,"pos":1.5619868427762762},{"q":"thumbnail maker","clicks":9435,"clicks_py":16412,"impr":339882,"ctr":0.02775963422599608,"pos":8.228396914223172},{"q":"ai presentation maker","clicks":8753,"clicks_py":16800,"impr":419832,"ctr":0.020848815716762895,"pos":8.378365631967073},{"q":"visme triptico","clicks":8625,"clicks_py":3648,"impr":10196,"ctr":0.8459199686151432,"pos":1.0909180070615927},{"q":"visme.co","clicks":8600,"clicks_py":3925,"impr":13779,"ctr":0.6241381812903694,"pos":2.1596632556789315},{"q":"graph maker online","clicks":8248,"clicks_py":2762,"impr":47686,"ctr":0.17296481147506607,"pos":4.639265193138447},{"q":"visme - graphic design maker","clicks":8059,"clicks_py":5561,"impr":15331,"ctr":0.5256669493183745,"pos":1.025308199073772},{"q":"presentation templates","clicks":7838,"clicks_py":3850,"impr":352632,"ctr":0.02222713763923864,"pos":7.614229565099027},{"q":"visme ai presentation maker","clicks":7790,"clicks_py":4332,"impr":18194,"ctr":0.4281631307024294,"pos":1.1319665823897989},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0438\u0438","clicks":7386,"clicks_py":3561,"impr":130797,"ctr":0.05646918507305213,"pos":6.045299204110186},{"q":"fake report maker","clicks":7311,"clicks_py":1920,"impr":14241,"ctr":0.5133768696018538,"pos":1.3374763008215715},{"q":"\u0441\u043e\u0437\u0434\u0430\u0442\u044c \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044e \u043e\u043d\u043b\u0430\u0439\u043d","clicks":6585,"clicks_py":7998,"impr":43373,"ctr":0.1518225624236276,"pos":5.171166393839485},{"q":"graph creator","clicks":6525,"clicks_py":2885,"impr":91712,"ctr":0.07114663293789253,"pos":6.524347958827635},{"q":"online graph maker","clicks":6438,"clicks_py":2433,"impr":50573,"ctr":0.1273011290609614,"pos":5.659264825104304},{"q":"\u043f\u043e\u0432\u0435\u0440 \u043f\u043e\u0438\u043d\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":6401,"clicks_py":5999,"impr":202519,"ctr":0.031606910956502844,"pos":5.461240673714565},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u043e\u043d\u043b\u0430\u0439\u043d","clicks":6370,"clicks_py":12149,"impr":141616,"ctr":0.04498079313071969,"pos":7.353025081911649},{"q":"graph","clicks":6359,"clicks_py":617,"impr":1239310,"ctr":0.0051310810047526445,"pos":8.839368680959566},{"q":"visme gratis","clicks":6330,"clicks_py":2596,"impr":10667,"ctr":0.5934189556576357,"pos":1.2080247492265868},{"q":"visme login","clicks":6191,"clicks_py":1514,"impr":26872,"ctr":0.23038850848466805,"pos":1.6033417683834474},{"q":"timeline maker","clicks":6020,"clicks_py":2534,"impr":145552,"ctr":0.04135978894140926,"pos":9.850548257667363},{"q":"online ppt maker","clicks":5496,"clicks_py":6155,"impr":146414,"ctr":0.03753739396505799,"pos":6.655811602715588},{"q":"document maker","clicks":5355,"clicks_py":2812,"impr":50833,"ctr":0.10534495308165955,"pos":4.988452383294317},{"q":"ai brochure maker","clicks":5261,"clicks_py":4005,"impr":41335,"ctr":0.12727712592234183,"pos":6.871876134026854},{"q":"vizme","clicks":4854,"clicks_py":2223,"impr":8343,"ctr":0.5818051060769507,"pos":1.1648088217667505},{"q":"wallpaper maker","clicks":4694,"clicks_py":7417,"impr":118966,"ctr":0.039456651480254866,"pos":8.607963619857774},{"q":"\u0438\u043d\u0444\u043e\u0433\u0440\u0430\u0444\u0438\u043a\u0430 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":4529,"clicks_py":3391,"impr":16646,"ctr":0.27207737594617326,"pos":2.2658296287396373},{"q":"\u0438\u0438 \u0434\u043b\u044f \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u0439","clicks":4462,"clicks_py":4044,"impr":73105,"ctr":0.061035496888037756,"pos":6.273278161548458},{"q":"visme ia","clicks":4273,"clicks_py":1790,"impr":7340,"ctr":0.5821525885558583,"pos":1.1813351498637603},{"q":"viseme","clicks":4139,"clicks_py":1825,"impr":19025,"ctr":0.2175558475689882,"pos":3.099921156373193},{"q":"\u0432\u0438\u0441\u043c\u0435","clicks":4071,"clicks_py":2312,"impr":4896,"ctr":0.8314950980392157,"pos":1.0081699346405228},{"q":"free presentation maker","clicks":3978,"clicks_py":3102,"impr":63325,"ctr":0.06281879194630872,"pos":6.946703513620213},{"q":"presentation","clicks":3977,"clicks_py":2367,"impr":1069142,"ctr":0.0037198052269951046,"pos":9.706290651756268},{"q":"portfolio maker ai","clicks":3774,"clicks_py":680,"impr":17516,"ctr":0.21546015071934232,"pos":1.8270153002968714},{"q":"\u0441\u043e\u0437\u0434\u0430\u0442\u044c \u0431\u0443\u043a\u043b\u0435\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":3696,"clicks_py":2625,"impr":12393,"ctr":0.2982328733962721,"pos":2.391753409182603},{"q":"map generator","clicks":3692,"clicks_py":1808,"impr":37182,"ctr":0.09929535796890969,"pos":10.90143079984939},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0438\u0438 \u0431\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e","clicks":3634,"clicks_py":1485,"impr":26361,"ctr":0.1378551648268275,"pos":5.12981298129813},{"q":"ebook template","clicks":3611,"clicks_py":1749,"impr":46354,"ctr":0.07790050481080381,"pos":4.94280968201234},{"q":"ai image generator free","clicks":3548,"clicks_py":444,"impr":22815,"ctr":0.15551172474249397,"pos":40.12921323690554},{"q":"visme presentation","clicks":3413,"clicks_py":1851,"impr":6948,"ctr":0.49122049510650545,"pos":1.19804260218768},{"q":"free ppt maker","clicks":3409,"clicks_py":2694,"impr":62117,"ctr":0.05488030651834441,"pos":6.7155046122639535},{"q":"\u0438\u0438 \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f","clicks":3370,"clicks_py":2236,"impr":52917,"ctr":0.06368463820700342,"pos":5.9939716915169035},{"q":"\u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0431\u0443\u043a\u043b\u0435\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":3341,"clicks_py":2173,"impr":9627,"ctr":0.34704476991793914,"pos":2.495273709359094},{"q":"report maker","clicks":3311,"clicks_py":1603,"impr":20359,"ctr":0.16263077754310132,"pos":6.264109239157129},{"q":"one pager template","clicks":3308,"clicks_py":1966,"impr":117991,"ctr":0.028036036646862897,"pos":4.237492690120433},{"q":"visme free","clicks":3269,"clicks_py":1700,"impr":5661,"ctr":0.5774598127539304,"pos":1.2294647588765235},{"q":"vism","clicks":3241,"clicks_py":1487,"impr":33955,"ctr":0.09544986010896775,"pos":4.850449123840377},{"q":"portfolio ai","clicks":3240,"clicks_py":686,"impr":14707,"ctr":0.2203032569524716,"pos":1.8542190793499693},{"q":"visme.com","clicks":3168,"clicks_py":1900,"impr":7215,"ctr":0.4390852390852391,"pos":1.8956340956340956},{"q":"infographic maker","clicks":3123,"clicks_py":3041,"impr":126662,"ctr":0.024656171543162117,"pos":8.61444632170659},{"q":"wallpaper generator","clicks":3074,"clicks_py":3934,"impr":33542,"ctr":0.09164629419831853,"pos":6.1057182040426925},{"q":"ai portfolio generator","clicks":3031,"clicks_py":849,"impr":18151,"ctr":0.16698804473582723,"pos":4.6414522615833835},{"q":"online presentation maker","clicks":2949,"clicks_py":2462,"impr":49767,"ctr":0.05925613358249442,"pos":8.210139248899873},{"q":"ppt editor","clicks":2931,"clicks_py":1830,"impr":54059,"ctr":0.05421853900368116,"pos":6.895762037773544},{"q":"\u0438\u0438 \u0434\u043b\u044f \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u0439 \u0431\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e","clicks":2908,"clicks_py":2369,"impr":20078,"ctr":0.14483514294252414,"pos":4.6538001793007275},{"q":"ppt editor online free","clicks":2902,"clicks_py":1251,"impr":38614,"ctr":0.07515408919044907,"pos":6.653415859532812},{"q":"banner maker","clicks":2841,"clicks_py":2068,"impr":182604,"ctr":0.015558257212328317,"pos":9.941206107204662},{"q":"free ai image generator","clicks":2832,"clicks_py":241,"impr":20198,"ctr":0.14021190216853155,"pos":46.00712941875433},{"q":"ai document generator","clicks":2823,"clicks_py":3033,"impr":65492,"ctr":0.043104501313137485,"pos":6.408034569107677},{"q":"ai portfolio maker","clicks":2796,"clicks_py":680,"impr":15786,"ctr":0.17711896617255796,"pos":6.392563030533384},{"q":"visme ebook","clicks":2774,"clicks_py":856,"impr":4037,"ctr":0.6871439187515482,"pos":1.1478820906613822},{"q":"image to image ai","clicks":2771,"clicks_py":321,"impr":22313,"ctr":0.12418769327297988,"pos":46.06722538430511},{"q":"free ai presentation maker","clicks":2692,"clicks_py":5889,"impr":122150,"ctr":0.022038477282030292,"pos":7.892738436348751},{"q":"brochure maker ai","clicks":2655,"clicks_py":2631,"impr":22046,"ctr":0.12043000997913454,"pos":4.3447790982491155},{"q":"document creator","clicks":2627,"clicks_py":1292,"impr":35337,"ctr":0.07434134193621417,"pos":5.445255681014235},{"q":"\u0438\u0438 \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f \u0431\u0435\u0441\u043f\u043b\u0430\u0442\u043d\u043e","clicks":2613,"clicks_py":1447,"impr":16609,"ctr":0.15732434222409536,"pos":4.9639352158468295},{"q":"infographic","clicks":2584,"clicks_py":2484,"impr":2056569,"ctr":0.001256461611548166,"pos":7.798315057749096},{"q":"\u0440\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c \u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044e \u043e\u043d\u043b\u0430\u0439\u043d","clicks":2552,"clicks_py":1086,"impr":6679,"ctr":0.3820931277137296,"pos":2.5030693217547535},{"q":"automatic thumbnail maker","clicks":2538,"clicks_py":2118,"impr":9956,"ctr":0.2549216552832463,"pos":2.6125954198473282},{"q":"ai poster generator","clicks":2532,"clicks_py":7858,"impr":98720,"ctr":0.025648298217179902,"pos":8.5822528363047},{"q":"my visme","clicks":2529,"clicks_py":1496,"impr":3958,"ctr":0.6389590702374937,"pos":1.0811015664477008},{"q":"ai design generator","clicks":2526,"clicks_py":5017,"impr":141574,"ctr":0.01784225917188184,"pos":8.003298628279204},{"q":"ai flyer generator","clicks":2430,"clicks_py":2776,"impr":66213,"ctr":0.036699741742558106,"pos":8.969764245691934},{"q":"online powerpoint","clicks":2367,"clicks_py":1418,"impr":164238,"ctr":0.014412011836481204,"pos":7.831598046737052},{"q":"visme app","clicks":2349,"clicks_py":1475,"impr":6308,"ctr":0.37238427393785667,"pos":3.4849397590361444},{"q":"ai presentation maker free","clicks":2342,"clicks_py":6058,"impr":101327,"ctr":0.023113286685681012,"pos":9.2998509775282},{"q":"visme ai brochure maker","clicks":2333,"clicks_py":217,"impr":4286,"ctr":0.5443303779748017,"pos":1.1938870741950536},{"q":"visme ai ppt","clicks":2329,"clicks_py":154,"impr":4542,"ctr":0.5127697049757816,"pos":1.0416116248348746},{"q":"ebook maker","clicks":2328,"clicks_py":623,"impr":50170,"ctr":0.046402232409806655,"pos":6.986326489934224},{"q":"ai image generator from image","clicks":2323,"clicks_py":698,"impr":32363,"ctr":0.07177950128232859,"pos":41.78147884930322},{"q":"\u043f\u0440\u0435\u0437\u0435\u043d\u0442\u0430\u0446\u0438\u044f","clicks":2296,"clicks_py":4494,"impr":144903,"ctr":0.015845082572479522,"pos":8.51843647129459},{"q":"visme forms","clicks":2270,"clicks_py":1331,"impr":3214,"ctr":0.7062850031113876,"pos":1.6110765401369012},{"q":"offer letter format","clicks":2250,"clicks_py":193,"impr":221691,"ctr":0.01014926181035766,"pos":2.00434839483786},{"q":"ia para hacer tripticos","clicks":2174,"clicks_py":1452,"impr":11038,"ctr":0.19695597028447182,"pos":3.2076463127378148},{"q":"vismi","clicks":2142,"clicks_py":891,"impr":6132,"ctr":0.3493150684931507,"pos":1.499347684279191},{"q":"\u0432\u0438\u0441\u043c\u0438","clicks":2101,"clicks_py":1381,"impr":2516,"ctr":0.8350556438791733,"pos":1.0015898251192368},{"q":"\u043f\u043e\u0432\u0435\u0440\u043f\u043e\u0438\u043d\u0442 \u043e\u043d\u043b\u0430\u0439\u043d","clicks":2080,"clicks_py":1279,"impr":59788,"ctr":0.03478958988425771,"pos":5.207299123569947},{"q":"ppt maker free","clicks":2069,"clicks_py":1488,"impr":36526,"ctr":0.05664458194163062,"pos":6.861797076055413},{"q":"powerpoint online free","clicks":2067,"clicks_py":1535,"impr":83296,"ctr":0.024815117172493278,"pos":9.001116500192087},{"q":"poster","clicks":2063,"clicks_py":0,"impr":2385027,"ctr":0.0008649797255963978,"pos":1.7564601994023548}],"prior":[]}},"pageWindows":{"8":{"cur":[{"url":"/","clicks":77984,"clicks_py":155666,"impr":3047443,"ctr":0.025589978221085677,"pos":13.103595046732622},{"url":"/graph-maker/","clicks":73304,"clicks_py":65839,"impr":1732808,"ctr":0.04230359047280483,"pos":13.481753893102987},{"url":"/es/","clicks":31524,"clicks_py":58225,"impr":253892,"ctr":0.1241630299497424,"pos":14.341720101460464},{"url":"/ai-image-generator/","clicks":27605,"clicks_py":15828,"impr":335738,"ctr":0.08222185156282577,"pos":52.59453502433445},{"url":"/ru/ii-konstruktor-prezentacij/","clicks":12085,"clicks_py":40043,"impr":205296,"ctr":0.05886622243005222,"pos":7.686077663471281},{"url":"/ru/","clicks":10685,"clicks_py":15391,"impr":44748,"ctr":0.23878162152498436,"pos":5.397358541163851},{"url":"/presentation-maker/","clicks":9324,"clicks_py":53347,"impr":644027,"ctr":0.014477653887181748,"pos":15.215472332681705},{"url":"/timeline-maker/","clicks":8900,"clicks_py":12743,"impr":1617939,"ctr":0.005500825432850064,"pos":10.167932783621632},{"url":"/ru/sozdat-buklet/","clicks":8746,"clicks_py":14727,"impr":119507,"ctr":0.07318399759009933,"pos":6.900951408704093},{"url":"/ppt-editor/","clicks":8403,"clicks_py":0,"impr":372937,"ctr":0.02253195579950501,"pos":9.594934265036722},{"url":"/ru/powerpoint-online/","clicks":8074,"clicks_py":12393,"impr":150309,"ctr":0.05371601168260051,"pos":6.760673013592},{"url":"/certificate-maker/","clicks":7498,"clicks_py":11875,"impr":206459,"ctr":0.03631713802740496,"pos":10.38402297792782},{"url":"/fr/","clicks":7395,"clicks_py":11640,"impr":90299,"ctr":0.08189459462452518,"pos":1.1741215295850451},{"url":"/es/triptico/","clicks":6996,"clicks_py":18127,"impr":127917,"ctr":0.05469171415839959,"pos":7.067965946668543},{"url":"/ai-portfolio-generator/","clicks":6866,"clicks_py":11969,"impr":159853,"ctr":0.04295196211519334,"pos":11.138126904093136},{"url":"/ru/ii-konstruktora-bukletov/","clicks":6823,"clicks_py":6346,"impr":36314,"ctr":0.18788896844192324,"pos":6.689789062069726},{"url":"/chart-maker/","clicks":6735,"clicks_py":14198,"impr":182382,"ctr":0.03692798631443892,"pos":12.631109429658629},{"url":"/ebook-creator/","clicks":6712,"clicks_py":7189,"impr":605321,"ctr":0.011088331645523615,"pos":5.175797634643438},{"url":"/make-infographics/","clicks":6709,"clicks_py":10947,"impr":2146515,"ctr":0.0031255313845931663,"pos":3.361009357027554},{"url":"/map-generator/","clicks":6679,"clicks_py":14699,"impr":146981,"ctr":0.04544124750818133,"pos":20.807342445622222},{"url":"/ai-brochure-maker/","clicks":6221,"clicks_py":19402,"impr":154033,"ctr":0.0403874494426519,"pos":9.711815000681671},{"url":"/ru/sozdat-kartu/","clicks":6181,"clicks_py":8654,"impr":63264,"ctr":0.09770169448659585,"pos":8.963565376833586},{"url":"/ru/sozdat-infografika/","clicks":6090,"clicks_py":10352,"impr":100018,"ctr":0.0608890399728049,"pos":8.311743886100501},{"url":"/ru/sozdat-prezentatsiya/","clicks":6053,"clicks_py":35488,"impr":171332,"ctr":0.035329068708705905,"pos":9.037097564961595},{"url":"/ru/ii-generator-dokumentov/","clicks":5710,"clicks_py":3781,"impr":42086,"ctr":0.1356745711162857,"pos":6.753718576248634},{"url":"/ru/ii-generator-posterov/","clicks":5044,"clicks_py":8725,"impr":38170,"ctr":0.13214566413413675,"pos":6.504794341105581},{"url":"/report-maker/","clicks":5029,"clicks_py":10354,"impr":104738,"ctr":0.04801504706983139,"pos":10.932087685462774},{"url":"/banner-maker/","clicks":4974,"clicks_py":9374,"impr":343400,"ctr":0.01448456610366919,"pos":12.742716948165405},{"url":"/professional-document-creator/","clicks":4960,"clicks_py":9934,"impr":138236,"ctr":0.035880667843398245,"pos":10.835368500245956},{"url":"/pt-br/","clicks":4931,"clicks_py":10076,"impr":170415,"ctr":0.028935246310477364,"pos":1.0941055658246046},{"url":"/ru/ii-generator-bannerov/","clicks":4872,"clicks_py":7005,"impr":65978,"ctr":0.073842796083543,"pos":6.238518900239474},{"url":"/thumbnail-maker/","clicks":4400,"clicks_py":31753,"impr":220830,"ctr":0.019924829054023457,"pos":12.988620205588008},{"url":"/pt-br/criar-ebook/","clicks":3641,"clicks_py":9905,"impr":171301,"ctr":0.02125498391719838,"pos":6.153314925190163},{"url":"/es/infografias-creativas/","clicks":3569,"clicks_py":4492,"impr":699550,"ctr":0.005101851190050747,"pos":7.444211278679151},{"url":"/templates/presentations/","clicks":3399,"clicks_py":11289,"impr":329144,"ctr":0.010326787059767153,"pos":15.440068784483387},{"url":"/es/linea-del-tiempo/","clicks":3395,"clicks_py":0,"impr":437036,"ctr":0.007768238772092002,"pos":6.736330645530345},{"url":"/ai-presentation-maker/","clicks":3190,"clicks_py":57102,"impr":685540,"ctr":0.00465326603845144,"pos":9.727178574554365},{"url":"/templates/","clicks":3111,"clicks_py":4591,"impr":4364029,"ctr":0.0007128733562494658,"pos":3.5999648489961915},{"url":"/fr/createur-affiche-ia/","clicks":3101,"clicks_py":9417,"impr":84209,"ctr":0.03682504245389448,"pos":11.96797254450237},{"url":"/fr/graphiques/","clicks":3002,"clicks_py":4501,"impr":65223,"ctr":0.04602670836974687,"pos":11.062125323888813},{"url":"/ru/sozdat-etiketki-online/","clicks":2997,"clicks_py":6053,"impr":22880,"ctr":0.13098776223776223,"pos":8.243837412587412},{"url":"/ai-ebook-generator/","clicks":2949,"clicks_py":1891,"impr":71869,"ctr":0.04103299058008321,"pos":12.777623175499867},{"url":"/ru/ii-generatora-dizajn-proektov/","clicks":2945,"clicks_py":3012,"impr":32714,"ctr":0.09002262028489331,"pos":11.778749159381304},{"url":"/it/","clicks":2914,"clicks_py":5971,"impr":13013,"ctr":0.22392991623760855,"pos":1.7365711211865058},{"url":"/templates/one-pagers/","clicks":2911,"clicks_py":1878,"impr":166960,"ctr":0.017435313847628173,"pos":7.7495927168184},{"url":"/gift-card-maker/","clicks":2898,"clicks_py":5162,"impr":65855,"ctr":0.04400577025282818,"pos":18.194670108571863},{"url":"/ru/sozdat-raspisanie-online/","clicks":2859,"clicks_py":4229,"impr":26682,"ctr":0.10715088823926243,"pos":6.617007720560678},{"url":"/tr/","clicks":2814,"clicks_py":1990,"impr":16188,"ctr":0.1738324684951816,"pos":2.0089572522856436},{"url":"/templates/ebooks/","clicks":2807,"clicks_py":4885,"impr":67057,"ctr":0.04185991022562894,"pos":10.896356830755924},{"url":"/ru/sozdat-elektronnaya-kniga/","clicks":2720,"clicks_py":3686,"impr":30716,"ctr":0.0885531970308634,"pos":7.256674046099753},{"url":"/ru/shablon-bileta/","clicks":2574,"clicks_py":4242,"impr":19407,"ctr":0.13263255526356468,"pos":5.492348121811718},{"url":"/ar/ebook-creator/","clicks":2545,"clicks_py":2619,"impr":44917,"ctr":0.05666006189193401,"pos":8.72522652893114},{"url":"/ar/schedule-maker/","clicks":2545,"clicks_py":4188,"impr":53865,"ctr":0.047247749002134964,"pos":7.43243293418732},{"url":"/visme-ai/","clicks":2461,"clicks_py":15951,"impr":1817796,"ctr":0.0013538372842717224,"pos":1.085999749146769},{"url":"/proposal-maker/","clicks":2428,"clicks_py":1843,"impr":60374,"ctr":0.04021598701427767,"pos":21.81901149501441},{"url":"/ru/ii-konstruktor-rezjume/","clicks":2399,"clicks_py":1301,"impr":23804,"ctr":0.10078138128045706,"pos":7.5816249369853805},{"url":"/ru/sozdat-grafiki/","clicks":2397,"clicks_py":5145,"impr":43016,"ctr":0.055723451738887854,"pos":8.042379579691278},{"url":"/ar/report-maker/","clicks":2295,"clicks_py":3033,"impr":28512,"ctr":0.08049242424242424,"pos":6.837577160493828},{"url":"/ru/sozdat-sertifikat-online/","clicks":2295,"clicks_py":7270,"impr":30908,"ctr":0.07425262068072991,"pos":7.244790992623269},{"url":"/wallpaper-maker/","clicks":2208,"clicks_py":17886,"impr":134741,"ctr":0.01638699430759754,"pos":16.037041435049467},{"url":"/ad-maker/","clicks":2196,"clicks_py":4132,"impr":222632,"ctr":0.009863811132272091,"pos":19.10706008121025},{"url":"/es/ebook/","clicks":2142,"clicks_py":3282,"impr":89336,"ctr":0.023976896212053372,"pos":6.285875794752395},{"url":"/es/generador-ia-documentos/","clicks":2130,"clicks_py":8319,"impr":87389,"ctr":0.024373777019991074,"pos":7.1663939397407},{"url":"/ru/sozdat-plakat-online/","clicks":2106,"clicks_py":7316,"impr":39833,"ctr":0.05287073531996084,"pos":7.9682173072578015},{"url":"/online-label-maker/","clicks":2080,"clicks_py":4843,"impr":82363,"ctr":0.025254058254313223,"pos":22.693211757706738},{"url":"/es/generador-ia-flyers/","clicks":2054,"clicks_py":5906,"impr":79372,"ctr":0.02587814342589326,"pos":7.652925464899461},{"url":"/ru/sozdat-otkrytku-online/","clicks":2030,"clicks_py":5229,"impr":24281,"ctr":0.08360446439602982,"pos":7.894279477780981},{"url":"/ru/sozdat-intellekt-karty/","clicks":2026,"clicks_py":2714,"impr":25243,"ctr":0.08025987402448204,"pos":8.419443013904845},{"url":"/ar/ad-maker/","clicks":2017,"clicks_py":2412,"impr":63246,"ctr":0.031891344907187806,"pos":7.880703918034342},{"url":"/es/generador-ia-folletos/","clicks":1956,"clicks_py":6829,"impr":45085,"ctr":0.043384717755351,"pos":7.081712321171121},{"url":"/ru/podarochnyj-sertifikat/","clicks":1932,"clicks_py":4994,"impr":30054,"ctr":0.06428428828109403,"pos":10.038730285486125},{"url":"/de/","clicks":1920,"clicks_py":1732,"impr":18919,"ctr":0.10148527934880279,"pos":1.6026217030498442},{"url":"/es/grafica-de-pastel/","clicks":1918,"clicks_py":7564,"impr":55383,"ctr":0.03463156564288681,"pos":7.237690265966091},{"url":"/ru/ii-generator-listovok/","clicks":1890,"clicks_py":1665,"impr":18832,"ctr":0.10036108751062021,"pos":7.1789507221750215},{"url":"/ai-document-generator/","clicks":1870,"clicks_py":17264,"impr":115303,"ctr":0.016218138296488382,"pos":16.861408636375465},{"url":"/ai-poster-generator/","clicks":1849,"clicks_py":38291,"impr":124325,"ctr":0.014872310476573497,"pos":20.18211140156847},{"url":"/ru/sozdat-oblozhku-dlya-knigi/","clicks":1812,"clicks_py":3698,"impr":24916,"ctr":0.07272435382886498,"pos":7.636297961149462},{"url":"/ru/sozdat-objavleniye-online/","clicks":1778,"clicks_py":2177,"impr":25511,"ctr":0.06969542550272431,"pos":22.06471718082396},{"url":"/ar/certificate-maker/","clicks":1736,"clicks_py":2809,"impr":33585,"ctr":0.0516897424445437,"pos":7.256602649992556},{"url":"/fr/generateur-de-documents-ia/","clicks":1710,"clicks_py":3485,"impr":48174,"ctr":0.035496325818906466,"pos":8.608647818325238},{"url":"/es/generador-ia-informes/","clicks":1686,"clicks_py":5070,"impr":42441,"ctr":0.03972573690535096,"pos":6.709290544520629},{"url":"/organizational-chart-maker/","clicks":1682,"clicks_py":7710,"impr":221112,"ctr":0.007607004594956402,"pos":19.682301277180795},{"url":"/ru/sozdat-kalendar-online/","clicks":1682,"clicks_py":3398,"impr":24308,"ctr":0.06919532664143492,"pos":11.258844824749055},{"url":"/table-of-contents-generator/","clicks":1562,"clicks_py":631,"impr":14619,"ctr":0.10684725357411588,"pos":9.499418564881319},{"url":"/es/presentaciones-creativas/","clicks":1542,"clicks_py":3489,"impr":204366,"ctr":0.00754528639793312,"pos":5.97689928853136},{"url":"/ru/sozdat-preview-dlya-youtube/","clicks":1532,"clicks_py":2179,"impr":33550,"ctr":0.04566318926974665,"pos":6.1314456035767515},{"url":"/ru/sozdat-oboi/","clicks":1527,"clicks_py":5364,"impr":23115,"ctr":0.06606099935107074,"pos":11.464027687648713},{"url":"/hi/banner-banaye/","clicks":1523,"clicks_py":4541,"impr":98486,"ctr":0.015464126880978007,"pos":6.508072213309506},{"url":"/templates/proposals/","clicks":1506,"clicks_py":1781,"impr":259671,"ctr":0.005799646475732754,"pos":18.208656338212585},{"url":"/templates/id-cards/bank-id-card-1425283717/","clicks":1455,"clicks_py":227,"impr":9930,"ctr":0.14652567975830816,"pos":5.704229607250755},{"url":"/ai-banner-generator/","clicks":1431,"clicks_py":9381,"impr":76821,"ctr":0.018627718983090562,"pos":23.272737923224117},{"url":"/templates/infographics/","clicks":1414,"clicks_py":4999,"impr":172270,"ctr":0.008208045509955303,"pos":11.38259128112846},{"url":"/it/creare-mappa-concettuale/","clicks":1407,"clicks_py":12768,"impr":43690,"ctr":0.032204165712977795,"pos":10.308468757152667},{"url":"/es/mapas/","clicks":1390,"clicks_py":8499,"impr":45469,"ctr":0.03057027865138886,"pos":10.08570674525501},{"url":"/templates/job-offer-letters/accountant-job-offer-letter-templates-1425289235/","clicks":1375,"clicks_py":689,"impr":142449,"ctr":0.009652577413670857,"pos":1.516332160983931},{"url":"/tr/ekitap/","clicks":1371,"clicks_py":2134,"impr":19868,"ctr":0.06900543587678679,"pos":7.079675860680491},{"url":"/es/cuadro-comparativo/","clicks":1370,"clicks_py":10670,"impr":318135,"ctr":0.004306347934053154,"pos":8.514772030741666},{"url":"/ru/flesh-kartochki/","clicks":1364,"clicks_py":2456,"impr":20005,"ctr":0.06818295426143464,"pos":6.785853536615846},{"url":"/fr/createur-de-presentations-ia/","clicks":1356,"clicks_py":1485,"impr":43816,"ctr":0.030947599050575134,"pos":12.363953806828556},{"url":"/presentation-software/","clicks":1354,"clicks_py":3491,"impr":1015406,"ctr":0.0013334567650772203,"pos":4.59458876547903}],"prior":[]},"13":{"cur":[{"url":"/","clicks":124172,"clicks_py":196217,"impr":3856353,"ctr":0.03219933444889511,"pos":18.59907975229446},{"url":"/graph-maker/","clicks":100138,"clicks_py":86274,"impr":2652880,"ctr":0.03774690148065499,"pos":15.418493109375472},{"url":"/es/","clicks":40550,"clicks_py":67792,"impr":322289,"ctr":0.12581875273434712,"pos":18.93940531634651},{"url":"/ai-image-generator/","clicks":39857,"clicks_py":26919,"impr":508167,"ctr":0.07843287738086102,"pos":54.783978495258445},{"url":"/ru/ii-konstruktor-prezentacij/","clicks":15762,"clicks_py":51994,"impr":269361,"ctr":0.05851626627462773,"pos":7.982480760020938},{"url":"/ru/","clicks":15394,"clicks_py":20847,"impr":59742,"ctr":0.2576746677379398,"pos":6.23852566033946},{"url":"/presentation-maker/","clicks":13992,"clicks_py":83009,"impr":991998,"ctr":0.01410486714690957,"pos":16.734584142306737},{"url":"/ppt-editor/","clicks":12608,"clicks_py":0,"impr":552981,"ctr":0.02280006003822916,"pos":9.93324363766567},{"url":"/ru/powerpoint-online/","clicks":12167,"clicks_py":17868,"impr":222538,"ctr":0.054673808518095786,"pos":6.76998535081649},{"url":"/fr/","clicks":12148,"clicks_py":16074,"impr":111543,"ctr":0.10890867199196723,"pos":1.2415749979828408},{"url":"/ai-portfolio-generator/","clicks":12004,"clicks_py":14194,"impr":264015,"ctr":0.04546711361096907,"pos":12.758089502490389},{"url":"/timeline-maker/","clicks":11913,"clicks_py":17082,"impr":2008677,"ctr":0.00593076935714403,"pos":10.582671081512856},{"url":"/ebook-creator/","clicks":11398,"clicks_py":11536,"impr":803420,"ctr":0.014186851211072665,"pos":6.404656344128849},{"url":"/chart-maker/","clicks":11262,"clicks_py":21764,"impr":339270,"ctr":0.03319480060129101,"pos":11.742679871488784},{"url":"/certificate-maker/","clicks":11209,"clicks_py":18758,"impr":308642,"ctr":0.036317157094627434,"pos":10.97890112168791},{"url":"/ru/sozdat-buklet/","clicks":10895,"clicks_py":19483,"impr":155016,"ctr":0.07028306755431697,"pos":7.352428136450431},{"url":"/map-generator/","clicks":9765,"clicks_py":23423,"impr":214860,"ctr":0.04544819882714326,"pos":23.085897793912316},{"url":"/ru/sozdat-infografika/","clicks":9541,"clicks_py":15102,"impr":158857,"ctr":0.060060305809627526,"pos":8.119258200771764},{"url":"/ru/ii-generator-dokumentov/","clicks":9426,"clicks_py":5118,"impr":65528,"ctr":0.14384690513978757,"pos":6.671590770357709},{"url":"/ru/sozdat-kartu/","clicks":9333,"clicks_py":13240,"impr":98737,"ctr":0.09452383604930269,"pos":9.177876581220819},{"url":"/make-infographics/","clicks":9167,"clicks_py":15694,"impr":2543160,"ctr":0.0036045706915805533,"pos":4.391746095408862},{"url":"/ru/ii-konstruktora-bukletov/","clicks":8947,"clicks_py":7949,"impr":48413,"ctr":0.1848057339970669,"pos":7.646004172433024},{"url":"/thumbnail-maker/","clicks":8879,"clicks_py":57038,"impr":442679,"ctr":0.020057423098904625,"pos":12.975058676829034},{"url":"/ai-brochure-maker/","clicks":8865,"clicks_py":27880,"impr":223264,"ctr":0.03970635660025799,"pos":11.65207556972911},{"url":"/es/triptico/","clicks":8613,"clicks_py":22615,"impr":162054,"ctr":0.05314895034988337,"pos":7.450312858676737},{"url":"/banner-maker/","clicks":8357,"clicks_py":15436,"impr":541171,"ctr":0.015442438711608716,"pos":13.129690984919739},{"url":"/report-maker/","clicks":8321,"clicks_py":16291,"impr":165025,"ctr":0.05042266323284351,"pos":11.513637327677625},{"url":"/ru/sozdat-prezentatsiya/","clicks":8258,"clicks_py":50480,"impr":238908,"ctr":0.034565606844475696,"pos":9.373059922648048},{"url":"/professional-document-creator/","clicks":7995,"clicks_py":15245,"impr":224596,"ctr":0.03559725017364512,"pos":11.150247555610964},{"url":"/pt-br/","clicks":7727,"clicks_py":12210,"impr":178216,"ctr":0.043357498765542936,"pos":1.1416876150289537},{"url":"/ru/ii-generator-bannerov/","clicks":7580,"clicks_py":9879,"impr":102281,"ctr":0.07410956091551706,"pos":6.487871647715607},{"url":"/ru/ii-generator-posterov/","clicks":7446,"clicks_py":11941,"impr":55466,"ctr":0.13424440197598528,"pos":6.363808459236289},{"url":"/templates/presentations/","clicks":6669,"clicks_py":16843,"impr":623244,"ctr":0.010700464023721048,"pos":16.250330528653304},{"url":"/pt-br/criar-ebook/","clicks":6057,"clicks_py":16105,"impr":256408,"ctr":0.023622507878069327,"pos":6.890163333437334},{"url":"/visme-ai/","clicks":5364,"clicks_py":19027,"impr":1914410,"ctr":0.0028019076373399635,"pos":1.1449840943162646},{"url":"/templates/","clicks":5266,"clicks_py":6142,"impr":4598879,"ctr":0.0011450616552425058,"pos":3.8001852190501206},{"url":"/gift-card-maker/","clicks":5254,"clicks_py":9462,"impr":120971,"ctr":0.043431896900910136,"pos":16.880938406725576},{"url":"/ru/sozdat-kalendar-online/","clicks":5095,"clicks_py":8245,"impr":51885,"ctr":0.09819793774694034,"pos":10.008210465452443},{"url":"/ai-presentation-maker/","clicks":4967,"clicks_py":107956,"impr":876431,"ctr":0.005667302959388703,"pos":13.471030805619609},{"url":"/templates/ebooks/","clicks":4950,"clicks_py":7359,"impr":121983,"ctr":0.04057942500184452,"pos":11.165900166416632},{"url":"/ru/sozdat-etiketki-online/","clicks":4820,"clicks_py":9306,"impr":36137,"ctr":0.13338129894567893,"pos":8.259623100976839},{"url":"/ru/ii-generatora-dizajn-proektov/","clicks":4754,"clicks_py":4518,"impr":53567,"ctr":0.08874866989004425,"pos":11.743106763492449},{"url":"/it/","clicks":4738,"clicks_py":8043,"impr":16440,"ctr":0.2881995133819951,"pos":2.083698296836983},{"url":"/ru/sozdat-raspisanie-online/","clicks":4701,"clicks_py":6758,"impr":44117,"ctr":0.10655756284425505,"pos":6.829974839630982},{"url":"/templates/id-cards/bank-id-card-1425283717/","clicks":4692,"clicks_py":338,"impr":24944,"ctr":0.1881013470173188,"pos":6.067952212957024},{"url":"/ru/shablon-bileta/","clicks":4652,"clicks_py":7444,"impr":33448,"ctr":0.13908155943554174,"pos":5.4823307821095435},{"url":"/ar/schedule-maker/","clicks":4629,"clicks_py":7026,"impr":94384,"ctr":0.04904432954738091,"pos":7.303589591456179},{"url":"/fr/graphiques/","clicks":4575,"clicks_py":6371,"impr":99427,"ctr":0.04601365826184035,"pos":10.963601436229595},{"url":"/tr/","clicks":4473,"clicks_py":3187,"impr":20187,"ctr":0.22157824342398574,"pos":2.3483925298459405},{"url":"/es/infografias-creativas/","clicks":4402,"clicks_py":5544,"impr":835117,"ctr":0.005271117699675614,"pos":7.637995634144676},{"url":"/fr/createur-affiche-ia/","clicks":4317,"clicks_py":13436,"impr":115413,"ctr":0.03740479841958878,"pos":12.064663426130505},{"url":"/templates/one-pagers/","clicks":4307,"clicks_py":2663,"impr":241072,"ctr":0.017866031724961838,"pos":8.232980188491405},{"url":"/ar/ebook-creator/","clicks":4284,"clicks_py":4165,"impr":75407,"ctr":0.056811701831394966,"pos":8.91943718752901},{"url":"/ru/sozdat-elektronnaya-kniga/","clicks":4284,"clicks_py":5707,"impr":48869,"ctr":0.08766293560334773,"pos":7.4975546870204015},{"url":"/ar/report-maker/","clicks":4211,"clicks_py":5206,"impr":50079,"ctr":0.08408714231514207,"pos":6.80444897062641},{"url":"/ai-ebook-generator/","clicks":4000,"clicks_py":3067,"impr":102114,"ctr":0.039171905909082004,"pos":14.85505415515992},{"url":"/es/linea-del-tiempo/","clicks":3959,"clicks_py":0,"impr":497471,"ctr":0.007958252842879283,"pos":7.0760084507438625},{"url":"/ru/sozdat-sertifikat-online/","clicks":3913,"clicks_py":11619,"impr":50168,"ctr":0.07799792696539627,"pos":7.201522883112741},{"url":"/ru/sozdat-otkrytku-online/","clicks":3759,"clicks_py":10234,"impr":48632,"ctr":0.07729478532653397,"pos":7.9585046882710975},{"url":"/wallpaper-maker/","clicks":3759,"clicks_py":31003,"impr":227562,"ctr":0.016518575157539482,"pos":16.71188071822185},{"url":"/ru/ii-konstruktor-rezjume/","clicks":3732,"clicks_py":1685,"impr":35614,"ctr":0.10479025102487785,"pos":7.920059527152244},{"url":"/ad-maker/","clicks":3512,"clicks_py":6440,"impr":357093,"ctr":0.009834972962225528,"pos":20.764699952113315},{"url":"/online-label-maker/","clicks":3482,"clicks_py":7626,"impr":134191,"ctr":0.025948088918034743,"pos":23.362520586328444},{"url":"/ru/sozdat-grafiki/","clicks":3417,"clicks_py":7426,"impr":61123,"ctr":0.05590366964972269,"pos":8.278144070153624},{"url":"/ar/ad-maker/","clicks":3316,"clicks_py":3926,"impr":99098,"ctr":0.03346182566752104,"pos":8.071182062201053},{"url":"/de/","clicks":3255,"clicks_py":3059,"impr":22461,"ctr":0.14491785761987444,"pos":1.8793019010729708},{"url":"/es/ebook/","clicks":3234,"clicks_py":4504,"impr":133773,"ctr":0.024175282007580005,"pos":6.963894059339329},{"url":"/es/generador-ia-flyers/","clicks":3093,"clicks_py":8250,"impr":111947,"ctr":0.027629145935130016,"pos":7.999151384137137},{"url":"/hi/banner-banaye/","clicks":3069,"clicks_py":8806,"impr":192826,"ctr":0.015915903457002688,"pos":6.646245838216838},{"url":"/ru/sozdat-plakat-online/","clicks":3040,"clicks_py":10739,"impr":56878,"ctr":0.053447730229614264,"pos":8.192763458630754},{"url":"/es/generador-ia-documentos/","clicks":3029,"clicks_py":11031,"impr":119318,"ctr":0.025385943445247156,"pos":7.365275985182453},{"url":"/ru/podarochnyj-sertifikat/","clicks":3026,"clicks_py":8318,"impr":46790,"ctr":0.06467193844838641,"pos":10.986279119469971},{"url":"/ai-poster-generator/","clicks":2976,"clicks_py":59007,"impr":204914,"ctr":0.014523165815903257,"pos":21.148833169036767},{"url":"/ar/certificate-maker/","clicks":2949,"clicks_py":4259,"impr":57378,"ctr":0.051396005437624175,"pos":7.203144062184112},{"url":"/proposal-maker/","clicks":2875,"clicks_py":3009,"impr":88791,"ctr":0.03237940782286493,"pos":23.17122230856731},{"url":"/ru/sozdat-oblozhku-dlya-knigi/","clicks":2811,"clicks_py":5821,"impr":36622,"ctr":0.07675714051662935,"pos":8.113456392332477},{"url":"/ru/ii-generator-listovok/","clicks":2804,"clicks_py":2274,"impr":29570,"ctr":0.09482583699695638,"pos":7.441224213730132},{"url":"/ru/sozdat-intellekt-karty/","clicks":2724,"clicks_py":3718,"impr":36273,"ctr":0.07509717972045322,"pos":8.867394480743252},{"url":"/ai-document-generator/","clicks":2680,"clicks_py":25550,"impr":170463,"ctr":0.01572188686107836,"pos":18.19083320133988},{"url":"/calendar-maker/","clicks":2670,"clicks_py":5024,"impr":168006,"ctr":0.015892289561087104,"pos":31.56118829089437},{"url":"/ru/sozdat-objavleniye-online/","clicks":2652,"clicks_py":3347,"impr":39036,"ctr":0.06793728865662466,"pos":22.16387437237422},{"url":"/ru/sozdat-oboi/","clicks":2569,"clicks_py":8682,"impr":41429,"ctr":0.0620097033478964,"pos":12.508508532670351},{"url":"/ru/sozdat-preview-dlya-youtube/","clicks":2483,"clicks_py":3382,"impr":55024,"ctr":0.04512576330328584,"pos":6.238695841814481},{"url":"/fr/generateur-de-documents-ia/","clicks":2478,"clicks_py":5190,"impr":71097,"ctr":0.034853791299210936,"pos":8.879657369509262},{"url":"/es/generador-ia-folletos/","clicks":2408,"clicks_py":8359,"impr":57901,"ctr":0.04158822818258752,"pos":7.465311479939897},{"url":"/es/grafica-de-pastel/","clicks":2362,"clicks_py":9802,"impr":73688,"ctr":0.032054065790902184,"pos":7.522934534795353},{"url":"/organizational-chart-maker/","clicks":2278,"clicks_py":11707,"impr":318366,"ctr":0.007155286682623144,"pos":22.27030838720215},{"url":"/tr/ekitap/","clicks":2266,"clicks_py":3406,"impr":34764,"ctr":0.06518237256932459,"pos":6.828241859394776},{"url":"/es/generador-ia-informes/","clicks":2252,"clicks_py":6849,"impr":55384,"ctr":0.040661562906254514,"pos":7.117561028455872},{"url":"/ar/","clicks":2246,"clicks_py":2253,"impr":22990,"ctr":0.0976946498477599,"pos":1.9260983036102655},{"url":"/price-list-maker/","clicks":2188,"clicks_py":464,"impr":68731,"ctr":0.03183425237520188,"pos":12.624885422880505},{"url":"/presentation-software/","clicks":2148,"clicks_py":5968,"impr":1297790,"ctr":0.0016551213986854575,"pos":5.784742523828971},{"url":"/table-of-contents-generator/","clicks":2141,"clicks_py":738,"impr":20514,"ctr":0.10436774885444088,"pos":10.283806181144584},{"url":"/templates/proposals/","clicks":2104,"clicks_py":3027,"impr":392103,"ctr":0.005365937011448522,"pos":19.41094559337725},{"url":"/it/creare-mappa-concettuale/","clicks":2067,"clicks_py":20543,"impr":66876,"ctr":0.030907949040014353,"pos":10.84716490220707},{"url":"/fr/createur-de-presentations-ia/","clicks":2056,"clicks_py":2583,"impr":65563,"ctr":0.03135915074050913,"pos":12.364092552201699},{"url":"/hi/youtube-thumbnail-banaye/","clicks":2055,"clicks_py":3169,"impr":188984,"ctr":0.01087393641789781,"pos":7.010043178258477},{"url":"/ru/flesh-kartochki/","clicks":2047,"clicks_py":3779,"impr":31106,"ctr":0.06580723976081784,"pos":6.863820484793931},{"url":"/templates/infographics/","clicks":2044,"clicks_py":7953,"impr":248181,"ctr":0.008235924587297175,"pos":13.115967781578767},{"url":"/es/presentaciones-creativas/","clicks":2027,"clicks_py":4513,"impr":255322,"ctr":0.00793899468122606,"pos":6.747969231010254}],"prior":[]},"26":{"cur":[{"url":"/","clicks":344674,"clicks_py":297420,"impr":5183161,"ctr":0.06649880256468978,"pos":21.557935784746025},{"url":"/graph-maker/","clicks":198750,"clicks_py":120205,"impr":4804914,"ctr":0.041363903703583456,"pos":14.222169012806473},{"url":"/es/","clicks":111720,"clicks_py":104995,"impr":602579,"ctr":0.18540307577927542,"pos":21.042334698022998},{"url":"/ai-image-generator/","clicks":59840,"clicks_py":40213,"impr":823637,"ctr":0.07265336549960723,"pos":51.42567053204264},{"url":"/ru/ii-konstruktor-prezentacij/","clicks":49138,"clicks_py":91787,"impr":761434,"ctr":0.0645334986354694,"pos":8.581842943708844},{"url":"/presentation-maker/","clicks":42109,"clicks_py":128123,"impr":2271322,"ctr":0.018539423296212516,"pos":14.856841522250038},{"url":"/es/triptico/","clicks":32839,"clicks_py":45176,"impr":512599,"ctr":0.06406372232485823,"pos":8.583387794357773},{"url":"/ru/","clicks":31744,"clicks_py":35544,"impr":131274,"ctr":0.24181483005012416,"pos":10.399721193838841},{"url":"/ru/powerpoint-online/","clicks":29811,"clicks_py":30950,"impr":600081,"ctr":0.0496782934303869,"pos":6.554010208621836},{"url":"/fr/","clicks":29113,"clicks_py":25049,"impr":173330,"ctr":0.16796284543933537,"pos":1.752985634339122},{"url":"/ai-portfolio-generator/","clicks":28503,"clicks_py":14647,"impr":543171,"ctr":0.052475187371932595,"pos":13.011716383974845},{"url":"/chart-maker/","clicks":28423,"clicks_py":34627,"impr":714142,"ctr":0.03980020780180973,"pos":10.354251675437098},{"url":"/ru/sozdat-prezentatsiya/","clicks":25377,"clicks_py":89725,"impr":615544,"ctr":0.04122694722066984,"pos":9.066190231729982},{"url":"/certificate-maker/","clicks":24574,"clicks_py":26578,"impr":598346,"ctr":0.041069882643152957,"pos":10.717997613420998},{"url":"/timeline-maker/","clicks":24420,"clicks_py":24939,"impr":2552155,"ctr":0.009568384365369657,"pos":10.669696002006148},{"url":"/ru/ii-generator-dokumentov/","clicks":24358,"clicks_py":6999,"impr":146615,"ctr":0.16613579783787472,"pos":6.001241346383385},{"url":"/ppt-editor/","clicks":23660,"clicks_py":0,"impr":1009806,"ctr":0.02343024303678132,"pos":9.7240757135529},{"url":"/ebook-creator/","clicks":23090,"clicks_py":16600,"impr":1275079,"ctr":0.018108681893435622,"pos":6.897709867388609},{"url":"/templates/presentations/","clicks":22509,"clicks_py":25564,"impr":1915786,"ctr":0.011749224600242407,"pos":16.891991067895894},{"url":"/ru/sozdat-infografika/","clicks":21962,"clicks_py":23985,"impr":327100,"ctr":0.06714154692754509,"pos":7.406389483338429},{"url":"/ru/sozdat-buklet/","clicks":21252,"clicks_py":29917,"impr":293867,"ctr":0.07231842976584646,"pos":7.376547894115365},{"url":"/report-maker/","clicks":20640,"clicks_py":25877,"impr":369124,"ctr":0.05591616909222917,"pos":9.771504968520064},{"url":"/pt-br/","clicks":20468,"clicks_py":17973,"impr":212142,"ctr":0.09648254471061836,"pos":1.3238585475766231},{"url":"/map-generator/","clicks":19973,"clicks_py":36343,"impr":373226,"ctr":0.05351449255946799,"pos":21.817456447300028},{"url":"/ru/ii-generator-posterov/","clicks":19484,"clicks_py":17740,"impr":121887,"ctr":0.15985297857851946,"pos":5.712233462141164},{"url":"/thumbnail-maker/","clicks":19449,"clicks_py":81324,"impr":1026370,"ctr":0.01894930678020597,"pos":10.661191383224374},{"url":"/make-infographics/","clicks":19395,"clicks_py":23273,"impr":4293358,"ctr":0.004517442989846176,"pos":5.867688881290589},{"url":"/ru/sozdat-kartu/","clicks":19307,"clicks_py":20272,"impr":235132,"ctr":0.08211132470272017,"pos":8.61536923940595},{"url":"/ru/ii-konstruktora-bukletov/","clicks":18371,"clicks_py":11009,"impr":93654,"ctr":0.1961581993294467,"pos":8.056036047579388},{"url":"/ai-brochure-maker/","clicks":18265,"clicks_py":38269,"impr":428613,"ctr":0.042614199755957004,"pos":10.83686682391808},{"url":"/professional-document-creator/","clicks":17420,"clicks_py":22269,"impr":448660,"ctr":0.03882672848036375,"pos":10.08044621762582},{"url":"/ru/ii-generator-bannerov/","clicks":16381,"clicks_py":13744,"impr":211113,"ctr":0.07759351626853865,"pos":6.574242230464254},{"url":"/banner-maker/","clicks":16081,"clicks_py":24384,"impr":972870,"ctr":0.016529443810581065,"pos":12.356788676801628},{"url":"/ai-presentation-maker/","clicks":15019,"clicks_py":208145,"impr":1423940,"ctr":0.010547494978721013,"pos":12.65863870668708},{"url":"/visme-ai/","clicks":14687,"clicks_py":28559,"impr":2143289,"ctr":0.006852552315623325,"pos":1.3792708309518689},{"url":"/templates/","clicks":12825,"clicks_py":8591,"impr":5143756,"ctr":0.0024933142240806134,"pos":4.731594772380339},{"url":"/pt-br/criar-ebook/","clicks":12613,"clicks_py":21624,"impr":493755,"ctr":0.02554505777156687,"pos":6.916379580966269},{"url":"/it/","clicks":11990,"clicks_py":12100,"impr":30190,"ctr":0.39715137462736005,"pos":2.5787346803577345},{"url":"/ru/sozdat-kalendar-online/","clicks":11851,"clicks_py":15792,"impr":111590,"ctr":0.10620127251545837,"pos":9.65398333183977},{"url":"/ru/sozdat-etiketki-online/","clicks":11653,"clicks_py":14310,"impr":80564,"ctr":0.14464276848220048,"pos":7.60714463035599},{"url":"/templates/ebooks/","clicks":11153,"clicks_py":10237,"impr":289174,"ctr":0.038568474344166485,"pos":10.07577444721863},{"url":"/gift-card-maker/","clicks":10948,"clicks_py":15058,"impr":276224,"ctr":0.03963449953660797,"pos":14.484146924235404},{"url":"/ar/schedule-maker/","clicks":10663,"clicks_py":10163,"impr":220755,"ctr":0.04830241670630337,"pos":7.085492967316709},{"url":"/es/infografias-creativas/","clicks":10644,"clicks_py":8128,"impr":1843919,"ctr":0.005772487837047072,"pos":8.1168435272916},{"url":"/ru/sozdat-raspisanie-online/","clicks":10475,"clicks_py":9480,"impr":95884,"ctr":0.10924658962913521,"pos":6.8603520921113015},{"url":"/ru/shablon-bileta/","clicks":10272,"clicks_py":11823,"impr":71239,"ctr":0.14419068207021435,"pos":5.609806426255282},{"url":"/ru/ii-generatora-dizajn-proektov/","clicks":10058,"clicks_py":6516,"impr":112021,"ctr":0.08978673641549352,"pos":10.846707313807233},{"url":"/es/generador-ia-documentos/","clicks":9983,"clicks_py":17811,"impr":284045,"ctr":0.035145839567674135,"pos":6.686292664894647},{"url":"/ar/ebook-creator/","clicks":9673,"clicks_py":6237,"impr":159430,"ctr":0.06067239540864329,"pos":8.582330803487423},{"url":"/fr/graphiques/","clicks":9547,"clicks_py":9216,"impr":197657,"ctr":0.0483008443920529,"pos":9.346539712734687},{"url":"/templates/one-pagers/","clicks":9347,"clicks_py":3680,"impr":503809,"ctr":0.01855266579199657,"pos":7.523863210065719},{"url":"/ar/report-maker/","clicks":9327,"clicks_py":9508,"impr":118638,"ctr":0.07861730642795732,"pos":6.361772787808291},{"url":"/ai-poster-generator/","clicks":9212,"clicks_py":93170,"impr":477473,"ctr":0.019293237523378286,"pos":18.2485857839082},{"url":"/ru/sozdat-elektronnaya-kniga/","clicks":9115,"clicks_py":8480,"impr":101583,"ctr":0.08972958073693434,"pos":7.467804652353248},{"url":"/ru/sozdat-sertifikat-online/","clicks":8850,"clicks_py":18125,"impr":97992,"ctr":0.09031349497918198,"pos":7.097773287615316},{"url":"/fr/createur-affiche-ia/","clicks":8834,"clicks_py":18850,"impr":208761,"ctr":0.04231633303155283,"pos":11.427915175727268},{"url":"/wallpaper-maker/","clicks":8600,"clicks_py":47775,"impr":450236,"ctr":0.019101093648664257,"pos":15.401200703630984},{"url":"/es/linea-del-tiempo/","clicks":8597,"clicks_py":0,"impr":902525,"ctr":0.00952549790864519,"pos":7.058779535192931},{"url":"/ru/sozdat-plakat-online/","clicks":8427,"clicks_py":17414,"impr":131765,"ctr":0.06395476795810724,"pos":7.733070238682503},{"url":"/ru/sozdat-grafiki/","clicks":8189,"clicks_py":11065,"impr":137198,"ctr":0.059687459000860074,"pos":7.795711307745011},{"url":"/ai-ebook-generator/","clicks":7572,"clicks_py":3817,"impr":187555,"ctr":0.04037215750046653,"pos":13.216080616352537},{"url":"/tr/","clicks":7568,"clicks_py":7322,"impr":35184,"ctr":0.21509777171441563,"pos":2.2727660300136425},{"url":"/ru/ii-konstruktor-rezjume/","clicks":7402,"clicks_py":1915,"impr":65560,"ctr":0.11290420988407565,"pos":8.058785845027455},{"url":"/online-label-maker/","clicks":7389,"clicks_py":11959,"impr":261281,"ctr":0.028279897887714758,"pos":21.606595963732534},{"url":"/ru/sozdat-intellekt-karty/","clicks":7365,"clicks_py":6402,"impr":91223,"ctr":0.08073621783979917,"pos":8.201308880435855},{"url":"/ar/ad-maker/","clicks":7361,"clicks_py":5710,"impr":216858,"ctr":0.03394387110459379,"pos":8.442838170600115},{"url":"/ad-maker/","clicks":7344,"clicks_py":9721,"impr":643868,"ctr":0.01140606459709133,"pos":19.355822932650792},{"url":"/es/generador-ia-flyers/","clicks":7178,"clicks_py":11555,"impr":213501,"ctr":0.03362045142645702,"pos":7.654104664615154},{"url":"/es/ebook/","clicks":7116,"clicks_py":7483,"impr":290859,"ctr":0.024465462646849505,"pos":7.098188469327062},{"url":"/es/generador-ia-folletos/","clicks":7065,"clicks_py":13496,"impr":151962,"ctr":0.04649188612942709,"pos":6.964813571814006},{"url":"/es/generador-ia-informes/","clicks":6968,"clicks_py":12615,"impr":137628,"ctr":0.05062923242363473,"pos":6.245313453657686},{"url":"/ai-document-generator/","clicks":6960,"clicks_py":38261,"impr":373253,"ctr":0.018646869549608442,"pos":14.259861273720507},{"url":"/it/creare-mappa-concettuale/","clicks":6928,"clicks_py":31299,"impr":180040,"ctr":0.03848033770273273,"pos":9.659875583203732},{"url":"/hi/banner-banaye/","clicks":6380,"clicks_py":12446,"impr":375404,"ctr":0.016995024027447764,"pos":6.752930176556457},{"url":"/es/folletos/","clicks":6320,"clicks_py":2019,"impr":62061,"ctr":0.10183529108457808,"pos":10.484217141199787},{"url":"/ru/sozdat-oblozhku-dlya-knigi/","clicks":6293,"clicks_py":8448,"impr":78581,"ctr":0.08008297171071888,"pos":7.939387383718711},{"url":"/ru/sozdat-otkrytku-online/","clicks":6221,"clicks_py":14401,"impr":79378,"ctr":0.07837184106427474,"pos":8.063619642722164},{"url":"/ar/certificate-maker/","clicks":6217,"clicks_py":6019,"impr":119716,"ctr":0.05193123726151893,"pos":7.1646480002673},{"url":"/ar/","clicks":6157,"clicks_py":3820,"impr":45979,"ctr":0.13390895843754758,"pos":1.8397529306857479},{"url":"/ru/podarochnyj-sertifikat/","clicks":6132,"clicks_py":13254,"impr":88285,"ctr":0.06945687262841932,"pos":11.002423967831454},{"url":"/ru/ii-generator-listovok/","clicks":6110,"clicks_py":3229,"impr":66279,"ctr":0.09218606195024065,"pos":7.513043347063173},{"url":"/de/","clicks":5918,"clicks_py":5445,"impr":36292,"ctr":0.16306624049377275,"pos":2.0091755758844925},{"url":"/ru/sozdat-oboi/","clicks":5808,"clicks_py":12700,"impr":87413,"ctr":0.06644320638806585,"pos":13.658391772390834},{"url":"/templates/id-cards/bank-id-card-1425283717/","clicks":5795,"clicks_py":506,"impr":35528,"ctr":0.16311078585904076,"pos":7.013313442918261},{"url":"/es/presentaciones-creativas/","clicks":5561,"clicks_py":7057,"impr":572411,"ctr":0.009715047404749384,"pos":6.989200067783464},{"url":"/ru/sozdat-objavleniye-online/","clicks":5558,"clicks_py":5000,"impr":76565,"ctr":0.07259191536602887,"pos":21.99676092209234},{"url":"/es/grafica-de-pastel/","clicks":5487,"clicks_py":16061,"impr":176404,"ctr":0.03110473685403959,"pos":7.485136391465046},{"url":"/templates/infographics/","clicks":5378,"clicks_py":12628,"impr":568998,"ctr":0.009451702817936091,"pos":11.777670571777053},{"url":"/fr/generateur-de-documents-ia/","clicks":5362,"clicks_py":7867,"impr":136057,"ctr":0.039409953181387215,"pos":8.264969828821744},{"url":"/pt-br/criar-grafico/","clicks":5346,"clicks_py":12106,"impr":157337,"ctr":0.03397802169864685,"pos":8.251345837279217},{"url":"/tr/poster-hazirlama-programi/","clicks":5319,"clicks_py":4404,"impr":101172,"ctr":0.05257383465781046,"pos":6.8043233305657695},{"url":"/organizational-chart-maker/","clicks":5305,"clicks_py":17689,"impr":558200,"ctr":0.009503762092439985,"pos":23.50282694374776},{"url":"/es/cuadro-comparativo/","clicks":5105,"clicks_py":18507,"impr":726237,"ctr":0.007029385723944112,"pos":8.284488397038432},{"url":"/ru/sozdat-preview-dlya-youtube/","clicks":5096,"clicks_py":4908,"impr":109999,"ctr":0.046327693888126256,"pos":6.495877235247593},{"url":"/es/mapas/","clicks":4999,"clicks_py":18307,"impr":136968,"ctr":0.036497576076163774,"pos":10.286096022428596},{"url":"/presentation-software/","clicks":4993,"clicks_py":10938,"impr":2233195,"ctr":0.0022358101285378123,"pos":7.474941059782061},{"url":"/calendar-maker/","clicks":4972,"clicks_py":8223,"impr":293774,"ctr":0.01692457467304799,"pos":30.956483555386114},{"url":"/pt-br/criar-mapa/","clicks":4962,"clicks_py":14768,"impr":105722,"ctr":0.04693441289419421,"pos":7.505533379996595},{"url":"/templates/reports/","clicks":4764,"clicks_py":13317,"impr":567756,"ctr":0.008390928497453131,"pos":12.67813990517053},{"url":"/tr/ekitap/","clicks":4721,"clicks_py":5032,"impr":75110,"ctr":0.06285448009585941,"pos":6.624550659033417}],"prior":[]},"52":{"cur":[{"url":"/","clicks":751248,"clicks_py":297420,"impr":8989790,"ctr":0.0835668018941488,"pos":34.54173779365258},{"url":"/graph-maker/","clicks":374070,"clicks_py":120205,"impr":8988397,"ctr":0.041616986877637915,"pos":23.87209899607238},{"url":"/es/","clicks":249165,"clicks_py":104995,"impr":1575507,"ctr":0.15814909105449865,"pos":37.17332008045664},{"url":"/presentation-maker/","clicks":145219,"clicks_py":128123,"impr":5913178,"ctr":0.02455853688152124,"pos":24.19940191213591},{"url":"/ru/ii-konstruktor-prezentacij/","clicks":104548,"clicks_py":91787,"impr":1544837,"ctr":0.06767574831519442,"pos":11.068921834471857},{"url":"/es/triptico/","clicks":96954,"clicks_py":45176,"impr":1359611,"ctr":0.07131010266907226,"pos":16.234403811090083},{"url":"/ai-image-generator/","clicks":88663,"clicks_py":40213,"impr":2471645,"ctr":0.03587206091489676,"pos":50.050879475005516},{"url":"/ai-presentation-maker/","clicks":87661,"clicks_py":208145,"impr":5307749,"ctr":0.016515664173268177,"pos":13.755404786473513},{"url":"/ru/sozdat-prezentatsiya/","clicks":75290,"clicks_py":89725,"impr":1446006,"ctr":0.052067557119403376,"pos":12.157626593527274},{"url":"/ai-portfolio-generator/","clicks":69700,"clicks_py":14647,"impr":1592367,"ctr":0.043771316536954104,"pos":32.71709034412293},{"url":"/thumbnail-maker/","clicks":64900,"clicks_py":81324,"impr":3226259,"ctr":0.020116177901402212,"pos":15.860002560240824},{"url":"/certificate-maker/","clicks":64647,"clicks_py":26578,"impr":1565792,"ctr":0.04128709304939609,"pos":19.523814146451127},{"url":"/chart-maker/","clicks":59876,"clicks_py":34627,"impr":1555176,"ctr":0.038501108556202,"pos":14.311252874272752},{"url":"/ai-brochure-maker/","clicks":58062,"clicks_py":38269,"impr":1208589,"ctr":0.04804114550107605,"pos":23.28011424892995},{"url":"/ai-poster-generator/","clicks":56873,"clicks_py":93170,"impr":2143270,"ctr":0.02653562080372515,"pos":21.845329799791905},{"url":"/fr/","clicks":51727,"clicks_py":25049,"impr":279926,"ctr":0.18478812257525204,"pos":1.8174338932432144},{"url":"/ru/powerpoint-online/","clicks":50907,"clicks_py":30950,"impr":1012340,"ctr":0.050286465021633045,"pos":7.152443842977656},{"url":"/templates/presentations/","clicks":50766,"clicks_py":25564,"impr":6394334,"ctr":0.007939216187330846,"pos":32.6248547542246},{"url":"/timeline-maker/","clicks":50353,"clicks_py":24939,"impr":3633842,"ctr":0.013856683917462564,"pos":12.200591275019663},{"url":"/ru/sozdat-buklet/","clicks":47951,"clicks_py":29917,"impr":648491,"ctr":0.07394242942461808,"pos":14.377542633590906},{"url":"/report-maker/","clicks":47186,"clicks_py":25877,"impr":826756,"ctr":0.05707367107102942,"pos":14.462279076293369},{"url":"/ebook-creator/","clicks":46005,"clicks_py":16600,"impr":2144863,"ctr":0.021448922378725355,"pos":10.14008773520733},{"url":"/pt-br/","clicks":45575,"clicks_py":17973,"impr":285474,"ctr":0.15964676292762214,"pos":2.679704631595172},{"url":"/ru/","clicks":45186,"clicks_py":35544,"impr":234103,"ctr":0.19301760336262244,"pos":12.365843239941393},{"url":"/ru/sozdat-infografika/","clicks":44765,"clicks_py":23985,"impr":638909,"ctr":0.07006475100522923,"pos":9.714194040152822},{"url":"/map-generator/","clicks":44449,"clicks_py":36343,"impr":949867,"ctr":0.04679497234876041,"pos":26.111435600984137},{"url":"/professional-document-creator/","clicks":42830,"clicks_py":22269,"impr":995261,"ctr":0.04303393783138292,"pos":13.236521877175937},{"url":"/visme-ai/","clicks":42595,"clicks_py":28559,"impr":2528406,"ctr":0.016846582392226566,"pos":1.9512427988226575},{"url":"/banner-maker/","clicks":41605,"clicks_py":24384,"impr":2374882,"ctr":0.017518765142857624,"pos":14.307893613240573},{"url":"/ru/ii-generator-dokumentov/","clicks":40201,"clicks_py":6999,"impr":237546,"ctr":0.16923459035302635,"pos":8.256527156845411},{"url":"/ru/sozdat-kartu/","clicks":40199,"clicks_py":20272,"impr":444025,"ctr":0.09053319069872191,"pos":11.199747761950341},{"url":"/ru/ii-generator-posterov/","clicks":39069,"clicks_py":17740,"impr":254682,"ctr":0.15340306735458337,"pos":7.1996450475494935},{"url":"/make-infographics/","clicks":39063,"clicks_py":23273,"impr":6454944,"ctr":0.006051640417019884,"pos":7.584871069369463},{"url":"/powerpoint-online/","clicks":39032,"clicks_py":42751,"impr":1265204,"ctr":0.03085036089041767,"pos":15.005044245829131},{"url":"/pt-br/criar-ebook/","clicks":36590,"clicks_py":21624,"impr":1085754,"ctr":0.03370008307590854,"pos":8.197004109586517},{"url":"/ru/ii-generator-bannerov/","clicks":35750,"clicks_py":13744,"impr":523261,"ctr":0.06832154507979765,"pos":8.10164908143355},{"url":"/wallpaper-maker/","clicks":35338,"clicks_py":47775,"impr":1460935,"ctr":0.024188618932396034,"pos":19.654979174295914},{"url":"/ai-document-generator/","clicks":34737,"clicks_py":38261,"impr":1185181,"ctr":0.0293094472489856,"pos":17.065812732401213},{"url":"/ru/ii-konstruktora-bukletov/","clicks":33921,"clicks_py":11009,"impr":186848,"ctr":0.18154328652166468,"pos":10.98929076040418},{"url":"/es/linea-de-tiempo/","clicks":29959,"clicks_py":48599,"impr":1333485,"ctr":0.022466694413510464,"pos":9.56612935278612},{"url":"/es/generador-ia-documentos/","clicks":29641,"clicks_py":17811,"impr":582113,"ctr":0.050919666800088643,"pos":7.440220369584599},{"url":"/ai-design-generator/","clicks":28158,"clicks_py":50061,"impr":1626610,"ctr":0.01731084894350828,"pos":16.793261445583145},{"url":"/es/generador-ia-folletos/","clicks":26689,"clicks_py":13496,"impr":414560,"ctr":0.0643791007333076,"pos":9.291738228483212},{"url":"/templates/ebooks/","clicks":26612,"clicks_py":10237,"impr":690619,"ctr":0.03853354744077415,"pos":17.056520310040703},{"url":"/ru/sozdat-etiketki-online/","clicks":25382,"clicks_py":14310,"impr":174514,"ctr":0.1454439185394868,"pos":12.488327584033373},{"url":"/templates/","clicks":25079,"clicks_py":8591,"impr":7000877,"ctr":0.003582265479024985,"pos":14.080247946078755},{"url":"/it/","clicks":24412,"clicks_py":12100,"impr":60444,"ctr":0.40387796969095363,"pos":3.5279432201707364},{"url":"/ru/sozdat-raspisanie-online/","clicks":24239,"clicks_py":9480,"impr":217176,"ctr":0.11160993848307364,"pos":10.043927505801745},{"url":"/ppt-editor/","clicks":23660,"clicks_py":0,"impr":1009806,"ctr":0.02343024303678132,"pos":9.7240757135529},{"url":"/fr/createur-affiche-ia/","clicks":22773,"clicks_py":18850,"impr":485110,"ctr":0.04694399208426955,"pos":16.550852383995384},{"url":"/es/generador-ia-presentaciones/","clicks":22696,"clicks_py":38642,"impr":1025387,"ctr":0.022134082058773905,"pos":10.63434781209436},{"url":"/gift-card-maker/","clicks":22481,"clicks_py":15058,"impr":630275,"ctr":0.03566855737574868,"pos":21.944931974138274},{"url":"/es/generador-ia-flyers/","clicks":22235,"clicks_py":11555,"impr":437551,"ctr":0.05081693334034204,"pos":9.194599029598836},{"url":"/ru/sozdat-plakat-online/","clicks":22195,"clicks_py":17414,"impr":312796,"ctr":0.07095678972876891,"pos":10.041698103556312},{"url":"/ru/shablon-bileta/","clicks":22146,"clicks_py":11823,"impr":144772,"ctr":0.15297156908794518,"pos":6.739293509794711},{"url":"/es/generador-ia-informes/","clicks":21921,"clicks_py":12615,"impr":312729,"ctr":0.07009583377301114,"pos":6.476713064666213},{"url":"/ar/schedule-maker/","clicks":21717,"clicks_py":10163,"impr":421221,"ctr":0.051557258541240825,"pos":7.890646477739714},{"url":"/it/creare-mappa-concettuale/","clicks":21564,"clicks_py":31299,"impr":454839,"ctr":0.04741018250413883,"pos":11.274607058761452},{"url":"/es/infografias-creativas/","clicks":21287,"clicks_py":8128,"impr":3073028,"ctr":0.006927043944929887,"pos":8.270339873245542},{"url":"/es/mapas/","clicks":21256,"clicks_py":18307,"impr":449394,"ctr":0.04729925188142254,"pos":10.612244489245517},{"url":"/ru/sozdat-sertifikat-online/","clicks":20965,"clicks_py":18125,"impr":193055,"ctr":0.1085959959597006,"pos":9.281919660200462},{"url":"/es/cuadro-comparativo/","clicks":20790,"clicks_py":18507,"impr":1591495,"ctr":0.013063189014103091,"pos":8.86720222181031},{"url":"/ai-banner-generator/","clicks":20100,"clicks_py":20484,"impr":721155,"ctr":0.027871955404871352,"pos":26.255951910476945},{"url":"/pt-br/criar-mapa/","clicks":19553,"clicks_py":14768,"impr":394055,"ctr":0.049619976906776976,"pos":7.631899100379389},{"url":"/organizational-chart-maker/","clicks":19376,"clicks_py":17689,"impr":1397411,"ctr":0.013865641532806025,"pos":23.814712350196185},{"url":"/ai-flyer-generator/","clicks":19356,"clicks_py":22141,"impr":958024,"ctr":0.020204086745217238,"pos":26.250766160346714},{"url":"/es/ebook/","clicks":18811,"clicks_py":7483,"impr":617677,"ctr":0.03045442844723051,"pos":8.65175002468928},{"url":"/ru/ii-generatora-dizajn-proektov/","clicks":18617,"clicks_py":6516,"impr":224699,"ctr":0.08285306120632491,"pos":15.538004174473407},{"url":"/ar/ebook-creator/","clicks":18527,"clicks_py":6237,"impr":309128,"ctr":0.05993310214538961,"pos":11.035137548200098},{"url":"/ru/sozdat-kalendar-online/","clicks":18368,"clicks_py":15792,"impr":200528,"ctr":0.09159818080268092,"pos":16.125174539216466},{"url":"/ru/sozdat-elektronnaya-kniga/","clicks":18323,"clicks_py":8480,"impr":219623,"ctr":0.08342933117205392,"pos":14.101742531519923},{"url":"/fr/graphiques/","clicks":18294,"clicks_py":9216,"impr":400039,"ctr":0.04573054127222596,"pos":11.532775554383448},{"url":"/online-label-maker/","clicks":18251,"clicks_py":11959,"impr":754805,"ctr":0.02417975503606892,"pos":26.407481402481437},{"url":"/es/grafica-de-pastel/","clicks":18093,"clicks_py":16061,"impr":443463,"ctr":0.04079934515393618,"pos":7.277448174932294},{"url":"/hi/banner-banaye/","clicks":17306,"clicks_py":12446,"impr":901323,"ctr":0.01920066391293687,"pos":7.316966281787994},{"url":"/templates/one-pagers/","clicks":17133,"clicks_py":3680,"impr":851929,"ctr":0.02011083083214681,"pos":9.03870158193934},{"url":"/ru/sozdat-oboi/","clicks":16989,"clicks_py":12700,"impr":304494,"ctr":0.0557942028414353,"pos":21.631605220464113},{"url":"/ru/sozdat-grafiki/","clicks":16948,"clicks_py":11065,"impr":268580,"ctr":0.0631022414178271,"pos":9.959215131431975},{"url":"/pt-br/criar-grafico/","clicks":16866,"clicks_py":12106,"impr":398385,"ctr":0.042335931322715466,"pos":8.175827403140179},{"url":"/ad-maker/","clicks":16820,"clicks_py":9721,"impr":1452073,"ctr":0.011583439675553501,"pos":23.69230541439721},{"url":"/es/generador-ia-carteles/","clicks":16649,"clicks_py":21453,"impr":451436,"ctr":0.03688008931498596,"pos":12.165409936292187},{"url":"/templates/infographics/","clicks":16253,"clicks_py":12628,"impr":1545141,"ctr":0.010518781133890046,"pos":16.133249328054852},{"url":"/ar/report-maker/","clicks":16084,"clicks_py":9508,"impr":232653,"ctr":0.06913300064903526,"pos":8.026382638521747},{"url":"/es/flashcards/","clicks":16084,"clicks_py":19371,"impr":425420,"ctr":0.03780734333129613,"pos":9.029735320389262},{"url":"/ai-ebook-generator/","clicks":15742,"clicks_py":3817,"impr":382246,"ctr":0.04118290315660596,"pos":12.059657916629606},{"url":"/es/informes/","clicks":15433,"clicks_py":8086,"impr":285638,"ctr":0.0540299259902394,"pos":9.3253138588003},{"url":"/ar/ad-maker/","clicks":15185,"clicks_py":5710,"impr":421220,"ctr":0.03605004510706994,"pos":11.00814063909596},{"url":"/ru/sozdat-oblozhku-dlya-knigi/","clicks":14342,"clicks_py":8448,"impr":169080,"ctr":0.08482375207002603,"pos":10.676206529453513},{"url":"/es/presentaciones-creativas/","clicks":13893,"clicks_py":7057,"impr":1204095,"ctr":0.011538126144531785,"pos":8.16912203771297},{"url":"/flyer-maker/","clicks":13873,"clicks_py":12770,"impr":2203704,"ctr":0.006295310077941502,"pos":20.80696454696275},{"url":"/pt-br/capas-de-livros/","clicks":13797,"clicks_py":10804,"impr":228743,"ctr":0.06031659985223591,"pos":8.399946665034559},{"url":"/ar/certificate-maker/","clicks":13498,"clicks_py":6019,"impr":248264,"ctr":0.054369542100344795,"pos":8.032433216253665},{"url":"/templates/reports/","clicks":13350,"clicks_py":13317,"impr":1126188,"ctr":0.011854148685654615,"pos":15.962134208498048},{"url":"/es/linea-del-tiempo/","clicks":13044,"clicks_py":0,"impr":1368742,"ctr":0.009529918713680153,"pos":11.182784629974092},{"url":"/ru/ii-konstruktor-rezjume/","clicks":12987,"clicks_py":1915,"impr":130005,"ctr":0.09989615784008307,"pos":14.84477520095381},{"url":"/ru/sozdat-otkrytku-online/","clicks":12984,"clicks_py":14401,"impr":162731,"ctr":0.07978811658503912,"pos":10.376455623083494},{"url":"/ru/sozdat-preview-dlya-youtube/","clicks":12976,"clicks_py":4908,"impr":248939,"ctr":0.052125219431266294,"pos":9.939515302945702},{"url":"/pt-br/gerador-ia-relatorios/","clicks":12592,"clicks_py":5868,"impr":176118,"ctr":0.07149751870904734,"pos":6.97336444883544},{"url":"/ru/podarochnyj-sertifikat/","clicks":12539,"clicks_py":13254,"impr":173742,"ctr":0.0721702294206352,"pos":15.435945252155495},{"url":"/tr/duvar-kagidi-yapma/","clicks":12404,"clicks_py":8656,"impr":270708,"ctr":0.045820588974097555,"pos":12.301029153183505}],"prior":[]}},"countryWindows":{"8":{"cur":[{"country":"ind","clicks":117859,"clicks_py":300625,"impr":5261468,"ctr":0.022400402321177282,"pos":8.788220511841942},{"country":"rus","clicks":97528,"clicks_py":188545,"impr":1293227,"ctr":0.07541444773423382,"pos":8.776779327991141},{"country":"usa","clicks":74394,"clicks_py":132621,"impr":9412596,"ctr":0.007903664408841089,"pos":19.56137424786956},{"country":"bra","clicks":33204,"clicks_py":102534,"impr":3512803,"ctr":0.009452280700056336,"pos":8.351214969925726},{"country":"phl","clicks":31272,"clicks_py":69413,"impr":1872353,"ctr":0.01670197874012005,"pos":6.769123664180846},{"country":"tur","clicks":29347,"clicks_py":62160,"impr":856693,"ctr":0.03425614543366177,"pos":8.887149772438901},{"country":"mex","clicks":28067,"clicks_py":87634,"impr":1299194,"ctr":0.021603394104344694,"pos":10.104010640443228},{"country":"ukr","clicks":17943,"clicks_py":36811,"impr":394045,"ctr":0.04553540839244249,"pos":10.347247141823903},{"country":"col","clicks":17662,"clicks_py":54362,"impr":928058,"ctr":0.019031138140073144,"pos":9.129742968650666},{"country":"fra","clicks":17625,"clicks_py":52685,"impr":1091652,"ctr":0.016145255081289642,"pos":20.98911191478603},{"country":"idn","clicks":17137,"clicks_py":30352,"impr":727763,"ctr":0.02354750104086083,"pos":10.542341394107698},{"country":"kaz","clicks":16824,"clicks_py":30719,"impr":352391,"ctr":0.04774242247957525,"pos":8.322885658260285},{"country":"can","clicks":14915,"clicks_py":31333,"impr":982487,"ctr":0.015180862443981447,"pos":15.082611780104978},{"country":"ita","clicks":14385,"clicks_py":44115,"impr":574114,"ctr":0.025055999331143292,"pos":12.330033756361978},{"country":"gbr","clicks":13700,"clicks_py":30185,"impr":2004422,"ctr":0.006834888062493826,"pos":20.47462410610141},{"country":"pak","clicks":12248,"clicks_py":34532,"impr":428574,"ctr":0.028578495195695493,"pos":8.170987974072155},{"country":"esp","clicks":10991,"clicks_py":37629,"impr":627753,"ctr":0.01750847865322826,"pos":18.940807929233312},{"country":"deu","clicks":10382,"clicks_py":30622,"impr":976920,"ctr":0.010627277566228555,"pos":23.065698317160056},{"country":"egy","clicks":8936,"clicks_py":20473,"impr":305610,"ctr":0.029239880893949806,"pos":11.103144530610908},{"country":"blr","clicks":8707,"clicks_py":12810,"impr":126249,"ctr":0.06896688290600321,"pos":8.163462680892522},{"country":"aus","clicks":8072,"clicks_py":14223,"impr":558911,"ctr":0.01444237096782851,"pos":21.400332074337417},{"country":"tha","clicks":7502,"clicks_py":4754,"impr":292934,"ctr":0.025609864338042018,"pos":10.394822724572771},{"country":"mys","clicks":7057,"clicks_py":17011,"impr":387436,"ctr":0.018214621253574783,"pos":7.267342219101994},{"country":"sau","clicks":6601,"clicks_py":13813,"impr":307098,"ctr":0.021494767142736196,"pos":12.008603116920332},{"country":"zaf","clicks":6171,"clicks_py":11731,"impr":371539,"ctr":0.01660929269874764,"pos":6.735354834889473},{"country":"ecu","clicks":6097,"clicks_py":18155,"impr":356947,"ctr":0.017080967202413803,"pos":8.131593766021286},{"country":"per","clicks":5979,"clicks_py":16329,"impr":396909,"ctr":0.015063906336213087,"pos":8.79740948177038},{"country":"bgd","clicks":5843,"clicks_py":17578,"impr":279527,"ctr":0.020903168566900512,"pos":7.998662025493065},{"country":"nld","clicks":5813,"clicks_py":12057,"impr":332825,"ctr":0.017465635093517614,"pos":15.917458123638548},{"country":"uzb","clicks":5424,"clicks_py":12144,"impr":116340,"ctr":0.04662197008767406,"pos":6.966976104521231}],"prior":[]},"13":{"cur":[{"country":"ind","clicks":189157,"clicks_py":470095,"impr":8120723,"ctr":0.023293123038428967,"pos":9.523481468337241},{"country":"rus","clicks":146999,"clicks_py":277718,"impr":1913849,"ctr":0.07680804493980455,"pos":9.288846194239984},{"country":"usa","clicks":107554,"clicks_py":194675,"impr":14393188,"ctr":0.007472562715084386,"pos":22.652567936999088},{"country":"bra","clicks":49545,"clicks_py":152557,"impr":4412017,"ctr":0.01122955781902019,"pos":9.9974474259732},{"country":"tur","clicks":49341,"clicks_py":100393,"impr":1349365,"ctr":0.03656608849347656,"pos":9.156464707473516},{"country":"phl","clicks":43668,"clicks_py":95303,"impr":2664834,"ctr":0.01638676180204846,"pos":7.979412226052355},{"country":"mex","clicks":35172,"clicks_py":113290,"impr":1674915,"ctr":0.020999274590053824,"pos":11.294998850687945},{"country":"fra","clicks":27133,"clicks_py":81181,"impr":1551974,"ctr":0.01748289597635012,"pos":22.30875581678559},{"country":"idn","clicks":26538,"clicks_py":46302,"impr":997728,"ctr":0.026598431636678535,"pos":11.528264216299432},{"country":"ukr","clicks":25946,"clicks_py":53153,"impr":550101,"ctr":0.04716588408310474,"pos":11.234895046545997},{"country":"kaz","clicks":23873,"clicks_py":44191,"impr":486685,"ctr":0.04905226172986634,"pos":8.61136874980737},{"country":"ita","clicks":22904,"clicks_py":68722,"impr":918099,"ctr":0.024947200683150726,"pos":14.57892994110657},{"country":"can","clicks":22168,"clicks_py":46466,"impr":1433205,"ctr":0.01546743138629854,"pos":16.57440352217582},{"country":"pak","clicks":22075,"clicks_py":59704,"impr":687448,"ctr":0.03211151970767243,"pos":8.35468573623023},{"country":"col","clicks":21574,"clicks_py":64764,"impr":1114556,"ctr":0.019356586838166948,"pos":10.06668485029016},{"country":"gbr","clicks":20430,"clicks_py":46859,"impr":2910685,"ctr":0.0070189663257961615,"pos":22.327129524493376},{"country":"esp","clicks":16570,"clicks_py":57341,"impr":890567,"ctr":0.01860612396372199,"pos":21.427957694367745},{"country":"deu","clicks":16137,"clicks_py":48444,"impr":1400649,"ctr":0.011521087724333506,"pos":25.163045131221313},{"country":"egy","clicks":14643,"clicks_py":32253,"impr":467025,"ctr":0.03135378191745624,"pos":11.36844494406081},{"country":"mys","clicks":12882,"clicks_py":29391,"impr":619983,"ctr":0.02077798907389396,"pos":8.797270247732598},{"country":"blr","clicks":12779,"clicks_py":18688,"impr":180419,"ctr":0.07082956894783808,"pos":8.60107860036914},{"country":"sau","clicks":11454,"clicks_py":23799,"impr":479521,"ctr":0.023886336573372177,"pos":12.858135514398743},{"country":"tha","clicks":10569,"clicks_py":6999,"impr":413429,"ctr":0.025564244404722457,"pos":12.826954567773427},{"country":"bgd","clicks":10368,"clicks_py":30047,"impr":432216,"ctr":0.0239880059970015,"pos":9.47833722027875},{"country":"aus","clicks":10174,"clicks_py":19771,"impr":890240,"ctr":0.011428378864126528,"pos":25.7951473759885},{"country":"ecu","clicks":9868,"clicks_py":28418,"impr":498706,"ctr":0.01978720929766235,"pos":8.538936768356507},{"country":"nld","clicks":8821,"clicks_py":18055,"impr":496400,"ctr":0.017769943593875907,"pos":17.673686543110396},{"country":"per","clicks":8805,"clicks_py":24634,"impr":526389,"ctr":0.016727173250200896,"pos":9.554871017441474},{"country":"zaf","clicks":8718,"clicks_py":16461,"impr":498145,"ctr":0.017500928444529204,"pos":7.722671109817423},{"country":"are","clicks":8563,"clicks_py":23305,"impr":434987,"ctr":0.0196856457779198,"pos":15.669705071645819}],"prior":[]},"26":{"cur":[{"country":"ind","clicks":395302,"clicks_py":688357,"impr":14867168,"ctr":0.026588923996823065,"pos":9.012559083209391},{"country":"rus","clicks":334891,"clicks_py":442947,"impr":3957988,"ctr":0.08461142378400338,"pos":9.200053663629097},{"country":"usa","clicks":212588,"clicks_py":289344,"impr":25948971,"ctr":0.008192540659897458,"pos":21.84708229856205},{"country":"bra","clicks":115064,"clicks_py":229326,"impr":6709198,"ctr":0.01715018695230041,"pos":10.709855186864361},{"country":"tur","clicks":111894,"clicks_py":146768,"impr":2715106,"ctr":0.04121165066851902,"pos":8.426747611327144},{"country":"phl","clicks":94784,"clicks_py":145811,"impr":5083199,"ctr":0.01864652554424881,"pos":7.3145027373510265},{"country":"mex","clicks":82991,"clicks_py":170163,"impr":3080933,"ctr":0.026936970067184193,"pos":11.089583252865285},{"country":"idn","clicks":69191,"clicks_py":77565,"impr":1859925,"ctr":0.037200962404398026,"pos":10.869766791671708},{"country":"ukr","clicks":62580,"clicks_py":85084,"impr":1164372,"ctr":0.05374571013387474,"pos":11.436868114313983},{"country":"fra","clicks":60942,"clicks_py":122775,"impr":2804243,"ctr":0.02173206815529182,"pos":21.895915938811296},{"country":"kaz","clicks":56456,"clicks_py":73140,"impr":998532,"ctr":0.05653899925090032,"pos":8.515544819795458},{"country":"ita","clicks":54334,"clicks_py":105597,"impr":1748267,"ctr":0.031078776868750598,"pos":14.559673665406944},{"country":"col","clicks":53978,"clicks_py":94325,"impr":2064969,"ctr":0.02613985972670776,"pos":9.839797595024429},{"country":"pak","clicks":53213,"clicks_py":93412,"impr":1368682,"ctr":0.03887900914894767,"pos":8.36785316092416},{"country":"can","clicks":47345,"clicks_py":70170,"impr":2527365,"ctr":0.01873294913872749,"pos":16.056169172240654},{"country":"gbr","clicks":44679,"clicks_py":71094,"impr":5277206,"ctr":0.008466411961177941,"pos":20.342989074142643},{"country":"esp","clicks":44413,"clicks_py":91098,"impr":1608644,"ctr":0.02760896755279602,"pos":22.314753916963603},{"country":"per","clicks":40232,"clicks_py":59677,"impr":1387246,"ctr":0.029001345111105022,"pos":8.942952439581733},{"country":"deu","clicks":35439,"clicks_py":73832,"impr":2412108,"ctr":0.014692128213164585,"pos":25.046944415424186},{"country":"egy","clicks":35191,"clicks_py":53518,"impr":901875,"ctr":0.03901981981981982,"pos":10.19051198891199},{"country":"mys","clicks":29490,"clicks_py":45464,"impr":1133684,"ctr":0.026012539649496687,"pos":8.19912162472082},{"country":"blr","clicks":28807,"clicks_py":30462,"impr":387277,"ctr":0.07438345163797488,"pos":8.65878169888736},{"country":"irn","clicks":28228,"clicks_py":31299,"impr":151858,"ctr":0.18588418127461181,"pos":6.602332442149903},{"country":"sau","clicks":27304,"clicks_py":37883,"impr":881279,"ctr":0.030982242853852187,"pos":11.5634776274029},{"country":"ecu","clicks":24705,"clicks_py":45703,"impr":944124,"ctr":0.02616711364185213,"pos":8.619466298918361},{"country":"bgd","clicks":24532,"clicks_py":43528,"impr":805213,"ctr":0.0304664728463152,"pos":9.684051300711737},{"country":"aus","clicks":23064,"clicks_py":30122,"impr":1664448,"ctr":0.01385684623370631,"pos":23.70510223209136},{"country":"arg","clicks":20910,"clicks_py":31700,"impr":1076067,"ctr":0.019431875524479423,"pos":9.261715116252056},{"country":"nld","clicks":20840,"clicks_py":27047,"impr":936689,"ctr":0.022248579838131975,"pos":17.818950580181895},{"country":"uzb","clicks":20551,"clicks_py":31057,"impr":340790,"ctr":0.06030399953050265,"pos":7.233627747293054}],"prior":[]},"52":{"cur":[{"country":"ind","clicks":1004337,"clicks_py":688357,"impr":32200162,"ctr":0.031190433141299104,"pos":11.69413312268429},{"country":"rus","clicks":712125,"clicks_py":442947,"impr":9210414,"ctr":0.07731737140154613,"pos":16.808438144039997},{"country":"usa","clicks":475351,"clicks_py":289344,"impr":61156677,"ctr":0.007772675418581032,"pos":28.389909052776037},{"country":"bra","clicks":333820,"clicks_py":229326,"impr":18142677,"ctr":0.018399710252241165,"pos":22.97758054117372},{"country":"tur","clicks":248468,"clicks_py":146768,"impr":5852306,"ctr":0.04245642657783103,"pos":11.523980461718851},{"country":"mex","clicks":210323,"clicks_py":170163,"impr":6487185,"ctr":0.032421304464108854,"pos":15.213098593611868},{"country":"phl","clicks":209432,"clicks_py":145811,"impr":9660459,"ctr":0.021679301159499773,"pos":9.091506004010782},{"country":"col","clicks":154965,"clicks_py":94325,"impr":4399297,"ctr":0.0352249461675354,"pos":12.357753522892407},{"country":"idn","clicks":153851,"clicks_py":77565,"impr":3799326,"ctr":0.040494287671023754,"pos":14.97190422722346},{"country":"fra","clicks":142939,"clicks_py":122775,"impr":6317376,"ctr":0.022626324600593665,"pos":25.544699729761216},{"country":"pak","clicks":132204,"clicks_py":93412,"impr":3090456,"ctr":0.04277815312691719,"pos":11.138018467177659},{"country":"per","clicks":130665,"clicks_py":59677,"impr":3273428,"ctr":0.03991687002127434,"pos":10.49752278040024},{"country":"ita","clicks":128854,"clicks_py":105597,"impr":3894753,"ctr":0.033083997881252034,"pos":20.894057723301067},{"country":"ukr","clicks":128295,"clicks_py":85084,"impr":2414016,"ctr":0.05314587807205917,"pos":15.64111629748933},{"country":"can","clicks":105578,"clicks_py":70170,"impr":5455379,"ctr":0.019353009204310094,"pos":21.616250310015126},{"country":"kaz","clicks":105381,"clicks_py":73140,"impr":1792457,"ctr":0.05879136849586908,"pos":11.013207569275023},{"country":"gbr","clicks":101547,"clicks_py":71094,"impr":13534123,"ctr":0.007503035106153535,"pos":28.190234712659255},{"country":"esp","clicks":98689,"clicks_py":91098,"impr":3585164,"ctr":0.027527053155727326,"pos":26.46481360406386},{"country":"deu","clicks":87464,"clicks_py":73832,"impr":5756489,"ctr":0.015193983693880071,"pos":30.033836249839094},{"country":"egy","clicks":79632,"clicks_py":53518,"impr":1915108,"ctr":0.04158094478222638,"pos":13.688109495652464},{"country":"mys","clicks":68309,"clicks_py":45464,"impr":2413763,"ctr":0.028299795796024714,"pos":12.204114902747287},{"country":"aus","clicks":66606,"clicks_py":30122,"impr":4075369,"ctr":0.016343550731234398,"pos":26.71760152270874},{"country":"ecu","clicks":66339,"clicks_py":45703,"impr":2064797,"ctr":0.03212858213180279,"pos":13.605826141746622},{"country":"bgd","clicks":64518,"clicks_py":43528,"impr":1865892,"ctr":0.03457756397476381,"pos":13.877555078214602},{"country":"irn","clicks":62100,"clicks_py":31299,"impr":389491,"ctr":0.15943885738052999,"pos":11.458567720435132},{"country":"sau","clicks":59729,"clicks_py":37883,"impr":1810136,"ctr":0.0329969681836061,"pos":15.82394195795233},{"country":"arg","clicks":56743,"clicks_py":31700,"impr":2450155,"ctr":0.02315894300564658,"pos":17.4815479020715},{"country":"blr","clicks":55601,"clicks_py":30462,"impr":774603,"ctr":0.07177999568811379,"pos":12.926324839950272},{"country":"are","clicks":49334,"clicks_py":35182,"impr":1639402,"ctr":0.030092680135805617,"pos":16.610484798725388},{"country":"zaf","clicks":45039,"clicks_py":22974,"impr":1932214,"ctr":0.02330952989679197,"pos":16.11433671425629}],"prior":[]}}};
+
+// ── State ────────────────────────────────────────────────────────────────────
+let lookback = 13;
+const WINDOWS = [8, 13, 26, 52];
+
+// Sort state per table
+const sortState = {
+  queries:   {col:1, dir:'desc'},
+  pages:     {col:1, dir:'desc'},
+  countries: {col:1, dir:'desc'},
+};
+
+// Chart instances
+let chClicks, chImpr, chCtr, chPos, chDual, chPosDist;
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmtNum(n) {
+  if (n == null) return '—';
+  if (n >= 1e6) return (n/1e6).toFixed(1)+'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1)+'K';
+  return Math.round(n).toLocaleString();
+}
+function fmtFull(n) {
+  return n == null ? '—' : Math.round(n).toLocaleString();
+}
+function fmtCtr(v) {
+  return v == null ? '—' : (v*100).toFixed(2)+'%';
+}
+function fmtPos(v) {
+  return v == null ? '—' : v.toFixed(1);
+}
+function fmtYoy(cur, py) {
+  if (!py || py === 0) return {pct:null, html:'<span class="yoy-neutral">N/A</span>'};
+  const p = ((cur - py)/py)*100;
+  const sign = p >= 0 ? '+' : '';
+  const cls = p >= 0 ? 'yoy-up' : 'yoy-down';
+  return {pct:p, html:`<span class="${cls}">${sign}${p.toFixed(1)}%</span>`};
+}
+function formatDate(isoWeek) {
+  const d = new Date(isoWeek + 'T00:00:00');
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+}
+function formatDateLong(isoWeek) {
+  const d = new Date(isoWeek + 'T00:00:00');
+  return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+}
+
+// ── Window math ──────────────────────────────────────────────────────────────
+function getWindows(n) {
+  const W = D.weeks;
+  const cur = W.slice(Math.max(0, W.length - n));
+  const prior = cur.map(w => {
+    const d = new Date(w + 'T00:00:00');
+    d.setDate(d.getDate() - 364);
+    return d.toISOString().slice(0,10);
+  });
+  return {cur, prior};
+}
+
+function sumDict(dict, weeks) {
+  return weeks.reduce((a,w) => a + (dict[w] ?? 0), 0);
+}
+
+function wtdAvgPos(weeks) {
+  let sp=0, si=0;
+  weeks.forEach(w => {
+    const p=D.wPosition[w], i=D.wImpressions[w];
+    if(p!=null&&i!=null){sp+=p*i;si+=i;}
+  });
+  return si>0 ? sp/si : null;
+}
+
+// ── Stat boxes ───────────────────────────────────────────────────────────────
+function updateStats(cur, prior) {
+  const c  = sumDict(D.wClicks, cur);
+  const cp = sumDict(D.wClicks, prior);
+  const i  = sumDict(D.wImpressions, cur);
+  const ip = sumDict(D.wImpressions, prior);
+  const ctr  = i>0 ? c/i : 0;
+  const ctrp = ip>0 ? cp/ip : 0;
+  const pos  = wtdAvgPos(cur);
+  const posp = wtdAvgPos(prior);
+
+  document.getElementById('stat-clicks').textContent = fmtNum(c);
+  document.getElementById('stat-impr').textContent   = fmtNum(i);
+  document.getElementById('stat-ctr').textContent    = fmtCtr(ctr);
+  document.getElementById('stat-pos').textContent    = fmtPos(pos);
+
+  // YoY
+  function setYoy(id, cur2, py, invert) {
+    const el = document.getElementById(id);
+    if(!py||py===0){el.textContent='No prior data';el.className='stat-yoy neutral';return;}
+    const p = ((cur2-py)/py)*100;
+    const sign = p>=0?'+':'';
+    const better = invert ? p<0 : p>=0;
+    el.textContent = `${sign}${p.toFixed(1)}% YoY`;
+    el.className = 'stat-yoy '+(better?'up':'down');
+  }
+  setYoy('yoy-clicks', c, cp, false);
+  setYoy('yoy-impr', i, ip, false);
+  setYoy('yoy-ctr', ctr, ctrp, false);
+  setYoy('yoy-pos', pos, posp, true); // lower pos = better
+}
+
+// ── Chart helpers ─────────────────────────────────────────────────────────────
+Chart.defaults.color = '#656d76';
+Chart.defaults.borderColor = '#d0d7de';
+
+const baseOpts = {
+  animation: false,
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false, labels: { color: '#656d76', boxWidth: 10, font: { size: 12 } } },
+    tooltip: {
+      backgroundColor: '#ffffff',
+      borderColor: '#d0d7de',
+      borderWidth: 1,
+      titleColor: '#1f2328',
+      bodyColor: '#656d76',
+      padding: 10,
+    }
+  },
+  elements: { point: { radius: 0, hitRadius: 8 } },
+};
+
+function makeLineChart(id, labels, curData, priorData, color, yFmt, extraOpts={}) {
+  const ctx = document.getElementById(id).getContext('2d');
+  const datasets = [
+    {
+      label:'Current',
+      data: curData,
+      borderColor: color,
+      backgroundColor: color+'22',
+      borderWidth: 2,
+      tension: 0.3,
+      fill: false,
+    }
+  ];
+  if(priorData) {
+    datasets.push({
+      label:'Prior Year',
+      data: priorData,
+      borderColor: color,
+      backgroundColor: 'transparent',
+      borderWidth: 1.5,
+      borderDash: [4,3],
+      tension: 0.3,
+      fill: false,
+    });
+  }
+  const opts = JSON.parse(JSON.stringify(baseOpts));
+  opts.plugins.legend = {display: !!priorData, labels:{boxWidth:12, font:{size:11}}};
+  opts.scales = {
+    x: {
+      ticks: {
+        maxTicksLimit: 8,
+        callback: function(val,idx){return formatDate(labels[idx]);}
+      },
+      grid: {color:'#eaeef2'}
+    },
+    y: {
+      ticks: yFmt ? {callback: yFmt} : {},
+      grid: {color:'#eaeef2'}
+    },
+    ...extraOpts
+  };
+  return new Chart(ctx, {type:'line', data:{labels, datasets}, options: opts});
+}
+
+function updateLineChart(ch, labels, curData, priorData) {
+  ch.data.labels = labels;
+  ch.data.datasets[0].data = curData;
+  if(ch.data.datasets[1] && priorData) ch.data.datasets[1].data = priorData;
+  ch.options.scales.x.ticks.callback = function(val,idx){return formatDate(labels[idx]);};
+  ch.update('none');
+}
+
+// ── Initialize charts ─────────────────────────────────────────────────────────
+function initCharts() {
+  const {cur, prior} = getWindows(lookback);
+  const labels = cur;
+  const priorLabels = prior;
+
+  const cClicks  = cur.map(w => D.wClicks[w]??null);
+  const pClicks  = prior.map(w => D.wClicks[w]??null);
+  const cImpr    = cur.map(w => D.wImpressions[w]??null);
+  const pImpr    = prior.map(w => D.wImpressions[w]??null);
+  const cCtr     = cur.map(w => D.wCtr[w]!=null ? D.wCtr[w]*100 : null);
+  const pCtr     = prior.map(w => D.wCtr[w]!=null ? D.wCtr[w]*100 : null);
+  const cPos     = cur.map(w => D.wPosition[w]??null);
+  const pPos     = prior.map(w => D.wPosition[w]??null);
+
+  chClicks = makeLineChart('ch-clicks', labels, cClicks, pClicks, '#0969da',
+    v => v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v);
+  chImpr   = makeLineChart('ch-impr',   labels, cImpr,  pImpr,   '#8250df',
+    v => v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v);
+  chCtr    = makeLineChart('ch-ctr',    labels, cCtr,   pCtr,    '#0d9488',
+    v => v.toFixed(2)+'%');
+  chPos    = makeLineChart('ch-pos',    labels, cPos,   pPos,    '#d97706', null,
+    {y:{reverse:true, grid:{color:'#eaeef2'}}});
+
+  // Dual axis
+  const ctxDual = document.getElementById('ch-dual').getContext('2d');
+  chDual = new Chart(ctxDual, {
+    type:'line',
+    data:{
+      labels: labels,
+      datasets:[
+        {
+          label:'Clicks',
+          data: cClicks,
+          borderColor:'#0969da',
+          backgroundColor:'#0969da22',
+          borderWidth:2, tension:0.3, fill:false,
+          yAxisID:'yClicks'
+        },
+        {
+          label:'Impressions',
+          data: cImpr,
+          borderColor:'#8250df',
+          backgroundColor:'transparent',
+          borderWidth:2, borderDash:[5,4], tension:0.3, fill:false,
+          yAxisID:'yImpressions'
+        }
+      ]
+    },
+    options:{
+      animation:false,
+      responsive:true,
+      maintainAspectRatio:false,
+      elements:{point:{radius:0,hitRadius:8}},
+      plugins:{legend:{display:true,labels:{boxWidth:12,font:{size:12}}}},
+      scales:{
+        x:{ticks:{maxTicksLimit:10,callback:function(v,i){return formatDate(labels[i]);}},grid:{color:'#eaeef2'}},
+        yClicks:{type:'linear',position:'left',grid:{color:'#eaeef2'},ticks:{callback:v=>v>=1e3?(v/1e3).toFixed(0)+'K':v}},
+        yImpressions:{type:'linear',position:'right',grid:{drawOnChartArea:false},ticks:{callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'K':v}}
+      }
+    }
+  });
+
+  // Position distribution stacked bar
+  initPosDistChart(cur);
+}
+
+function initPosDistChart(weeks) {
+  const ctx = document.getElementById('ch-posdist').getContext('2d');
+  const labels = weeks;
+  const top3  = weeks.map(w => D.positionDist[w]?.top3  ?? 0);
+  const top10 = weeks.map(w => D.positionDist[w]?.top10 ?? 0);
+  const top20 = weeks.map(w => D.positionDist[w]?.top20 ?? 0);
+  const other = weeks.map(w => D.positionDist[w]?.other ?? 0);
+
+  chPosDist = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Pos 1–3',   data:top3,  backgroundColor:'#1a7f3788',borderWidth:0},
+        {label:'Pos 4–10',  data:top10, backgroundColor:'#0969da88',borderWidth:0},
+        {label:'Pos 11–20', data:top20, backgroundColor:'#9a670088',borderWidth:0},
+        {label:'Pos 21+',   data:other, backgroundColor:'#65707688',borderWidth:0},
+      ]
+    },
+    options:{
+      animation:false,
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,position:'top',labels:{boxWidth:12,font:{size:12}}}
+      },
+      scales:{
+        x:{stacked:true,ticks:{maxTicksLimit:12,callback:function(v,i){return formatDate(labels[i]);}},grid:{color:'#eaeef2'}},
+        y:{stacked:true,grid:{color:'#eaeef2'},ticks:{callback:v=>v>=1e3?(v/1e3).toFixed(0)+'K':v}}
+      }
+    }
+  });
+}
+
+function updatePosDistChart(weeks) {
+  chPosDist.data.labels = weeks;
+  chPosDist.data.datasets[0].data = weeks.map(w => D.positionDist[w]?.top3  ?? 0);
+  chPosDist.data.datasets[1].data = weeks.map(w => D.positionDist[w]?.top10 ?? 0);
+  chPosDist.data.datasets[2].data = weeks.map(w => D.positionDist[w]?.top20 ?? 0);
+  chPosDist.data.datasets[3].data = weeks.map(w => D.positionDist[w]?.other ?? 0);
+  chPosDist.options.scales.x.ticks.callback = function(v,i){return formatDate(weeks[i]);};
+  chPosDist.update('none');
+}
+
+// ── CTR by position table ─────────────────────────────────────────────────────
+const CTR_BENCHMARKS = {top3:0.13, top10:0.03, top20:0.005, other:0.001};
+const CTR_LABELS     = {top3:'1–3', top10:'4–10', top20:'11–20', other:'21+'};
+
+function renderCtrTable() {
+  const tbody = document.getElementById('tbody-ctrpos');
+  tbody.innerHTML = '';
+  ['top3','top10','top20','other'].forEach(b => {
+    const vismeCtr = D.ctrByPos[b] ?? 0;
+    const bench    = CTR_BENCHMARKS[b];
+    const diff     = vismeCtr - bench;
+    const vs       = diff >= 0
+      ? `<span class="tag tag-green">▲ Above</span>`
+      : `<span class="tag tag-red">▼ Below</span>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>Position ${CTR_LABELS[b]}</td>
+      <td>${fmtCtr(vismeCtr)}</td>
+      <td>${(bench*100).toFixed(1)}%</td>
+      <td>${vs} (${diff>=0?'+':''}${(diff*100).toFixed(2)}%)</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ── Tables ────────────────────────────────────────────────────────────────────
+function getQueryData() {
+  const w = D.queryWindows[String(lookback)];
+  if(!w) return [];
+  return (w.cur || []).map(r => ({
+    key:   r.q,
+    clicks: r.clicks,
+    clicks_py: r.clicks_py,
+    impr:  r.impr,
+    ctr:   r.ctr,
+    pos:   r.pos,
+  }));
+}
+function getPageData() {
+  const w = D.pageWindows[String(lookback)];
+  if(!w) return [];
+  return (w.cur || []).map(r => ({
+    key:   r.url,
+    clicks: r.clicks,
+    clicks_py: r.clicks_py,
+    impr:  r.impr,
+    ctr:   r.ctr,
+    pos:   r.pos,
+  }));
+}
+function getCountryData() {
+  const w = D.countryWindows[String(lookback)];
+  if(!w) return [];
+  return (w.cur || []).map(r => ({
+    key:   r.country,
+    clicks: r.clicks,
+    clicks_py: r.clicks_py,
+    impr:  r.impr,
+    ctr:   r.ctr,
+    pos:   r.pos,
+  }));
+}
+
+function sortData(data, col, dir) {
+  return [...data].sort((a,b) => {
+    let av, bv;
+    switch(col) {
+      case 0: av=a.key;    bv=b.key;    break;
+      case 1: av=a.clicks; bv=b.clicks; break;
+      case 2: av=a.impr;   bv=b.impr;   break;
+      case 3: av=a.ctr;    bv=b.ctr;    break;
+      case 4: av=a.pos;    bv=b.pos;    break;
+      default: av=0; bv=0;
+    }
+    if(typeof av==='string') return dir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
+    return dir==='asc' ? (av??0)-(bv??0) : (bv??0)-(av??0);
+  });
+}
+
+function renderTable(tbodyId, data, rowBuilder) {
+  const tbody = document.getElementById(tbodyId);
+  tbody.innerHTML = '';
+  data.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = rowBuilder(r);
+    tbody.appendChild(tr);
+  });
+}
+
+function queryRowBuilder(r) {
+  return `
+    <td style="max-width:320px;overflow:hidden;text-overflow:ellipsis">${escHtml(r.key)}</td>
+    <td>${fmtFull(r.clicks)}</td>
+    <td>${fmtFull(r.impr)}</td>
+    <td>${fmtCtr(r.ctr)}</td>
+    <td>${fmtPos(r.pos)}</td>
+  `;
+}
+
+function pageRowBuilder(r) {
+  const url = r.key || '/';
+  const href = url.startsWith('/') ? 'https://www.visme.co'+url : url;
+  const disp = url.length>60 ? url.slice(0,57)+'…' : url;
+  return `
+    <td style="max-width:360px;overflow:hidden;text-overflow:ellipsis">
+      <a href="${escHtml(href)}" target="_blank" rel="noopener">${escHtml(disp)}</a>
+    </td>
+    <td>${fmtFull(r.clicks)}</td>
+    <td>${fmtFull(r.impr)}</td>
+    <td>${fmtCtr(r.ctr)}</td>
+    <td>${fmtPos(r.pos)}</td>
+  `;
+}
+
+function countryRowBuilder(r) {
+  const name = r.key ? r.key.charAt(0).toUpperCase()+r.key.slice(1).toLowerCase() : '—';
+  return `
+    <td>${escHtml(name)}</td>
+    <td>${fmtFull(r.clicks)}</td>
+    <td>${fmtFull(r.impr)}</td>
+    <td>${fmtCtr(r.ctr)}</td>
+    <td>${fmtPos(r.pos)}</td>
+  `;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let brandFilter = 'nonbrand'; // default to non-branded
+
+function setBrandFilter(f) {
+  brandFilter = f;
+  document.querySelectorAll('.brand-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + (f === 'all' ? 'all' : f === 'nonbrand' ? 'nonbrand' : 'brand')).classList.add('active');
+  renderQueries();
+}
+
+function isBranded(q) {
+  return q.toLowerCase().includes('visme');
+}
+
+function renderQueries() {
+  const q = document.getElementById('q-search').value.toLowerCase();
+  let data = getQueryData();
+  if(q) data = data.filter(r => r.key.toLowerCase().includes(q));
+
+  // Brand filter
+  const allRows = data;
+  if (brandFilter === 'brand') data = data.filter(r => isBranded(r.key));
+  else if (brandFilter === 'nonbrand') data = data.filter(r => !isBranded(r.key));
+
+  // Update brand summary
+  const brandedClicks = allRows.filter(r => isBranded(r.key)).reduce((a,r) => a + r.clicks, 0);
+  const nonBrandedClicks = allRows.filter(r => !isBranded(r.key)).reduce((a,r) => a + r.clicks, 0);
+  const total = brandedClicks + nonBrandedClicks;
+  const nbShare = total > 0 ? (nonBrandedClicks/total*100).toFixed(1) : '0';
+  document.getElementById('brand-summary').innerHTML =
+    `Branded clicks: <strong>${brandedClicks.toLocaleString()}</strong> &nbsp;|&nbsp; Non-branded clicks: <strong>${nonBrandedClicks.toLocaleString()}</strong> &nbsp;|&nbsp; Non-branded share: <strong>${nbShare}%</strong>`;
+
+  const ss = sortState.queries;
+  data = sortData(data, ss.col, ss.dir);
+  renderTable('tbody-queries', data.slice(0,100), queryRowBuilder);
+  updateSortHeaders('tbl-queries', ss.col, ss.dir);
+  document.getElementById('q-note').textContent =
+    `Showing ${Math.min(data.length,100)} of ${data.length} queries`;
+}
+
+function renderPages() {
+  const q = document.getElementById('p-search').value.toLowerCase();
+  let data = getPageData();
+  if(q) data = data.filter(r => r.key.toLowerCase().includes(q));
+  const ss = sortState.pages;
+  data = sortData(data, ss.col, ss.dir);
+  renderTable('tbody-pages', data.slice(0,100), pageRowBuilder);
+  updateSortHeaders('tbl-pages', ss.col, ss.dir);
+  document.getElementById('p-note').textContent =
+    `Showing ${Math.min(data.length,100)} of ${data.length} pages`;
+}
+
+function renderCountries() {
+  const q = document.getElementById('c-search').value.toLowerCase();
+  let data = getCountryData();
+  if(q) data = data.filter(r => r.key.toLowerCase().includes(q));
+  const ss = sortState.countries;
+  data = sortData(data, ss.col, ss.dir);
+  renderTable('tbody-countries', data.slice(0,30), countryRowBuilder);
+  updateSortHeaders('tbl-countries', ss.col, ss.dir);
+}
+
+function sortTable(type, col, colType) {
+  const ss = sortState[type];
+  if(ss.col === col) {
+    ss.dir = ss.dir === 'desc' ? 'asc' : 'desc';
+  } else {
+    ss.col = col;
+    ss.dir = colType === 'str' ? 'asc' : 'desc';
+  }
+  if(type==='queries')   renderQueries();
+  if(type==='pages')     renderPages();
+  if(type==='countries') renderCountries();
+}
+
+function updateSortHeaders(tableId, col, dir) {
+  const ths = document.querySelectorAll('#'+tableId+' thead th');
+  ths.forEach((th,i) => {
+    th.className = i===col ? 'sort-'+dir : '';
+  });
+}
+
+// ── Period label ───────────────────────────────────────────────────────────────
+function updatePeriodLabel(cur) {
+  if(!cur.length) return;
+  const first = cur[0], last = cur[cur.length-1];
+  // last week end = last + 6 days
+  const lastEnd = new Date(last+'T00:00:00');
+  lastEnd.setDate(lastEnd.getDate()+6);
+  const endStr = lastEnd.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const startStr = new Date(first+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('period-label').textContent =
+    `${lookback} weeks (${startStr} – ${endStr})`;
+}
+
+// ── setWindow / updateAll ──────────────────────────────────────────────────────
+function setWindow(n) {
+  lookback = n;
+  WINDOWS.forEach(w => {
+    const btn = document.getElementById('btn-'+w);
+    if(btn) btn.classList.toggle('active', w===n);
+  });
+  updateAll();
+}
+
+function renderOppsTable() {
+  const allRows = getQueryData();
+  const searchVal = (document.getElementById('search-opps')?.value || '').toLowerCase();
+
+  // Filter: impressions >= 5000, CTR <= 3%, position <= 20
+  let rows = allRows.filter(r =>
+    r.impr >= 5000 &&
+    r.ctr <= 0.03 &&
+    r.pos <= 20 &&
+    (searchVal === '' || r.key.toLowerCase().includes(searchVal))
+  );
+
+  // Opportunity score = impressions * (0.03 - CTR)
+  rows = rows.map(r => ({ ...r, score: r.impr * (0.03 - r.ctr) }));
+  rows.sort((a, b) => b.score - a.score);
+
+  if (!rows.length) {
+    document.getElementById('table-opps').innerHTML = '<div class="no-data">No opportunities found matching criteria</div>';
+    return;
+  }
+
+  const headers = ['Query', 'Impressions', 'Clicks', 'CTR', 'Avg Position', 'Opportunity Score'];
+  let th = headers.map(h => `<th>${h}</th>`).join('');
+  let tb = rows.map(r => `<tr>
+    <td>${escHtml(r.key)}</td>
+    <td class="num">${r.impr.toLocaleString()}</td>
+    <td class="num">${r.clicks.toLocaleString()}</td>
+    <td class="num">${(r.ctr*100).toFixed(2)}%</td>
+    <td class="num">${r.pos.toFixed(1)}</td>
+    <td class="num">${Math.round(r.score).toLocaleString()}</td>
+  </tr>`).join('');
+
+  document.getElementById('table-opps').innerHTML =
+    `<table><thead><tr>${th}</tr></thead><tbody>${tb}</tbody></table>`;
+}
+
+function updateAll() {
+  const {cur, prior} = getWindows(lookback);
+
+  updateStats(cur, prior);
+  updatePeriodLabel(cur);
+
+  // Update line charts
+  const cClicks = cur.map(w=>D.wClicks[w]??null);
+  const pClicks = prior.map(w=>D.wClicks[w]??null);
+  const cImpr   = cur.map(w=>D.wImpressions[w]??null);
+  const pImpr   = prior.map(w=>D.wImpressions[w]??null);
+  const cCtr    = cur.map(w=>D.wCtr[w]!=null?D.wCtr[w]*100:null);
+  const pCtr    = prior.map(w=>D.wCtr[w]!=null?D.wCtr[w]*100:null);
+  const cPos    = cur.map(w=>D.wPosition[w]??null);
+  const pPos    = prior.map(w=>D.wPosition[w]??null);
+
+  updateLineChart(chClicks, cur, cClicks, pClicks);
+  updateLineChart(chImpr,   cur, cImpr,   pImpr);
+  updateLineChart(chCtr,    cur, cCtr,    pCtr);
+  updateLineChart(chPos,    cur, cPos,    pPos);
+
+  // Dual axis
+  chDual.data.labels = cur;
+  chDual.data.datasets[0].data = cClicks;
+  chDual.data.datasets[1].data = cImpr;
+  chDual.options.scales.x.ticks.callback = function(v,i){return formatDate(cur[i]);};
+  chDual.update('none');
+
+  // Position dist
+  updatePosDistChart(cur);
+
+  // Tables
+  renderQueries();
+  renderPages();
+  renderCountries();
+  renderOppsTable();
+}
+
+// ── Sidebar active link on scroll ──────────────────────────────────────────────
+function updateActiveLink() {
+  const sections = document.querySelectorAll('.section');
+  const links    = document.querySelectorAll('#sidebar .source-nav a');
+  let active = null;
+  sections.forEach(s => {
+    if(s.getBoundingClientRect().top <= 80) active = s.id;
+  });
+  links.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#'+(active||'sec-overview'));
+  });
+}
+document.getElementById('main').addEventListener('scroll', updateActiveLink);
+window.addEventListener('scroll', updateActiveLink);
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initCharts();
+  renderCtrTable();
+  updateAll();
+  // Populate topbar date badge
+  const badge = document.getElementById('as-of-badge');
+  if (badge && typeof D !== 'undefined') {
+    const dateStr = D.endDate || D.generatedAt || '';
+    if (dateStr) badge.textContent = 'Data as of ' + String(dateStr).substring(0, 10);
+  }
+  document.getElementById('data-note').innerHTML =
+    `GSC data: <strong>${D.startDate}</strong> to <strong>${D.endDate}</strong>. YoY comparisons not available — data does not extend back 12+ months for most selected windows.`;
+});
+</script>
 </body>
 </html>
