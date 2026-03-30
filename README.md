@@ -45,10 +45,11 @@ Go to **Settings → Secrets and variables → Actions** and add:
 | `HUBSPOT_SHEET_ID` | HubSpot Google Sheet ID: `1TsDySDrmgSQEUjunQg77twgUS1fGgZIC71IbX-bAz1s` |
 | `AMPLITUDE_SHEET_ID` | Amplitude Google Sheet ID: `11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw` |
 | `PPC_SHEET_ID` | PPC Google Sheet ID: `11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho` |
+| `GSC_SHEET_ID` | ID of the Google Sheet populated by the GSC Apps Script exporter |
 
 The service account must have:
 - **GA4 Data API** access (Viewer role on the GA4 property)
-- **Google Sheets API** access (the service account email must have at least Viewer access on both spreadsheets)
+- **Google Sheets API** access (the service account email must have at least Viewer access on all spreadsheets)
 
 ## Adding a New Dashboard
 
@@ -69,6 +70,7 @@ export GA4_CREDENTIALS_FILE="/path/to/service-account.json"
 export GA4_PROPERTY_ID="368188880"
 export HUBSPOT_SHEET_ID="1TsDySDrmgSQEUjunQg77twgUS1fGgZIC71IbX-bAz1s"
 export AMPLITUDE_SHEET_ID="11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw"
+export GSC_SHEET_ID="your-gsc-sheet-id-here"
 
 # Install dependencies
 pip install google-analytics-data google-auth google-api-python-client gspread
@@ -79,6 +81,7 @@ python scripts/build_hubspot.py
 python scripts/build_amplitude.py
 python scripts/build_executive.py
 python scripts/build_ppc.py
+python scripts/build_gsc.py
 ```
 
 Then open the output files in a browser (`file://` URL) to validate.
@@ -100,9 +103,10 @@ visme-dashboards/
 │   ├── build_hubspot.py
 │   ├── build_amplitude.py
 │   ├── build_ppc.py
+│   ├── build_gsc.py
 │   └── shared/
 │       ├── ga4_client.py       ← GA4 Data API helper
-│       ├── sheets_client.py    ← Google Sheets reader
+│       ├── sheets_client.py    ← Google Sheets reader (HubSpot, Amplitude, PPC, GSC)
 │       └── html_utils.py       ← Data injection helper
 └── .github/workflows/
     ├── build.yml               ← Weekly rebuild (Mondays at 10am UTC)

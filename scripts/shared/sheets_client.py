@@ -1,7 +1,6 @@
 """
 scripts/shared/sheets_client.py
-Shared Google Sheets reader for HubSpot and Amplitude data.
-Extracted from update_hubspot.py and update_amplitude.py in mattvisme/visme-dashboard.
+Shared Google Sheets reader for HubSpot, Amplitude, PPC, and GSC data.
 """
 
 import json
@@ -21,6 +20,7 @@ AMPLITUDE_SHEET_ID = os.environ.get("AMPLITUDE_SHEET_ID",
                                      "11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw")
 PPC_SHEET_ID       = os.environ.get("PPC_SHEET_ID",
                                      "11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho")
+GSC_SHEET_ID       = os.environ.get("GSC_SHEET_ID", "")
 
 
 def _get_sheets_service(credentials_file=None):
@@ -242,7 +242,7 @@ def fetch_ppc_data(sheet_id=None) -> dict:
     Returns:
         {
             "generatedAt": "YYYY-MM-DD",
-            "weeks":   ["YYYY-MM-DD", ...],   # Monday boundaries, most-recent-first
+            "weeks":   ["YYYY-MM-DD", ...],   # Monday boundaries, oldest-first
             "spend":   {"YYYY-MM-DD": float},
             "clicks":  {"YYYY-MM-DD": int},
             "ctr":     {"YYYY-MM-DD": float},  # clicks/impressions, 0 if impr==0
@@ -336,12 +336,12 @@ def fetch_ppc_data(sheet_id=None) -> dict:
         w_revenue[week] = w_revenue.get(week, 0.0) + value
 
     # ── Assemble weeks list (most-recent-first) ───────────────────────────────
-    all_weeks = sorted(w_spend.keys(), reverse=True)
+    all_weeks = sorted(w_spend.keys())
     print(f"  PPC weeks found: {len(all_weeks)}")
 
     # Use the most recent data week as generatedAt (not today), so the hub
     # "Data as of" badge reflects the actual last date of ad data.
-    last_data_date = all_weeks[0] if all_weeks else date.today().strftime("%Y-%m-%d")
+    last_data_date = all_weeks[-1] if all_weeks else date.today().strftime("%Y-%m-%d")
 
     payload = {
         "generatedAt": last_data_date,
@@ -361,4 +361,115 @@ def fetch_ppc_data(sheet_id=None) -> dict:
         },
         "revenue": {w: round(w_revenue.get(w, 0.0), 2) for w in all_weeks},
     }
+    return payload
+
+
+def fetch_gsc_sheet_data(sheet_id=None, credentials_file=None) -> dict:
+    """
+    Read GSC data from a Google Sheet populated by the GSC Apps Script exporter.
+
+    Tab schemas (all have a header row):
+        gsc_weekly (A:E):
+            week | clicks | impressions | ctr | position
+        gsc_queries (A:G):
+            window | query | clicks | clicks_py | impressions | ctr | position
+        gsc_pages (A:G):
+            window | url | clicks | clicks_py | impressions | ctr | position
+        gsc_countries (A:G):
+            window | country | clicks | clicks_py | impressions | ctr | position
+
+    Returns the D object expected by gsc/index.html:
+        {
+          generatedAt, startDate, endDate,
+          weeks, wClicks, wImpressions, wCtr, wPosition,
+          positionDist, ctrByPos,
+          queryWindows, pageWindows, countryWindows
+        }
+    """
+    if sheet_id is None:
+        sheet_id = GSC_SHEET_ID
+
+    sheets = _get_sheets_service(credentials_file)
+
+    # ── gsc_weekly ────────────────────────────────────────────────────────────
+    print("  Pulling GSC 'gsc_weekly'…")
+    result = sheets.values().get(spreadsheetId=sheet_id, range="gsc_weekly!A2:E").execute()
+    rows = result.get("values", [])
+
+    w_clicks = {}
+    w_impr   = {}
+    w_ctr    = {}
+    w_pos    = {}
+    skipped  = 0
+
+    for row in rows:
+        if not row or not row[0]:
+            continue
+        week = str(row[0]).strip()
+        try:
+            datetime.strptime(week, "%Y-%m-%d")
+        except ValueError:
+            skipped += 1
+            continue
+        w_clicks[week] = int(_parse_float(row[1] if len(row) > 1 else None))
+        w_impr[week]   = int(_parse_float(row[2] if len(row) > 2 else None))
+        ctr_val        = _parse_float(row[3] if len(row) > 3 else None)
+        w_ctr[week]    = round(ctr_val, 6)
+        pos_val        = _parse_float(row[4] if len(row) > 4 else None)
+        w_pos[week]    = round(pos_val, 3) if pos_val > 0 else None
+
+    all_weeks  = sorted(w_clicks.keys())
+    start_date = all_weeks[0]  if all_weeks else ""
+    end_date   = all_weeks[-1] if all_weeks else ""
+    print(f"    {len(all_weeks)} weeks  ({skipped} skipped)  endDate={end_date}")
+
+    # ── dimension windows (queries / pages / countries) ───────────────────────
+    def read_window_tab(tab_name, key_field):
+        print(f"  Pulling GSC '{tab_name}'…")
+        res = sheets.values().get(spreadsheetId=sheet_id,
+                                  range=f"{tab_name}!A2:G").execute()
+        tab_rows = res.get("values", [])
+        windows = {}
+        for row in tab_rows:
+            if not row or len(row) < 2:
+                continue
+            win = str(row[0]).strip()
+            if not win:
+                continue
+            key = str(row[1]).strip()
+            item = {
+                key_field:   key,
+                "clicks":    int(_parse_float(row[2] if len(row) > 2 else None)),
+                "clicks_py": int(_parse_float(row[3] if len(row) > 3 else None)),
+                "impr":      int(_parse_float(row[4] if len(row) > 4 else None)),
+                "ctr":       round(_parse_float(row[5] if len(row) > 5 else None), 6),
+                "pos":       round(_parse_float(row[6] if len(row) > 6 else None), 3),
+            }
+            if win not in windows:
+                windows[win] = {"cur": []}
+            windows[win]["cur"].append(item)
+        total = sum(len(v["cur"]) for v in windows.values())
+        print(f"    {total} rows across {len(windows)} windows")
+        return windows
+
+    query_windows   = read_window_tab("gsc_queries",   "q")
+    page_windows    = read_window_tab("gsc_pages",     "url")
+    country_windows = read_window_tab("gsc_countries", "country")
+
+    payload = {
+        "generatedAt":    end_date,
+        "startDate":      start_date,
+        "endDate":        end_date,
+        "weeks":          all_weeks,
+        "wClicks":        w_clicks,
+        "wImpressions":   w_impr,
+        "wCtr":           w_ctr,
+        "wPosition":      w_pos,
+        "positionDist":   {},
+        "ctrByPos":       {},
+        "queryWindows":   query_windows,
+        "pageWindows":    page_windows,
+        "countryWindows": country_windows,
+    }
+    print(f"  GSC sheet payload ready — {len(all_weeks)} weeks, endDate={end_date}")
     return payload
