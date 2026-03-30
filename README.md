@@ -13,8 +13,8 @@ Self-contained marketing analytics dashboards served via GitHub Pages. Each dash
 | GA4 Traffic & Engagement | `/ga4/` | GA4 |
 | HubSpot Pipeline & Revenue | `/hubspot/` | HubSpot (Google Sheets) |
 | Amplitude PLG Metrics | `/amplitude/` | Amplitude (Google Sheets) |
-| GSC SEO Performance | `/gsc/` | Coming soon |
-| Paid Media | `/paid-media/` | Coming soon |
+| GSC SEO Performance | `/gsc/` | Google Search Console API |
+| Paid Media | `/paid-media/` | Google Ads (Google Sheets) + Amplitude |
 
 ## How It Works
 
@@ -44,6 +44,7 @@ Go to **Settings → Secrets and variables → Actions** and add:
 | `GA4_PROPERTY_ID` | GA4 property ID: `368188880` |
 | `HUBSPOT_SHEET_ID` | HubSpot Google Sheet ID: `1TsDySDrmgSQEUjunQg77twgUS1fGgZIC71IbX-bAz1s` |
 | `AMPLITUDE_SHEET_ID` | Amplitude Google Sheet ID: `11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw` |
+| `PPC_SHEET_ID` | PPC Google Sheet ID: `11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho` |
 
 The service account must have:
 - **GA4 Data API** access (Viewer role on the GA4 property)
@@ -77,6 +78,7 @@ python scripts/build_ga4.py
 python scripts/build_hubspot.py
 python scripts/build_amplitude.py
 python scripts/build_executive.py
+python scripts/build_ppc.py
 ```
 
 Then open the output files in a browser (`file://` URL) to validate.
@@ -90,13 +92,14 @@ visme-dashboards/
 ├── ga4/index.html              ← GA4 traffic & engagement
 ├── hubspot/index.html          ← HubSpot pipeline & revenue
 ├── amplitude/index.html        ← Amplitude PLG metrics
-├── gsc/index.html              ← Placeholder (GSC coming soon)
-├── paid-media/index.html       ← Placeholder (Google Ads coming soon)
+├── gsc/index.html              ← GSC SEO dashboard (template)
+├── paid-media/index.html       ← Paid Media dashboard (template)
 ├── scripts/
 │   ├── build_executive.py
 │   ├── build_ga4.py
 │   ├── build_hubspot.py
 │   ├── build_amplitude.py
+│   ├── build_ppc.py
 │   └── shared/
 │       ├── ga4_client.py       ← GA4 Data API helper
 │       ├── sheets_client.py    ← Google Sheets reader

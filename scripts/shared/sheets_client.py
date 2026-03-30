@@ -8,7 +8,7 @@ import json
 import os
 import sys
 import tempfile
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
@@ -19,6 +19,8 @@ HUBSPOT_SHEET_ID   = os.environ.get("HUBSPOT_SHEET_ID",
                                      "1TsDySDrmgSQEUjunQg77twgUS1fGgZIC71IbX-bAz1s")
 AMPLITUDE_SHEET_ID = os.environ.get("AMPLITUDE_SHEET_ID",
                                      "11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw")
+PPC_SHEET_ID       = os.environ.get("PPC_SHEET_ID",
+                                     "11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho")
 
 
 def _get_sheets_service(credentials_file=None):
@@ -218,5 +220,143 @@ def fetch_amplitude_data(sheet_id=None, credentials_file=None) -> dict:
         "activations": {d: merged[d]["activations"] for d in sorted_dates},
         "cr":          {d: merged[d]["cr"]          for d in sorted_dates},
         "lastDate":    sorted_dates[-1] if sorted_dates else "",
+    }
+    return payload
+
+
+def fetch_ppc_data(sheet_id=None) -> dict:
+    """
+    Read raw_campaign_daily and raw_conv_actions_daily from the PPC Google Sheet
+    and aggregate into weekly metrics.
+
+    Tab schemas:
+        raw_campaign_daily (A:H):
+            date, campaign_id, campaign_name, cost, impressions, clicks,
+            conversions, search_impr_share
+        raw_conv_actions_daily (A:F):
+            date, campaign_id, campaign_name, conversion_action_name,
+            conversions, all_conversions_value
+
+    Revenue excludes rows where conversion_action_name == "Purchase-upload".
+
+    Returns:
+        {
+            "generatedAt": "YYYY-MM-DD",
+            "weeks":   ["YYYY-MM-DD", ...],   # Monday boundaries, most-recent-first
+            "spend":   {"YYYY-MM-DD": float},
+            "clicks":  {"YYYY-MM-DD": int},
+            "ctr":     {"YYYY-MM-DD": float},  # clicks/impressions, 0 if impr==0
+            "convs":   {"YYYY-MM-DD": float},
+            "cpc":     {"YYYY-MM-DD": float},  # spend/convs, 0 if convs==0
+            "revenue": {"YYYY-MM-DD": float},
+        }
+        Note: "signups" is NOT included — merged in by build_ppc.py.
+    """
+    if sheet_id is None:
+        sheet_id = PPC_SHEET_ID
+
+    sheets = _get_sheets_service()
+
+    def _parse_num(v, cast=float):
+        if v is None or str(v).strip() == "":
+            return cast(0)
+        try:
+            return cast(str(v).replace(",", "").replace("$", "").strip())
+        except (ValueError, TypeError):
+            return cast(0)
+
+    def _get_monday(d: date) -> str:
+        """Return YYYY-MM-DD string for the Monday of the week containing d."""
+        monday = d - timedelta(days=d.weekday())
+        return monday.strftime("%Y-%m-%d")
+
+    # ── raw_campaign_daily ────────────────────────────────────────────────────
+    print("  Pulling PPC 'raw_campaign_daily'…")
+    result = sheets.values().get(
+        spreadsheetId=sheet_id, range="raw_campaign_daily!A:H"
+    ).execute()
+    campaign_rows = result.get("values", [])
+    if campaign_rows:
+        campaign_rows = campaign_rows[1:]   # skip header row
+
+    print(f"  PPC campaign rows: {len(campaign_rows)}")
+
+    # Weekly accumulators
+    w_spend       = {}
+    w_clicks      = {}
+    w_impressions = {}
+    w_convs       = {}
+
+    for row in campaign_rows:
+        if not row or not row[0]:
+            continue
+        date_str = str(row[0]).strip()
+        try:
+            d = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        week = _get_monday(d)
+        cost        = _parse_num(row[3] if len(row) > 3 else None, float)
+        impressions = _parse_num(row[4] if len(row) > 4 else None, float)
+        clicks      = _parse_num(row[5] if len(row) > 5 else None, float)
+        convs       = _parse_num(row[6] if len(row) > 6 else None, float)
+
+        w_spend[week]       = w_spend.get(week, 0.0)       + cost
+        w_impressions[week] = w_impressions.get(week, 0.0) + impressions
+        w_clicks[week]      = w_clicks.get(week, 0.0)      + clicks
+        w_convs[week]       = w_convs.get(week, 0.0)       + convs
+
+    # ── raw_conv_actions_daily ────────────────────────────────────────────────
+    print("  Pulling PPC 'raw_conv_actions_daily'…")
+    result2 = sheets.values().get(
+        spreadsheetId=sheet_id, range="raw_conv_actions_daily!A:F"
+    ).execute()
+    conv_rows = result2.get("values", [])
+    if conv_rows:
+        conv_rows = conv_rows[1:]   # skip header row
+
+    print(f"  PPC conv action rows: {len(conv_rows)}")
+
+    EXCLUDE_ACTION = "Purchase-upload"
+    w_revenue = {}
+
+    for row in conv_rows:
+        if not row or not row[0]:
+            continue
+        date_str = str(row[0]).strip()
+        try:
+            d = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        action_name = str(row[3]).strip() if len(row) > 3 else ""
+        if action_name == EXCLUDE_ACTION:
+            continue
+        value = _parse_num(row[5] if len(row) > 5 else None, float)
+        week  = _get_monday(d)
+        w_revenue[week] = w_revenue.get(week, 0.0) + value
+
+    # ── Assemble weeks list (most-recent-first) ───────────────────────────────
+    all_weeks = sorted(w_spend.keys(), reverse=True)
+    print(f"  PPC weeks found: {len(all_weeks)}")
+
+    today_str = date.today().strftime("%Y-%m-%d")
+
+    payload = {
+        "generatedAt": today_str,
+        "weeks":  all_weeks,
+        "spend":  {w: round(w_spend.get(w, 0.0), 2)   for w in all_weeks},
+        "clicks": {w: int(w_clicks.get(w, 0))          for w in all_weeks},
+        "ctr":    {
+            w: round(w_clicks.get(w, 0) / w_impressions[w], 4)
+            if w_impressions.get(w, 0) > 0 else 0
+            for w in all_weeks
+        },
+        "convs":   {w: round(w_convs.get(w, 0.0), 2)   for w in all_weeks},
+        "cpc":     {
+            w: round(w_spend.get(w, 0.0) / w_convs[w], 2)
+            if w_convs.get(w, 0) > 0 else 0
+            for w in all_weeks
+        },
+        "revenue": {w: round(w_revenue.get(w, 0.0), 2) for w in all_weeks},
     }
     return payload
