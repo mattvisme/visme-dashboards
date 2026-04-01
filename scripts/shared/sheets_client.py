@@ -81,7 +81,7 @@ def fetch_hubspot_data(sheet_id=None, credentials_file=None) -> dict:
 
     # Weekly Summary tab
     print("  Pulling HubSpot 'Weekly Summary'…")
-    result = sheets.values().get(spreadsheetId=sheet_id, range="Weekly Summary!A2:F").execute()
+    result = sheets.values().get(spreadsheetId=sheet_id, range="Weekly Summary!A2:G").execute()
     rows = result.get("values", [])
     summary = {}
     skipped_s = 0
@@ -95,11 +95,12 @@ def fetch_hubspot_data(sheet_id=None, credentials_file=None) -> dict:
             skipped_s += 1
             continue
         summary[date_str] = {
-            "leads":    _parse_float(row[1] if len(row) > 1 else None),
-            "mqls":     _parse_float(row[2] if len(row) > 2 else None),
-            "deals":    _parse_float(row[3] if len(row) > 3 else None),
-            "pipeline": _parse_float(row[4] if len(row) > 4 else None),
-            "revenue":  _parse_float(row[5] if len(row) > 5 else None),
+            "leads":          _parse_float(row[1] if len(row) > 1 else None),
+            "mqls":           _parse_float(row[2] if len(row) > 2 else None),
+            "deals":          _parse_float(row[3] if len(row) > 3 else None),
+            "pipeline":       _parse_float(row[4] if len(row) > 4 else None),
+            "revenue":        _parse_float(row[5] if len(row) > 5 else None),
+            "closedWonCount": int(float(row[6])) if len(row) > 6 and str(row[6]).strip() not in ("", "None") else 0,
         }
     print(f"    {len(summary)} valid summary rows  ({skipped_s} skipped)")
 
