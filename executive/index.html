@@ -346,11 +346,13 @@ function updateFullFunnel() {
   const leads=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.leads||0),0):null;
   const mqls=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.mqls||0),0):null;
   const deals=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.deals||0),0):null;
+  const customers=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.closedWonCount||0),0):null;
   const pSessions=s.prev.reduce((a,w)=>a+(GA4.sessions[w]||0),0);
   const pSignups=sAmp?sAmp.prev.reduce((a,w)=>a+(AMP.signups[w]||0),0):null;
   const pLeads=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.leads||0),0):null;
   const pMqls=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.mqls||0),0):null;
   const pDeals=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.deals||0),0):null;
+  const pCustomers=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.closedWonCount||0),0):null;
   function rate(num,den){return(num!=null&&den>0)?num/den*100:null;}
   function fmtRate(r){return r!=null?r.toFixed(2)+'%':'—';}
   function chgHtml(curr,prev){
@@ -363,7 +365,7 @@ function updateFullFunnel() {
     {label:'Signup → Lead',curr:rate(leads,signups),prev:rate(pLeads,pSignups),volCurr:leads,volPrev:pLeads},
     {label:'Lead → MQL',curr:rate(mqls,leads),prev:rate(pMqls,pLeads),volCurr:mqls,volPrev:pMqls},
     {label:'MQL → Deal',curr:rate(deals,mqls),prev:rate(pDeals,pMqls),volCurr:deals,volPrev:pDeals},
-    {label:'Deal → Customer',curr:null,prev:null,volCurr:null,volPrev:null},
+    {label:'Deal → Customer',curr:rate(customers,deals),prev:rate(pCustomers,pDeals),volCurr:customers,volPrev:pCustomers},
   ];
   let html=`<table style="width:100%;border-collapse:collapse;font-family:var(--font-ui)"><thead><tr style="border-bottom:2px solid var(--border)">
   <th style="text-align:left;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Conversion Step</th>
@@ -374,7 +376,7 @@ function updateFullFunnel() {
 </tr></thead><tbody>`;
   steps.forEach((r,i)=>{
     const bg=i%2===0?'':'background:var(--surface2)';
-    const note=r.label==='Deal → Customer'?'<span style="color:var(--text-muted);font-size:10.5px"> requires closed won deal count</span>':'';
+    const note='';
     html+=`<tr style="${bg}">
       <td style="padding:11px 14px;font-size:13px;font-weight:600;color:var(--text)">${r.label}</td>
       <td style="text-align:right;padding:11px 14px;font-size:13px;color:var(--text)">${r.volCurr!=null?fmtNum(r.volCurr):'—'}</td>
