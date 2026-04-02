@@ -5,25 +5,26 @@
 
     function checkAuth() {
         // Don't protect login page
-        if (window.location.pathname.includes('login.html')) {
+        if (window.location.pathname.includes('login.html') || window.location.href.includes('login.html')) {
             return;
         }
 
         const stored = localStorage.getItem(SESSION_KEY);
         
         if (!stored) {
-            window.location.href = '/login.html';
+            // No session, redirect to login
+            window.location.replace('/login.html');
             return;
         }
 
         try {
-            const { timestamp } = JSON.parse(stored);
+            const data = JSON.parse(stored);
             const now = Date.now();
             
             // Check if session expired
-            if (now - timestamp > SESSION_EXPIRY) {
+            if (now - data.timestamp > SESSION_EXPIRY) {
                 localStorage.removeItem(SESSION_KEY);
-                window.location.href = '/login.html';
+                window.location.replace('/login.html');
                 return;
             }
             
@@ -34,14 +35,10 @@
             }));
         } catch (e) {
             localStorage.removeItem(SESSION_KEY);
-            window.location.href = '/login.html';
+            window.location.replace('/login.html');
         }
     }
 
-    // Run auth check when page loads
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', checkAuth);
-    } else {
-        checkAuth();
-    }
+    // Run auth check IMMEDIATELY, don't wait for DOM
+    checkAuth();
 })();
