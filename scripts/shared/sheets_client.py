@@ -215,7 +215,7 @@ def fetch_amplitude_data(sheet_id=None, credentials_file=None) -> dict:
     this_monday_str = (date.today() - timedelta(days=date.today().weekday())).strftime("%Y-%m-%d")
     sorted_dates = [d for d in sorted(merged.keys()) if d < this_monday_str]
     print(f"  Amplitude merged: {len(sorted_dates)} unique weeks "
-          f"({sorted_dates[0] if sorted_dates else '—'} → {sorted_dates[-1] if sorted_dates else '—'})")
+          f"({sorted_dates[0] if sorted_dates else '-'} to {sorted_dates[-1] if sorted_dates else '-'})")
 
     last_monday_dt = datetime.strptime(sorted_dates[-1], "%Y-%m-%d").date() if sorted_dates else date.today()
     last_date = (last_monday_dt + timedelta(days=6)).strftime("%Y-%m-%d")
@@ -483,6 +483,143 @@ def fetch_gsc_sheet_data(sheet_id=None, credentials_file=None) -> dict:
     }
     print(f"  GSC sheet payload ready — {len(all_weeks)} weeks, endDate={end_date}")
     return payload
+
+
+def fetch_google_ads_from_sheet(sheet_id=None, credentials_file=None) -> dict:
+    """
+    Read raw_campaign_daily from the PPC Google Sheet and return the same
+    structure that google_ads_client.fetch_all_google_ads() would produce.
+
+    Tab schema — raw_campaign_daily (A:H):
+        date, campaign_id, campaign_name, cost, impressions, clicks,
+        conversions, search_impr_share
+
+    Campaign type is inferred from the name prefix:
+        GS_ → Search  |  GV_ → Video  |  GD_ → Display
+        PMAX_ / PM_ → PMax  |  otherwise → Other
+
+    Returns:
+        {
+          "weekly":    [{week_start, week_end, label, g_spend, g_clicks,
+                         g_impressions, g_conversions}],
+          "camps":     [{name, type, spend, clicks, impressions, conversions}],
+          "ads":       [],
+          "kw":        [],
+          "kw_weekly": [],
+          "geo":       {},
+          "budgets":   {},
+          "build_date": "YYYY-MM-DD",
+        }
+    """
+    if sheet_id is None:
+        sheet_id = PPC_SHEET_ID
+
+    sheets = _get_sheets_service(credentials_file)
+
+    def _n(v, cast=float):
+        if v is None or str(v).strip() == "":
+            return cast(0)
+        try:
+            return cast(str(v).replace(",", "").replace("$", "").strip())
+        except (ValueError, TypeError):
+            return cast(0)
+
+    def _get_monday(d: date) -> str:
+        return (d - timedelta(days=d.weekday())).strftime("%Y-%m-%d")
+
+    def _infer_type(name: str) -> str:
+        n = name.upper()
+        if n.startswith("GS_"):    return "Search"
+        if n.startswith("GV_"):    return "Video"
+        if n.startswith("GD_"):    return "Display"
+        if n.startswith("PMAX_") or n.startswith("PM_"): return "PMax"
+        return "Other"
+
+    print("Google Ads (sheet): reading raw_campaign_daily...")
+    result = sheets.values().get(
+        spreadsheetId=sheet_id, range="raw_campaign_daily!A:H"
+    ).execute()
+    rows = result.get("values", [])[1:]   # skip header
+
+    today       = date.today()
+    this_monday = (today - timedelta(days=today.weekday())).strftime("%Y-%m-%d")
+
+    # Weekly accumulators
+    w_spend = {}; w_impr = {}; w_clicks = {}; w_convs = {}
+
+    # Campaign accumulators (lifetime totals)
+    c_spend = {}; c_impr = {}; c_clicks = {}; c_convs = {}; c_type = {}
+
+    for row in rows:
+        if not row or not row[0]:
+            continue
+        try:
+            d = datetime.strptime(str(row[0]).strip(), "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        week = _get_monday(d)
+        camp = str(row[2]).strip() if len(row) > 2 else "Unknown"
+        cost  = _n(row[3] if len(row) > 3 else None)
+        impr  = _n(row[4] if len(row) > 4 else None)
+        clk   = _n(row[5] if len(row) > 5 else None)
+        conv  = _n(row[6] if len(row) > 6 else None)
+
+        w_spend[week]  = w_spend.get(week, 0.0)  + cost
+        w_impr[week]   = w_impr.get(week, 0.0)   + impr
+        w_clicks[week] = w_clicks.get(week, 0.0) + clk
+        w_convs[week]  = w_convs.get(week, 0.0)  + conv
+
+        c_spend[camp]  = c_spend.get(camp, 0.0)  + cost
+        c_impr[camp]   = c_impr.get(camp, 0.0)   + impr
+        c_clicks[camp] = c_clicks.get(camp, 0.0) + clk
+        c_convs[camp]  = c_convs.get(camp, 0.0)  + conv
+        if camp not in c_type:
+            c_type[camp] = _infer_type(camp)
+
+    all_weeks = [w for w in sorted(w_spend) if w < this_monday]
+    print(f"  -> {len(all_weeks)} complete weeks  "
+          f"({all_weeks[0] if all_weeks else '-'} to {all_weeks[-1] if all_weeks else '-'})")
+
+    weekly = []
+    for ws in all_weeks:
+        we = (datetime.strptime(ws, "%Y-%m-%d") + timedelta(days=6)).strftime("%Y-%m-%d")
+        weekly.append({
+            "week_start":    ws,
+            "week_end":      we,
+            "label":         _fmt_label(we),
+            "g_spend":       round(w_spend.get(ws, 0.0), 2),
+            "g_clicks":      int(w_clicks.get(ws, 0)),
+            "g_impressions": int(w_impr.get(ws, 0)),
+            "g_conversions": round(w_convs.get(ws, 0.0), 2),
+        })
+
+    camps = sorted(
+        [
+            {
+                "name":        camp,
+                "type":        c_type[camp],
+                "spend":       round(c_spend[camp], 2),
+                "clicks":      int(c_clicks[camp]),
+                "impressions": int(c_impr[camp]),
+                "conversions": round(c_convs[camp], 2),
+            }
+            for camp in c_spend
+        ],
+        key=lambda r: r["spend"],
+        reverse=True,
+    )
+    print(f"  -> {len(camps)} campaigns")
+
+    return {
+        "weekly":    weekly,
+        "camps":     camps,
+        "ads":       [],
+        "kw":        [],
+        "kw_weekly": [],
+        "geo":       {},
+        "budgets":   {},
+        "build_date": today.isoformat(),
+    }
 
 
 def fetch_bing_weekly(sheet_id, credentials_file=None):

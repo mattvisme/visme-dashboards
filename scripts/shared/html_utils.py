@@ -22,7 +22,7 @@ PLACEHOLDER = "<!-- DATA_INJECTION_POINT -->"
 #   const VARNAME = {single-line JSON};
 #   </script>
 _INJECTED_RE = re.compile(
-    r"<script>\n(?:const [A-Z][A-Z0-9_]* = \{[^\n]*\};\n)+</script>"
+    r"<script>\n(?:const [A-Z][A-Z0-9_]* = [^\n]+;\n)+</script>"
 )
 
 
@@ -78,4 +78,4 @@ def inject_data(template_path: str, data_dict: dict, output_path: str):
         f.write(html)
 
     kb = len(html.encode("utf-8")) / 1024
-    print(f"✅  Written {output_path} ({kb:.1f} KB)")
+    print(f"Written {output_path} ({kb:.1f} KB)")
