@@ -28,6 +28,7 @@ jobs:
             google-api-python-client \
             google-auth-httplib2 \
             google-auth-oauthlib \
+            google-ads \
             gspread
 
       - name: Build Executive dashboard
@@ -59,8 +60,11 @@ jobs:
       - name: Build Paid Media (PPC) dashboard
         env:
           GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
-          PPC_SHEET_ID: ${{ secrets.PPC_SHEET_ID }}
-          AMPLITUDE_SHEET_ID: ${{ secrets.AMPLITUDE_SHEET_ID }}
+          GOOGLE_ADS_DEVELOPER_TOKEN: ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CUSTOMER_ID: "2405880186"
+          GOOGLE_ADS_MANAGER_ID: "4091490058"
+          COLLEAGUE_PPC_SHEET_ID: ${{ secrets.COLLEAGUE_PPC_SHEET_ID }}
+          AMPLITUDE_SHEET_ID: "11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw"
         run: python scripts/build_ppc.py
 
       - name: Build GSC SEO dashboard

@@ -1,349 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Paid Media Performance — Visme Marketing</title>
-<link rel="icon" type="image/png" href="https://www.visme.co/favicon-32x32.png">
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-<style>
-  :root {
-    --bg: #F8FAFB;
-    --surface: #FFFFFF;
-    --surface2: #EFF6FC;
-    --sidebar: #1E2A35;
-    --sidebar-accent: #273542;
-    --text: #293745;
-    --text-muted: #7F859D;
-    --text-dim: #A8B2C0;
-    --accent: #3CACD7;
-    --accent2: #3D92E7;
-    --accent3: #6CC395;
-    --accent-pale: #EFF6FC;
-    --border: #BBD0E5;
-    --border-light: #E7EFF3;
-    --sidebar-w: 232px;
-    --topbar-h: 72px;
-    --radius: 10px;
-    --radius-sm: 6px;
-    --shadow: 0 1px 3px rgba(41,55,69,.07), 0 4px 16px rgba(41,55,69,.05);
-    --shadow-md: 0 4px 12px rgba(41,55,69,.1), 0 12px 40px rgba(41,55,69,.07);
-    --font-ui: 'Lato', sans-serif;
-    --font-display: 'Montserrat', sans-serif;
-    /* Legacy aliases */
-    --muted: #7F859D;
-    --green: #1a7f37;
-    --red: #cf222e;
-    --amber: #9a6700;
-    --purple: #8250df;
-  }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Paid Media Performance — Visme Marketing</title>
+  <link rel="icon" type="image/png" href="https://www.visme.co/favicon-32x32.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #F8FAFB;
+      --surface: #FFFFFF;
+      --surface2: #EFF6FC;
+      --sidebar: #1E2A35;
+      --sidebar-accent: #273542;
+      --text: #293745;
+      --text-muted: #7F859D;
+      --text-dim: #A8B2C0;
+      --accent: #3CACD7;
+      --accent2: #3D92E7;
+      --accent3: #6CC395;
+      --accent-pale: #EFF6FC;
+      --border: #BBD0E5;
+      --border-light: #E7EFF3;
+      --sidebar-w: 232px;
+      --topbar-h: 72px;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --shadow: 0 1px 3px rgba(41,55,69,.07), 0 4px 16px rgba(41,55,69,.05);
+      --font-ui: 'Lato', sans-serif;
+      --font-display: 'Montserrat', sans-serif;
+      --g-color: #3CACD7;
+      --m-color: #00A4EF;
+      --warn-color: #E8694A;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-ui); font-size: 14px; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ── SIDEBAR ── */
+    #sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w);
+      background: var(--sidebar); display: flex; flex-direction: column;
+      z-index: 100; overflow-y: auto;
+    }
+    .sidebar-logo { padding: 22px 20px 18px; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .source-group { padding: 10px 0 4px; }
+    .source-header { display: flex; align-items: center; gap: 8px; padding: 6px 20px 4px; }
+    .source-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .source-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .7px;
+      text-transform: uppercase; color: rgba(255,255,255,.38);
+      font-family: var(--font-display);
+    }
+    .source-nav { list-style: none; padding: 0 0 6px; }
+    .source-nav li a {
+      display: block; padding: 6px 20px 6px 35px;
+      color: rgba(255,255,255,.58); text-decoration: none;
+      font-size: 12.5px; transition: background .15s, color .15s;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .source-nav li a:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.9); }
+    .source-nav li a.active { background: rgba(60,172,215,.18); color: #3CACD7; font-weight: 700; }
+    .sidebar-footer {
+      margin-top: auto; padding: 18px 20px;
+      font-size: 10.5px; color: rgba(255,255,255,.25);
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
 
-  body {
-    font-family: var(--font-ui);
-    font-size: 14px;
-    color: var(--text);
-    background: var(--bg);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+    /* ── TOPBAR ── */
+    #topbar {
+      position: fixed; top: 0; left: var(--sidebar-w); right: 0;
+      height: var(--topbar-h); background: var(--surface);
+      border-bottom: 1px solid var(--border-light);
+      display: flex; align-items: center; gap: 20px;
+      padding: 0 28px; z-index: 90;
+    }
+    .topbar-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--text); }
+    .topbar-title span { color: var(--accent); }
+    .topbar-controls { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+    .window-pills { display: flex; gap: 4px; }
+    .pill {
+      padding: 5px 13px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: transparent; color: var(--text-muted); font-size: 12px;
+      font-family: var(--font-ui); font-weight: 700; cursor: pointer; transition: all .15s;
+    }
+    .pill:hover { border-color: var(--accent); color: var(--accent); }
+    .pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .date-range-label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+    .as-of-badge {
+      font-size: 11px; color: var(--text-dim);
+      background: var(--bg); border: 1px solid var(--border-light);
+      border-radius: 20px; padding: 4px 12px;
+    }
 
-  /* Sidebar */
-  #sidebar {
-    position: fixed; top: 0; left: 0;
-    width: var(--sidebar-w); height: 100vh;
-    background: var(--sidebar);
-    display: flex; flex-direction: column;
-    z-index: 100; overflow-y: auto;
-    scrollbar-width: none;
-  }
-  #sidebar::-webkit-scrollbar { display: none; }
+    /* ── MAIN ── */
+    #main {
+      margin-left: var(--sidebar-w);
+      padding-top: calc(var(--topbar-h) + 24px);
+      padding-bottom: 60px;
+    }
 
-  .sidebar-logo {
-    padding: 18px 16px 14px;
-    border-bottom: 1px solid rgba(255,255,255,.07);
-    flex-shrink: 0;
-  }
+    /* ── SECTIONS ── */
+    .section {
+      margin: 0 28px 36px; background: var(--surface);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+      border: 1px solid var(--border-light); overflow: hidden;
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 18px 24px 16px; border-bottom: 1px solid var(--border-light);
+    }
+    .section-num { font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--text-dim); }
+    .section-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--text); }
+    .section-body { padding: 20px 24px; }
 
-  .source-group { margin-top: 6px; }
+    /* ── KPI TILES ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
+    .kpi-tile {
+      background: var(--bg); border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm); padding: 16px 18px;
+    }
+    .kpi-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .kpi-value { font-family: var(--font-display); font-size: 26px; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 8px; }
+    .kpi-changes { display: flex; gap: 8px; flex-wrap: wrap; }
+    .kpi-badge { font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 7px; }
+    .kpi-badge.up   { background: rgba(108,195,149,.15); color: #2a8a5a; }
+    .kpi-badge.down { background: rgba(232,105,74,.15);  color: #c04020; }
+    .kpi-badge.neu  { background: rgba(160,176,192,.15); color: var(--text-muted); }
 
-  .source-header {
-    display: flex; align-items: center; gap: 7px;
-    padding: 8px 14px 4px;
-  }
+    /* ── SPLIT BARS ── */
+    .split-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+    .split-card { background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 14px 16px; }
+    .split-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; }
+    .split-bar-track { height: 10px; border-radius: 6px; overflow: hidden; background: var(--border-light); display: flex; }
+    .split-bar-g { background: var(--g-color); height: 100%; }
+    .split-bar-m { background: var(--m-color); height: 100%; }
+    .split-legend { display: flex; gap: 14px; margin-top: 8px; font-size: 11px; color: var(--text-muted); }
+    .split-legend span::before { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: middle; content: ""; }
+    .split-legend .leg-g::before { background: var(--g-color); }
+    .split-legend .leg-m::before { background: var(--m-color); }
 
-  .source-dot {
-    width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
-  }
+    /* ── CHARTS ── */
+    .chart-wrap { position: relative; height: 280px; width: 100%; }
+    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 
-  .source-label {
-    font-size: 10px; font-weight: 700;
-    color: rgba(255,255,255,.35);
-    letter-spacing: .8px; text-transform: uppercase;
-    flex: 1;
-  }
+    /* ── TABLES ── */
+    .tbl-wrap { overflow-x: auto; max-height: 400px; overflow-y: auto; border-radius: var(--radius-sm); border: 1px solid var(--border-light); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead th {
+      position: sticky; top: 0; z-index: 2;
+      background: var(--surface2); padding: 10px 12px;
+      text-align: left; font-weight: 700; font-size: 11px;
+      text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted);
+      white-space: nowrap; border-bottom: 1px solid var(--border);
+      cursor: pointer; user-select: none;
+    }
+    thead th:hover { color: var(--accent); }
+    thead th.sort-asc::after  { content: " ↑"; color: var(--accent); }
+    thead th.sort-desc::after { content: " ↓"; color: var(--accent); }
+    tbody tr:nth-child(even) { background: var(--surface2); }
+    tbody tr:hover { background: rgba(60,172,215,.06); }
+    tbody td { padding: 9px 12px; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+    td.warn { color: var(--warn-color); font-weight: 700; }
 
-  .source-nav { list-style: none; padding: 0 8px 4px; }
+    /* ── TOGGLE PILLS ── */
+    .toggle-pills { display: flex; gap: 6px; margin-bottom: 14px; }
+    .tpill {
+      padding: 4px 12px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: transparent; color: var(--text-muted); font-size: 12px;
+      font-weight: 700; cursor: pointer; transition: all .15s;
+    }
+    .tpill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-  .source-nav li a {
-    display: flex; align-items: center; gap: 8px;
-    padding: 6px 10px; border-radius: 6px;
-    text-decoration: none;
-    font-size: 12.5px; font-weight: 400;
-    color: rgba(255,255,255,.5);
-    transition: all .12s ease;
-    margin-bottom: 1px;
-  }
-  .source-nav li a:hover {
-    background: rgba(255,255,255,.07);
-    color: rgba(255,255,255,.85);
-  }
-  .source-nav li a.active {
-    background: rgba(60,172,215,.14);
-    color: #3CACD7; font-weight: 600;
-  }
-  .sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;}
+    /* ── COMING SOON ── */
+    .coming-soon-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 52px 24px; text-align: center; gap: 12px; }
+    .coming-soon-icon  { font-size: 36px; }
+    .coming-soon-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); }
+    .coming-soon-text  { max-width: 460px; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 
-  /* Topbar */
-  #topbar {
-    position: sticky; top: 0; z-index: 50;
-    height: var(--topbar-h);
-    background: rgba(247,246,242,.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center;
-    padding: 0 32px; gap: 24px;
-  }
-  .topbar-title {
-    font-family: var(--font-display);
-    font-size: 20px; font-weight: 700;
-    color: var(--text); letter-spacing: -.4px;
-    margin-right: auto;
-  }
-  .topbar-title span { color: var(--accent); }
-  .as-of-badge {
-    font-size: 11.5px; font-weight: 500;
-    color: var(--text-muted);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    padding: 5px 12px; border-radius: 20px;
-    white-space: nowrap; flex-shrink: 0;
-  }
-
-  /* Main */
-  #main {
-    margin-left: var(--sidebar-w);
-    min-height: 100vh;
-    display: flex; flex-direction: column;
-  }
-
-  /* Section title */
-  .section-title {
-    font-family: var(--font-display);
-    font-size: 17px; font-weight: 700;
-    color: var(--text); letter-spacing: -.3px;
-    margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
-  }
-
-  /* Controls bar */
-  .controls-bar {
-    position: sticky;
-    top: var(--topbar-h);
-    z-index: 40;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    padding: 10px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .controls-bar label {
-    font-size: 13px;
-    color: var(--muted);
-    font-weight: 500;
-  }
-
-  .window-btns {
-    display: flex;
-    gap: 4px;
-  }
-
-  .window-btns button {
-    padding: 5px 12px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--surface);
-    color: var(--text);
-    font-size: 13px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .window-btns button:hover {
-    background: var(--surface2);
-  }
-
-  .window-btns button.active {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-  }
-
-  .controls-meta {
-    margin-left: auto;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  /* Content */
-  .content {
-    padding: 24px;
-    flex: 1;
-  }
-
-  /* Section header */
-  .section-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* Grid */
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
-    gap: 20px;
-    margin-bottom: 32px;
-  }
-
-  /* Card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  .card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .card-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .card-desc {
-    font-size: 12px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  /* Stat row */
-  .stat-row {
-    display: flex;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .stat-label {
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    font-weight: 500;
-  }
-
-  .stat-value {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.2;
-  }
-
-  .stat-yoy {
-    font-size: 13px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-  }
-
-  .stat-yoy.good { color: var(--green); }
-  .stat-yoy.bad { color: var(--red); }
-  .stat-yoy.neutral { color: var(--muted); }
-
-  /* Chart container */
-  .chart-wrap {
-    position: relative;
-    height: 220px;
-  }
-
-  /* Legend */
-  .chart-legend {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .legend-dot {
-    width: 12px;
-    height: 3px;
-    border-radius: 2px;
-  }
-
-  .legend-dot.dashed {
-    background: repeating-linear-gradient(
-      90deg,
-      currentColor 0, currentColor 4px,
-      transparent 4px, transparent 8px
-    );
-  }
-
-  /* Scrollspy active state */
-  section { scroll-margin-top: 56px; }
-  .card  { scroll-margin-top: 72px; }
-</style>
+    /* ── MISC ── */
+    .empty-state { padding: 40px 24px; text-align: center; font-size: 13px; color: var(--text-muted); }
+    .note { font-size: 11px; color: var(--text-dim); margin-top: 12px; font-style: italic; }
+    .budget-list { display: flex; flex-direction: column; gap: 16px; }
+    .budget-row-label { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; font-weight: 700; }
+    .budget-track { height: 12px; background: var(--border-light); border-radius: 6px; overflow: hidden; }
+    .budget-fill  { height: 100%; border-radius: 6px; transition: width .4s; }
+    .budget-sub   { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .compare-table { width: 100%; border-collapse: collapse; }
+    .compare-table th, .compare-table td { padding: 10px 16px; text-align: right; font-size: 13px; border-bottom: 1px solid var(--border-light); }
+    .compare-table th:first-child, .compare-table td:first-child { text-align: left; font-weight: 700; }
+    .compare-table thead th { background: var(--surface2); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); }
+    .compare-table .g-col { color: var(--g-color); }
+    .compare-table .m-col { color: var(--m-color); }
+    .compare-table .better { color: #2a8a5a; font-weight: 700; }
+    .compare-table .worse  { color: var(--warn-color); }
+    .month-pills { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .headlines { display: flex; flex-direction: column; gap: 2px; }
+    .headlines span { font-size: 12px; line-height: 1.4; }
+    .headlines span:first-child { font-weight: 700; }
+  </style>
 </head>
 <body>
 
+<!-- SIDEBAR -->
 <nav id="sidebar">
-  <!-- Logo -->
   <div class="sidebar-logo">
     <a href="../index.html" style="text-decoration:none;display:block">
-      <img src="https://www.visme.co/wp-content/themes/visme/images/visme-logo-footer.svg"
-           alt="Visme"
+      <img src="https://www.visme.co/wp-content/themes/visme/images/visme-logo-footer.svg" alt="Visme"
            style="width:108px;height:auto;display:block;filter:brightness(0) invert(1);opacity:.92">
       <div style="font-size:9.5px;color:rgba(255,255,255,.3);margin-top:5px;letter-spacing:.4px;text-transform:uppercase;font-weight:400">
         Marketing Analytics
@@ -351,537 +217,518 @@
     </a>
   </div>
 
-  <!-- Nav group -->
   <div class="source-group">
-    <div class="source-header">
-      <div class="source-dot" style="background:#FBBC05"></div>
-      <span class="source-label">Paid Media</span>
-    </div>
+    <div class="source-header"><div class="source-dot" style="background:#3CACD7"></div><span class="source-label">Overview</span></div>
     <ul class="source-nav">
-      <li><a href="#spend" class="active">Total Spend</a></li>
-      <li><a href="#card-clicks">Traffic (Clicks)</a></li>
-      <li><a href="#ctr">Click-Through Rate</a></li>
-      <li><a href="#card-signups">Free Sign Ups</a></li>
-      <li><a href="#conversions">Conversions</a></li>
-      <li><a href="#card-cpc">Cost Per Conversion</a></li>
+      <li><a href="#s1" class="active">1 · Weekly Pulse</a></li>
+      <li><a href="#s2">2 · Budget Pacing</a></li>
+      <li><a href="#s3">3 · Platform Compare</a></li>
+    </ul>
+  </div>
+  <div class="source-group">
+    <div class="source-header"><div class="source-dot" style="background:#6CC395"></div><span class="source-label">Trends</span></div>
+    <ul class="source-nav">
+      <li><a href="#s4">4 · Spend &amp; CPA Trend</a></li>
+      <li><a href="#s12">12 · CTR Trend</a></li>
+      <li><a href="#s13">13 · Free Signups</a></li>
+    </ul>
+  </div>
+  <div class="source-group">
+    <div class="source-header"><div class="source-dot" style="background:#FBBC05"></div><span class="source-label">Campaigns</span></div>
+    <ul class="source-nav">
+      <li><a href="#s5">5 · Campaigns: Google</a></li>
+      <li><a href="#s6">6 · Campaigns: Microsoft</a></li>
+    </ul>
+  </div>
+  <div class="source-group">
+    <div class="source-header"><div class="source-dot" style="background:#E8694A"></div><span class="source-label">Creative &amp; Keywords</span></div>
+    <ul class="source-nav">
+      <li><a href="#s7">7 · Ads: Google</a></li>
+      <li><a href="#s8">8 · Ads: Microsoft</a></li>
+      <li><a href="#s9">9 · Keywords: Google</a></li>
+      <li><a href="#s10">10 · Keywords: Microsoft</a></li>
+    </ul>
+  </div>
+  <div class="source-group">
+    <div class="source-header"><div class="source-dot" style="background:#A78BFA"></div><span class="source-label">Audience</span></div>
+    <ul class="source-nav">
+      <li><a href="#s11">11 · Geography</a></li>
     </ul>
   </div>
 
   <div class="sidebar-footer">
-    PPC · Google Sheets<br/>
-    <a href="../index.html" class="back-link" style="display:inline-flex;align-items:center;gap:4px;color:rgba(255,255,255,.3);text-decoration:none;font-size:10px;margin-top:4px;">← All Dashboards</a>
+    <a href="../index.html" style="color:rgba(255,255,255,.35);font-size:11px;text-decoration:none;display:block;margin-bottom:8px;">← All Dashboards</a>
+    PPC · Google Ads API + Bing Sheet
   </div>
 </nav>
 
-<div id="main">
-  <div id="topbar">
-    <div class="topbar-title">Paid Media <span>Performance</span></div>
-    <div class="as-of-badge" id="as-of-badge">Data as of —</div>
-  </div>
-  <div class="controls-bar">
-    <label>Window:</label>
-    <div class="window-btns">
-      <button onclick="setWindow(8)" id="btn-8">8 Weeks</button>
-      <button onclick="setWindow(13)" id="btn-13" class="active">13 Weeks</button>
-      <button onclick="setWindow(26)" id="btn-26">26 Weeks</button>
-      <button onclick="setWindow(52)" id="btn-52">52 Weeks</button>
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="topbar-title">Paid Media <span>Performance</span></div>
+  <div class="topbar-controls">
+    <div class="window-pills">
+      <button class="pill" data-w="8">8w</button>
+      <button class="pill active" data-w="13">13w</button>
+      <button class="pill" data-w="26">26w</button>
+      <button class="pill" data-w="52">52w</button>
     </div>
-    <div class="controls-meta" id="date-range-label">—</div>
-    <div class="controls-meta">Data as of 2026-03-23</div>
+    <div class="date-range-label" id="date-range-label">—</div>
   </div>
-
-  <div class="content">
-
-    <section id="spend">
-      <div class="section-title">Paid Media Performance</div>
-      <div class="cards-grid">
-        <div class="card" id="card-spend">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Weekly Total Spend</div>
-              <div class="card-desc">Google Ads + Bing combined spend</div>
-            </div>
-          </div>
-          <div class="stat-row" id="stat-spend"></div>
-          <div class="chart-wrap"><canvas id="chart-spend"></canvas></div>
-          <div class="chart-legend">
-            <div class="legend-item"><span class="legend-dot" style="background:#0969da;height:12px;border-radius:3px;"></span>Current Period</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#0969da;opacity:0.4;height:12px;border-radius:3px;"></span>Prior Year</div>
-          </div>
-        </div>
-
-        <div class="card" id="card-clicks">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Weekly Traffic (Clicks)</div>
-              <div class="card-desc">Search clicks (non-branded)</div>
-            </div>
-          </div>
-          <div class="stat-row" id="stat-clicks"></div>
-          <div class="chart-wrap"><canvas id="chart-clicks"></canvas></div>
-          <div class="chart-legend">
-            <div class="legend-item"><span class="legend-dot" style="background:#8250df;height:3px;"></span>Current Period</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#8250df;opacity:0.4;height:3px;border-style:dashed;"></span>Prior Year (YoY)</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="ctr">
-      <div class="cards-grid">
-        <div class="card" id="card-ctr">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Weekly CTR</div>
-              <div class="card-desc">Non-branded click-through rate</div>
-            </div>
-          </div>
-          <div class="stat-row" id="stat-ctr"></div>
-          <div class="chart-wrap"><canvas id="chart-ctr"></canvas></div>
-          <div class="chart-legend">
-            <div class="legend-item"><span class="legend-dot" style="background:#1a7f37;height:3px;"></span>Current Period</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#1a7f37;opacity:0.4;height:3px;"></span>Prior Year (YoY)</div>
-          </div>
-        </div>
-
-        <div class="card" id="card-signups">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Weekly Free Sign Ups</div>
-              <div class="card-desc">Data available from Mar 9, 2026 onwards · No prior year comparison yet</div>
-            </div>
-          </div>
-          <div class="stat-row" id="stat-signups"></div>
-          <div class="chart-wrap"><canvas id="chart-signups"></canvas></div>
-          <div class="chart-legend">
-            <div class="legend-item"><span class="legend-dot" style="background:#9a6700;height:3px;"></span>Current Period</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#9a6700;opacity:0.4;height:3px;"></span>Prior Year (YoY)</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="conversions">
-      <div class="cards-grid">
-        <div class="card" id="card-convs">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Weekly Total Conversions</div>
-              <div class="card-desc">Google Ads + Bing combined conversions</div>
-            </div>
-          </div>
-          <div class="stat-row" id="stat-convs"></div>
-          <div class="chart-wrap"><canvas id="chart-convs"></canvas></div>
-          <div class="chart-legend">
-            <div class="legend-item"><span class="legend-dot" style="background:#cf222e;height:3px;"></span>Current Period</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#cf222e;opacity:0.4;height:3px;"></span>Prior Year (YoY)</div>
-          </div>
-        </div>
-
-        <div class="card" id="card-cpc">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Cost Per Conversion</div>
-              <div class="card-desc">Total Spend ÷ Total Conversions (lower is better)</div>
-            </div>
-          </div>
-          <div class="stat-row" id="stat-cpc"></div>
-          <div class="chart-wrap"><canvas id="chart-cpc"></canvas></div>
-          <div class="chart-legend">
-            <div class="legend-item"><span class="legend-dot" style="background:#0969da;height:3px;"></span>Current Period</div>
-            <div class="legend-item"><span class="legend-dot" style="background:#0969da;opacity:0.4;height:3px;"></span>Prior Year (YoY)</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </div>
+  <div class="as-of-badge">Data as of <span id="build-date-badge">—</span></div>
 </div>
 
-<!-- TEMPLATE FILE: Run scripts/build_ppc.py to inject live data -->
+<!-- MAIN -->
+<div id="main">
+
+  <div class="section" id="s1">
+    <div class="section-header"><span class="section-num">01</span><span class="section-title">Weekly Pulse</span></div>
+    <div class="section-body">
+      <div id="s1-kpis" class="kpi-grid"></div>
+      <div id="s1-splits" class="split-grid"></div>
+      <div class="chart-wrap"><canvas id="chart-s1"></canvas></div>
+    </div>
+  </div>
+
+  <div class="section" id="s2">
+    <div class="section-header"><span class="section-num">02</span><span class="section-title">Budget Pacing</span></div>
+    <div class="section-body">
+      <div id="s2-body"></div>
+      <p class="note">Microsoft Ads budget data not yet available.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s3">
+    <div class="section-header"><span class="section-num">03</span><span class="section-title">Platform Compare</span></div>
+    <div class="section-body"><div id="s3-body"></div></div>
+  </div>
+
+  <div class="section" id="s4">
+    <div class="section-header"><span class="section-num">04</span><span class="section-title">Spend &amp; CPA Trend</span></div>
+    <div class="section-body">
+      <div class="chart-row">
+        <div><div class="chart-wrap"><canvas id="chart-s4-spend"></canvas></div></div>
+        <div><div class="chart-wrap"><canvas id="chart-s4-cpa"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="s5">
+    <div class="section-header"><span class="section-num">05</span><span class="section-title">Campaigns — Google</span></div>
+    <div class="section-body"><div id="s5-body"></div></div>
+  </div>
+
+  <div class="section" id="s6">
+    <div class="section-header"><span class="section-num">06</span><span class="section-title">Campaigns — Microsoft</span></div>
+    <div class="section-body">
+      <div class="coming-soon-panel">
+        <div class="coming-soon-icon">🔧</div>
+        <div class="coming-soon-title">Microsoft Ads Campaign Data</div>
+        <div class="coming-soon-text">Campaign-level Microsoft Advertising data requires API access. See Appendix C in the Visme Analytics Setup Guide to configure your Microsoft Ads credentials.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="s7">
+    <div class="section-header"><span class="section-num">07</span><span class="section-title">Ads — Google</span></div>
+    <div class="section-body"><div id="s7-body"></div></div>
+  </div>
+
+  <div class="section" id="s8">
+    <div class="section-header"><span class="section-num">08</span><span class="section-title">Ads — Microsoft</span></div>
+    <div class="section-body">
+      <div class="coming-soon-panel">
+        <div class="coming-soon-icon">🔧</div>
+        <div class="coming-soon-title">Microsoft Ads Creative Data</div>
+        <div class="coming-soon-text">Ad-level Microsoft Advertising data requires API access. Configure Microsoft Ads credentials to enable this section.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="s9">
+    <div class="section-header"><span class="section-num">09</span><span class="section-title">Keywords — Google</span></div>
+    <div class="section-body">
+      <div class="toggle-pills" id="s9-toggle">
+        <button class="tpill active" data-kf="all">All</button>
+        <button class="tpill" data-kf="branded">Branded</button>
+        <button class="tpill" data-kf="nonbranded">Non-Branded</button>
+      </div>
+      <div id="s9-body"></div>
+    </div>
+  </div>
+
+  <div class="section" id="s10">
+    <div class="section-header"><span class="section-num">10</span><span class="section-title">Keywords — Microsoft</span></div>
+    <div class="section-body">
+      <div class="coming-soon-panel">
+        <div class="coming-soon-icon">🔧</div>
+        <div class="coming-soon-title">Microsoft Ads Keyword Data</div>
+        <div class="coming-soon-text">Keyword-level Microsoft Advertising data requires API access. Configure Microsoft Ads credentials to enable this section.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="s11">
+    <div class="section-header"><span class="section-num">11</span><span class="section-title">Geography</span></div>
+    <div class="section-body">
+      <div class="month-pills" id="s11-months"></div>
+      <div id="s11-body"></div>
+      <p class="note">Google Ads data only. Microsoft Ads geography coming soon.</p>
+    </div>
+  </div>
+
+  <div class="section" id="s12">
+    <div class="section-header"><span class="section-num">12</span><span class="section-title">CTR Trend</span></div>
+    <div class="section-body"><div class="chart-wrap"><canvas id="chart-s12"></canvas></div></div>
+  </div>
+
+  <div class="section" id="s13">
+    <div class="section-header"><span class="section-num">13</span><span class="section-title">Free Signups</span></div>
+    <div class="section-body">
+      <div class="chart-wrap"><canvas id="chart-s13"></canvas></div>
+      <p class="note">GA4 new users attributed to paid channels (Google Analytics).</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- DATA_INJECTION_POINT -->
+
 <script>
-const D = {"generatedAt":"2026-04-05","weeks":["2024-04-01","2024-04-08","2024-04-15","2024-04-22","2024-04-29","2024-05-06","2024-05-13","2024-05-20","2024-05-27","2024-06-03","2024-06-10","2024-06-17","2024-06-24","2024-07-01","2024-07-08","2024-07-15","2024-07-22","2024-07-29","2024-08-05","2024-08-12","2024-08-19","2024-08-26","2024-09-02","2024-09-09","2024-09-16","2024-09-23","2024-09-30","2024-10-07","2024-10-14","2024-10-21","2024-10-28","2024-11-04","2024-11-11","2024-11-18","2024-11-25","2024-12-02","2024-12-09","2024-12-16","2024-12-23","2024-12-30","2025-01-06","2025-01-13","2025-01-20","2025-01-27","2025-02-03","2025-02-10","2025-02-17","2025-02-24","2025-03-03","2025-03-10","2025-03-17","2025-03-24","2025-03-31","2025-04-07","2025-04-14","2025-04-21","2025-04-28","2025-05-05","2025-05-12","2025-05-19","2025-05-26","2025-06-02","2025-06-09","2025-06-16","2025-06-23","2025-06-30","2025-07-07","2025-07-14","2025-07-21","2025-07-28","2025-08-04","2025-08-11","2025-08-18","2025-08-25","2025-09-01","2025-09-08","2025-09-15","2025-09-22","2025-09-29","2025-10-06","2025-10-13","2025-10-20","2025-10-27","2025-11-03","2025-11-10","2025-11-17","2025-11-24","2025-12-01","2025-12-08","2025-12-15","2025-12-22","2025-12-29","2026-01-05","2026-01-12","2026-01-19","2026-01-26","2026-02-02","2026-02-09","2026-02-16","2026-02-23","2026-03-02","2026-03-09","2026-03-16","2026-03-23","2026-03-30"],"spend":{"2024-04-01":637.56,"2024-04-08":4492.64,"2024-04-15":4780.7,"2024-04-22":4424.98,"2024-04-29":3930.86,"2024-05-06":3415.9,"2024-05-13":3396.68,"2024-05-20":3210.68,"2024-05-27":4094.71,"2024-06-03":5384.92,"2024-06-10":4753.94,"2024-06-17":6551.76,"2024-06-24":5822.93,"2024-07-01":5742.14,"2024-07-08":5932.24,"2024-07-15":5836.36,"2024-07-22":5750.97,"2024-07-29":4993.78,"2024-08-05":4500.04,"2024-08-12":5431.84,"2024-08-19":7138.6,"2024-08-26":5705.55,"2024-09-02":5117.41,"2024-09-09":4656.48,"2024-09-16":5008.19,"2024-09-23":5905.74,"2024-09-30":5448.63,"2024-10-07":5368.61,"2024-10-14":5355.39,"2024-10-21":5891.29,"2024-10-28":5303.93,"2024-11-04":5675.25,"2024-11-11":4947.03,"2024-11-18":4328.77,"2024-11-25":3673.57,"2024-12-02":4550.98,"2024-12-09":5549.6,"2024-12-16":4799.07,"2024-12-23":3872.28,"2024-12-30":4172.05,"2025-01-06":5282.0,"2025-01-13":6148.66,"2025-01-20":6106.72,"2025-01-27":4805.23,"2025-02-03":6283.36,"2025-02-10":5812.14,"2025-02-17":6972.65,"2025-02-24":6910.75,"2025-03-03":5804.91,"2025-03-10":5464.79,"2025-03-17":4745.34,"2025-03-24":5453.5,"2025-03-31":5759.71,"2025-04-07":6800.16,"2025-04-14":5722.37,"2025-04-21":4980.36,"2025-04-28":5207.36,"2025-05-05":3344.41,"2025-05-12":2550.46,"2025-05-19":2903.7,"2025-05-26":3530.88,"2025-06-02":4633.12,"2025-06-09":3899.02,"2025-06-16":4090.72,"2025-06-23":4383.04,"2025-06-30":4343.46,"2025-07-07":5014.23,"2025-07-14":4065.41,"2025-07-21":3346.59,"2025-07-28":3128.48,"2025-08-04":2113.48,"2025-08-11":1789.56,"2025-08-18":1866.91,"2025-08-25":2035.91,"2025-09-01":2417.21,"2025-09-08":3692.93,"2025-09-15":2851.99,"2025-09-22":3240.8,"2025-09-29":3755.85,"2025-10-06":3456.26,"2025-10-13":3656.65,"2025-10-20":3512.28,"2025-10-27":3818.36,"2025-11-03":5276.05,"2025-11-10":6389.53,"2025-11-17":5932.59,"2025-11-24":4956.11,"2025-12-01":6091.43,"2025-12-08":6607.82,"2025-12-15":5609.52,"2025-12-22":3194.61,"2025-12-29":2013.09,"2026-01-05":2463.91,"2026-01-12":3448.7,"2026-01-19":5539.49,"2026-01-26":6654.81,"2026-02-02":5704.95,"2026-02-09":6140.97,"2026-02-16":6627.63,"2026-02-23":6806.85,"2026-03-02":5947.05,"2026-03-09":4948.23,"2026-03-16":4271.58,"2026-03-23":6469.59,"2026-03-30":7375.98},"clicks":{"2024-04-01":488,"2024-04-08":4250,"2024-04-15":4732,"2024-04-22":4489,"2024-04-29":3857,"2024-05-06":3120,"2024-05-13":3316,"2024-05-20":3063,"2024-05-27":2944,"2024-06-03":3437,"2024-06-10":3228,"2024-06-17":3585,"2024-06-24":3671,"2024-07-01":3414,"2024-07-08":3802,"2024-07-15":3946,"2024-07-22":3867,"2024-07-29":2900,"2024-08-05":1944,"2024-08-12":3178,"2024-08-19":3128,"2024-08-26":3154,"2024-09-02":2574,"2024-09-09":2256,"2024-09-16":2438,"2024-09-23":2775,"2024-09-30":2527,"2024-10-07":2770,"2024-10-14":2932,"2024-10-21":2829,"2024-10-28":2221,"2024-11-04":2663,"2024-11-11":2325,"2024-11-18":1713,"2024-11-25":1386,"2024-12-02":1828,"2024-12-09":2238,"2024-12-16":1608,"2024-12-23":1068,"2024-12-30":1450,"2025-01-06":1938,"2025-01-13":2019,"2025-01-20":2227,"2025-01-27":2241,"2025-02-03":2533,"2025-02-10":2256,"2025-02-17":2699,"2025-02-24":2702,"2025-03-03":2237,"2025-03-10":2246,"2025-03-17":1894,"2025-03-24":2148,"2025-03-31":2245,"2025-04-07":2699,"2025-04-14":2411,"2025-04-21":2299,"2025-04-28":2265,"2025-05-05":1478,"2025-05-12":1180,"2025-05-19":1253,"2025-05-26":1428,"2025-06-02":4042,"2025-06-09":1748,"2025-06-16":1702,"2025-06-23":1750,"2025-06-30":1681,"2025-07-07":1851,"2025-07-14":1670,"2025-07-21":1253,"2025-07-28":1240,"2025-08-04":888,"2025-08-11":730,"2025-08-18":901,"2025-08-25":778,"2025-09-01":863,"2025-09-08":1596,"2025-09-15":1073,"2025-09-22":1304,"2025-09-29":1487,"2025-10-06":1347,"2025-10-13":1475,"2025-10-20":1737,"2025-10-27":1987,"2025-11-03":2535,"2025-11-10":3117,"2025-11-17":3139,"2025-11-24":2545,"2025-12-01":3827,"2025-12-08":3284,"2025-12-15":2579,"2025-12-22":1103,"2025-12-29":687,"2026-01-05":1017,"2026-01-12":1244,"2026-01-19":1559,"2026-01-26":1961,"2026-02-02":1947,"2026-02-09":2042,"2026-02-16":2122,"2026-02-23":2345,"2026-03-02":2174,"2026-03-09":1846,"2026-03-16":1507,"2026-03-23":5797,"2026-03-30":5631},"ctr":{"2024-04-01":0.0425,"2024-04-08":0.0499,"2024-04-15":0.0523,"2024-04-22":0.0469,"2024-04-29":0.045,"2024-05-06":0.0461,"2024-05-13":0.0535,"2024-05-20":0.0495,"2024-05-27":0.0486,"2024-06-03":0.0281,"2024-06-10":0.0267,"2024-06-17":0.0181,"2024-06-24":0.0196,"2024-07-01":0.0155,"2024-07-08":0.0185,"2024-07-15":0.0192,"2024-07-22":0.0202,"2024-07-29":0.0152,"2024-08-05":0.0115,"2024-08-12":0.017,"2024-08-19":0.0096,"2024-08-26":0.0091,"2024-09-02":0.0093,"2024-09-09":0.0118,"2024-09-16":0.0125,"2024-09-23":0.0136,"2024-09-30":0.013,"2024-10-07":0.0116,"2024-10-14":0.0128,"2024-10-21":0.0153,"2024-10-28":0.0137,"2024-11-04":0.0133,"2024-11-11":0.015,"2024-11-18":0.0171,"2024-11-25":0.0156,"2024-12-02":0.0189,"2024-12-09":0.0229,"2024-12-16":0.0166,"2024-12-23":0.0122,"2024-12-30":0.0133,"2025-01-06":0.0121,"2025-01-13":0.0134,"2025-01-20":0.0155,"2025-01-27":0.0286,"2025-02-03":0.0387,"2025-02-10":0.0335,"2025-02-17":0.0353,"2025-02-24":0.0411,"2025-03-03":0.0388,"2025-03-10":0.0388,"2025-03-17":0.0429,"2025-03-24":0.0495,"2025-03-31":0.051,"2025-04-07":0.0519,"2025-04-14":0.0495,"2025-04-21":0.0476,"2025-04-28":0.0457,"2025-05-05":0.046,"2025-05-12":0.0425,"2025-05-19":0.0461,"2025-05-26":0.0549,"2025-06-02":0.0461,"2025-06-09":0.0378,"2025-06-16":0.0405,"2025-06-23":0.0468,"2025-06-30":0.0394,"2025-07-07":0.0434,"2025-07-14":0.0418,"2025-07-21":0.0436,"2025-07-28":0.0452,"2025-08-04":0.0415,"2025-08-11":0.0422,"2025-08-18":0.0273,"2025-08-25":0.0364,"2025-09-01":0.0444,"2025-09-08":0.0078,"2025-09-15":0.0474,"2025-09-22":0.047,"2025-09-29":0.0456,"2025-10-06":0.0441,"2025-10-13":0.0511,"2025-10-20":0.0592,"2025-10-27":0.0509,"2025-11-03":0.0569,"2025-11-10":0.0602,"2025-11-17":0.0668,"2025-11-24":0.0683,"2025-12-01":0.0808,"2025-12-08":0.0725,"2025-12-15":0.0641,"2025-12-22":0.0555,"2025-12-29":0.0462,"2026-01-05":0.0511,"2026-01-12":0.049,"2026-01-19":0.0506,"2026-01-26":0.0602,"2026-02-02":0.0622,"2026-02-09":0.0658,"2026-02-16":0.0603,"2026-02-23":0.0615,"2026-03-02":0.0634,"2026-03-09":0.0642,"2026-03-16":0.0493,"2026-03-23":0.1016,"2026-03-30":0.0695},"convs":{"2024-04-01":5.0,"2024-04-08":61.0,"2024-04-15":53.0,"2024-04-22":56.0,"2024-04-29":44.0,"2024-05-06":34.0,"2024-05-13":25.0,"2024-05-20":29.0,"2024-05-27":28.0,"2024-06-03":38.0,"2024-06-10":33.0,"2024-06-17":29.0,"2024-06-24":33.0,"2024-07-01":36.0,"2024-07-08":25.0,"2024-07-15":31.0,"2024-07-22":40.0,"2024-07-29":18.0,"2024-08-05":19.0,"2024-08-12":18.0,"2024-08-19":19.0,"2024-08-26":20.0,"2024-09-02":20.0,"2024-09-09":16.0,"2024-09-16":31.0,"2024-09-23":24.0,"2024-09-30":29.0,"2024-10-07":23.0,"2024-10-14":27.0,"2024-10-21":38.0,"2024-10-28":29.0,"2024-11-04":16.0,"2024-11-11":17.0,"2024-11-18":24.0,"2024-11-25":13.0,"2024-12-02":27.0,"2024-12-09":33.0,"2024-12-16":19.0,"2024-12-23":16.0,"2024-12-30":14.0,"2025-01-06":24.0,"2025-01-13":22.0,"2025-01-20":31.0,"2025-01-27":45.0,"2025-02-03":39.0,"2025-02-10":31.0,"2025-02-17":39.0,"2025-02-24":38.0,"2025-03-03":34.0,"2025-03-10":37.0,"2025-03-17":25.0,"2025-03-24":35.25,"2025-03-31":35.75,"2025-04-07":39.5,"2025-04-14":43.5,"2025-04-21":42.0,"2025-04-28":29.0,"2025-05-05":22.0,"2025-05-12":23.0,"2025-05-19":17.5,"2025-05-26":31.67,"2025-06-02":23.0,"2025-06-09":22.33,"2025-06-16":23.0,"2025-06-23":23.5,"2025-06-30":31.0,"2025-07-07":19.0,"2025-07-14":18.0,"2025-07-21":23.0,"2025-07-28":16.0,"2025-08-04":9.0,"2025-08-11":10.0,"2025-08-18":5.5,"2025-08-25":10.0,"2025-09-01":8.5,"2025-09-08":18.0,"2025-09-15":15.0,"2025-09-22":15.0,"2025-09-29":23.0,"2025-10-06":19.0,"2025-10-13":22.01,"2025-10-20":17.0,"2025-10-27":21.0,"2025-11-03":31.5,"2025-11-10":33.0,"2025-11-17":30.99,"2025-11-24":27.83,"2025-12-01":50.99,"2025-12-08":45.83,"2025-12-15":18.67,"2025-12-22":6.99,"2025-12-29":6.0,"2026-01-05":11.03,"2026-01-12":11.5,"2026-01-19":15.5,"2026-01-26":19.5,"2026-02-02":22.5,"2026-02-09":31.0,"2026-02-16":25.03,"2026-02-23":33.94,"2026-03-02":21.0,"2026-03-09":17.0,"2026-03-16":15.98,"2026-03-23":37.98,"2026-03-30":30.0},"cpc":{"2024-04-01":127.51,"2024-04-08":73.65,"2024-04-15":90.2,"2024-04-22":79.02,"2024-04-29":89.34,"2024-05-06":100.47,"2024-05-13":135.87,"2024-05-20":110.71,"2024-05-27":146.24,"2024-06-03":141.71,"2024-06-10":144.06,"2024-06-17":225.92,"2024-06-24":176.45,"2024-07-01":159.5,"2024-07-08":237.29,"2024-07-15":188.27,"2024-07-22":143.77,"2024-07-29":277.43,"2024-08-05":236.84,"2024-08-12":301.77,"2024-08-19":375.72,"2024-08-26":285.28,"2024-09-02":255.87,"2024-09-09":291.03,"2024-09-16":161.55,"2024-09-23":246.07,"2024-09-30":187.88,"2024-10-07":233.42,"2024-10-14":198.35,"2024-10-21":155.03,"2024-10-28":182.89,"2024-11-04":354.7,"2024-11-11":291.0,"2024-11-18":180.37,"2024-11-25":282.58,"2024-12-02":168.55,"2024-12-09":168.17,"2024-12-16":252.58,"2024-12-23":242.02,"2024-12-30":298.0,"2025-01-06":220.08,"2025-01-13":279.48,"2025-01-20":196.99,"2025-01-27":106.78,"2025-02-03":161.11,"2025-02-10":187.49,"2025-02-17":178.79,"2025-02-24":181.86,"2025-03-03":170.73,"2025-03-10":147.7,"2025-03-17":189.81,"2025-03-24":154.71,"2025-03-31":161.11,"2025-04-07":172.16,"2025-04-14":131.55,"2025-04-21":118.58,"2025-04-28":179.56,"2025-05-05":152.02,"2025-05-12":110.89,"2025-05-19":165.93,"2025-05-26":111.5,"2025-06-02":201.44,"2025-06-09":174.58,"2025-06-16":177.86,"2025-06-23":186.51,"2025-06-30":140.11,"2025-07-07":263.91,"2025-07-14":225.86,"2025-07-21":145.5,"2025-07-28":195.53,"2025-08-04":234.83,"2025-08-11":178.96,"2025-08-18":339.44,"2025-08-25":203.59,"2025-09-01":284.38,"2025-09-08":205.16,"2025-09-15":190.13,"2025-09-22":216.05,"2025-09-29":163.3,"2025-10-06":181.91,"2025-10-13":166.12,"2025-10-20":206.6,"2025-10-27":181.83,"2025-11-03":167.49,"2025-11-10":193.62,"2025-11-17":191.41,"2025-11-24":178.06,"2025-12-01":119.47,"2025-12-08":144.18,"2025-12-15":300.51,"2025-12-22":457.07,"2025-12-29":335.52,"2026-01-05":223.39,"2026-01-12":299.89,"2026-01-19":357.39,"2026-01-26":341.27,"2026-02-02":253.55,"2026-02-09":198.1,"2026-02-16":264.79,"2026-02-23":200.55,"2026-03-02":283.19,"2026-03-09":291.07,"2026-03-16":267.29,"2026-03-23":170.33,"2026-03-30":245.87},"revenue":{"2024-04-01":0.0,"2024-04-08":0.0,"2024-04-15":0.0,"2024-04-22":0.0,"2024-04-29":0.0,"2024-05-06":0.0,"2024-05-13":0.0,"2024-05-20":0.0,"2024-05-27":0.0,"2024-06-03":0.0,"2024-06-10":0.0,"2024-06-17":0.0,"2024-06-24":0.0,"2024-07-01":0.0,"2024-07-08":0.0,"2024-07-15":0.0,"2024-07-22":0.0,"2024-07-29":0.0,"2024-08-05":0.0,"2024-08-12":0.0,"2024-08-19":0.0,"2024-08-26":0.0,"2024-09-02":0.0,"2024-09-09":0.0,"2024-09-16":0.0,"2024-09-23":0.0,"2024-09-30":0.0,"2024-10-07":0.0,"2024-10-14":0.0,"2024-10-21":0.0,"2024-10-28":0.0,"2024-11-04":0.0,"2024-11-11":0.0,"2024-11-18":0.0,"2024-11-25":0.0,"2024-12-02":0.0,"2024-12-09":0.0,"2024-12-16":0.0,"2024-12-23":0.0,"2024-12-30":0.0,"2025-01-06":0.0,"2025-01-13":0.0,"2025-01-20":0.0,"2025-01-27":0.0,"2025-02-03":0.0,"2025-02-10":0.0,"2025-02-17":0.0,"2025-02-24":0.0,"2025-03-03":0.0,"2025-03-10":0.0,"2025-03-17":0.0,"2025-03-24":0.0,"2025-03-31":0.0,"2025-04-07":0.0,"2025-04-14":0.0,"2025-04-21":0.0,"2025-04-28":0.0,"2025-05-05":0.0,"2025-05-12":0.0,"2025-05-19":0.0,"2025-05-26":0.0,"2025-06-02":0.0,"2025-06-09":0.0,"2025-06-16":0.0,"2025-06-23":0.0,"2025-06-30":0.0,"2025-07-07":0.0,"2025-07-14":0.0,"2025-07-21":0.0,"2025-07-28":489.0,"2025-08-04":358.0,"2025-08-11":0.0,"2025-08-18":75.5,"2025-08-25":0.0,"2025-09-01":584.5,"2025-09-08":3116.0,"2025-09-15":2583.0,"2025-09-22":3238.0,"2025-09-29":4977.0,"2025-10-06":5108.82,"2025-10-13":5075.0,"2025-10-20":4620.18,"2025-10-27":5695.08,"2025-11-03":6925.49,"2025-11-10":6549.85,"2025-11-17":7726.67,"2025-11-24":5432.44,"2025-12-01":9476.05,"2025-12-08":8443.13,"2025-12-15":3898.67,"2025-12-22":1672.63,"2025-12-29":1734.0,"2026-01-05":2220.65,"2026-01-12":2414.73,"2026-01-19":2894.48,"2026-01-26":4044.0,"2026-02-02":5122.19,"2026-02-09":6190.69,"2026-02-16":5436.81,"2026-02-23":6996.15,"2026-03-02":5357.77,"2026-03-09":3515.0,"2026-03-16":2628.45,"2026-03-23":6199.18,"2026-03-30":5615.9},"signups":{"2024-04-01":174348,"2024-04-08":175984,"2024-04-15":195908,"2024-04-22":195698,"2024-04-29":183847,"2024-05-06":181001,"2024-05-13":190025,"2024-05-20":182153,"2024-05-27":173024,"2024-06-03":168528,"2024-06-10":161713,"2024-06-17":151104,"2024-06-24":142164,"2024-07-01":135811,"2024-07-08":136577,"2024-07-15":137933,"2024-07-22":141026,"2024-07-29":140820,"2024-08-05":146216,"2024-08-12":134744,"2024-08-19":116624,"2024-08-26":124051,"2024-09-02":136423,"2024-09-09":143337,"2024-09-16":146734,"2024-09-23":156693,"2024-09-30":155573,"2024-10-07":148691,"2024-10-14":155575,"2024-10-21":154374,"2024-10-28":138262,"2024-11-04":153744,"2024-11-11":155079,"2024-11-18":152435,"2024-11-25":132585,"2024-12-02":132832,"2024-12-09":123943,"2024-12-16":101664,"2024-12-23":75233,"2024-12-30":71248,"2025-01-06":97191,"2025-01-13":108659,"2025-01-20":109167,"2025-01-27":111715,"2025-02-03":121726,"2025-02-10":121970,"2025-02-17":125529,"2025-02-24":126192,"2025-03-03":122988,"2025-03-10":123189,"2025-03-17":124450,"2025-03-24":119638,"2025-03-31":118473,"2025-04-07":116298,"2025-04-14":102107,"2025-04-21":110657,"2025-04-28":99128,"2025-05-05":102009,"2025-05-12":104283,"2025-05-19":95721,"2025-05-26":91053,"2025-06-02":83132,"2025-06-09":77198,"2025-06-16":70825,"2025-06-23":66327,"2025-06-30":60503,"2025-07-07":60828,"2025-07-14":57737,"2025-07-21":56218,"2025-07-28":52333,"2025-08-04":50252,"2025-08-11":49907,"2025-08-18":53383,"2025-08-25":55074,"2025-09-01":59662,"2025-09-08":62536,"2025-09-15":65407,"2025-09-22":65225,"2025-09-29":63312,"2025-10-06":62985,"2025-10-13":65842,"2025-10-20":73938,"2025-10-27":65412,"2025-11-03":67717,"2025-11-10":65728,"2025-11-17":62575,"2025-11-24":61015,"2025-12-01":63565,"2025-12-08":55044,"2025-12-15":46092,"2025-12-22":31775,"2025-12-29":6117,"2026-01-05":8839,"2026-01-12":9757,"2026-01-19":10410,"2026-01-26":26756,"2026-02-02":32006,"2026-02-09":30233,"2026-02-16":30793,"2026-02-23":32884,"2026-03-02":31838,"2026-03-09":32358,"2026-03-16":28686,"2026-03-23":37265,"2026-03-30":603}};
-</script>
-<script>
-const WINDOWS = [8, 13, 26, 52];
-let currentWindow = 13;
+/* ── GLOBALS ── */
+let activeWeeks = 13;
 const charts = {};
 
-// Utility: format date as "Mar 16" — weeks are keyed by Monday, show Sunday (+6 days)
-function fmtDate(iso) {
-  const d = new Date(iso + 'T12:00:00');
-  d.setDate(d.getDate() + 6);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+/* ── FORMAT HELPERS ── */
+function fmtUSD(n) {
+  if (n == null) return '—';
+  return Math.abs(n) >= 100 ? '$' + Math.round(n).toLocaleString('en-US') : '$' + Number(n).toFixed(2);
+}
+function fmtNum(n)  { return n == null ? '—' : Math.round(n).toLocaleString('en-US'); }
+function fmtPct(n)  { return n == null ? '—' : (n * 100).toFixed(2) + '%'; }
+function fmtConv(n) { return n == null ? '—' : Number(n).toFixed(1); }
+function fmtDate(d) {
+  const dt = new Date(d + 'T00:00:00Z');
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][dt.getUTCMonth()]
+    + ' ' + dt.getUTCDate() + ', ' + dt.getUTCFullYear();
+}
+function pctChange(a, b) { return b ? ((a - b) / Math.abs(b)) * 100 : (a ? 100 : 0); }
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+/* ── WINDOW ── */
+function getWindow() { return WEEKLY.slice(-activeWeeks); }
+function getWindowDates() {
+  const w = getWindow();
+  return w.length ? fmtDate(w[0].week_start) + ' – ' + fmtDate(w[w.length-1].week_end) : '';
 }
 
-function fmtDateShort(iso) {
-  const d = new Date(iso + 'T12:00:00');
-  d.setDate(d.getDate() + 6);
-  const yy = d.toLocaleDateString('en-US', { year: '2-digit' });
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + " '" + yy;
+function badge(pct, label) {
+  if (pct == null) return '';
+  const cls = Math.abs(pct) < 0.5 ? 'neu' : pct >= 0 ? 'up' : 'down';
+  return `<span class="kpi-badge ${cls}">${label}: ${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</span>`;
 }
 
-// Get weeks for current window
-function getCurrentWeeks(n) {
-  const all = D.weeks;
-  return all.slice(-n);
-}
+/* ════════════════ S1: WEEKLY PULSE ════════════════ */
+function renderS1() {
+  const w = getWindow();
+  if (!w.length) { document.getElementById('s1-kpis').innerHTML = '<div class="empty-state">No data.</div>'; return; }
 
-// Get YoY week: 364 days (52 weeks) before
-function getYoYDate(iso) {
-  const d = new Date(iso + 'T12:00:00');
-  d.setDate(d.getDate() - 364);
-  return d.toISOString().slice(0, 10);
-}
+  const gSp  = w.reduce((s,r) => s + (r.g_spend||0), 0);
+  const mSp  = w.reduce((s,r) => s + (r.m_spend||0), 0);
+  const tot  = gSp + mSp;
+  const clk  = w.reduce((s,r) => s + (r.g_clicks||0) + (r.m_clicks||0), 0);
+  const cv   = w.reduce((s,r) => s + (r.g_conversions||0) + (r.m_conversions||0), 0);
+  const cpa  = cv > 0 ? tot / cv : 0;
 
-// Find best matching week in dataset (within 3 days)
-function findNearestWeek(iso) {
-  const target = new Date(iso + 'T12:00:00').getTime();
-  let best = null, bestDiff = Infinity;
-  for (const w of D.weeks) {
-    const diff = Math.abs(new Date(w + 'T12:00:00').getTime() - target);
-    if (diff < bestDiff) {
-      bestDiff = diff;
-      best = w;
-    }
+  const lw = w[w.length-1], pw = w.length >= 2 ? w[w.length-2] : null;
+  const wowSp = pw ? pctChange((lw.g_spend||0)+(lw.m_spend||0), (pw.g_spend||0)+(pw.m_spend||0)) : null;
+  const wowCv = pw ? pctChange((lw.g_conversions||0)+(lw.m_conversions||0), (pw.g_conversions||0)+(pw.m_conversions||0)) : null;
+  const yoyW  = WEEKLY.slice(-activeWeeks-52, -52);
+  const yoySp = yoyW.length ? pctChange(tot, yoyW.reduce((s,r) => s+(r.g_spend||0)+(r.m_spend||0),0)) : null;
+  const yoyCv = yoyW.length ? pctChange(cv,  yoyW.reduce((s,r) => s+(r.g_conversions||0)+(r.m_conversions||0),0)) : null;
+
+  document.getElementById('s1-kpis').innerHTML = [
+    { label: 'Total Spend',       value: fmtUSD(tot), badges: [badge(wowSp,'WoW'), badge(yoySp,'YoY')] },
+    { label: 'Total Clicks',      value: fmtNum(clk), badges: [badge(wowSp,'WoW')] },
+    { label: 'Total Conversions', value: fmtConv(cv), badges: [badge(wowCv,'WoW'), badge(yoyCv,'YoY')] },
+    { label: 'Blended CPA',       value: fmtUSD(cpa), badges: [] },
+  ].map(t => `<div class="kpi-tile"><div class="kpi-label">${t.label}</div><div class="kpi-value">${t.value}</div><div class="kpi-changes">${t.badges.join('')}</div></div>`).join('');
+
+  const gCl = w.reduce((s,r) => s+(r.g_clicks||0),0), mCl = w.reduce((s,r) => s+(r.m_clicks||0),0);
+  const gCv = w.reduce((s,r) => s+(r.g_conversions||0),0), mCv = w.reduce((s,r) => s+(r.m_conversions||0),0);
+  function splitBar(g, m, lbl) {
+    const t = g+m||1, gp = (g/t*100).toFixed(1), mp = (m/t*100).toFixed(1);
+    return `<div class="split-card"><div class="split-label">${lbl}</div>
+      <div class="split-bar-track"><div class="split-bar-g" style="width:${gp}%"></div><div class="split-bar-m" style="width:${mp}%"></div></div>
+      <div class="split-legend"><span class="leg-g">Google ${gp}%</span><span class="leg-m">Microsoft ${mp}%</span></div></div>`;
   }
-  if (bestDiff <= 3 * 86400 * 1000) return best;
-  return null;
-}
+  document.getElementById('s1-splits').innerHTML = splitBar(gSp,mSp,'Spend') + splitBar(gCl,mCl,'Clicks') + splitBar(gCv,mCv,'Conversions');
 
-function getDataSeries(dataObj, weeks) {
-  return weeks.map(w => dataObj[w] !== undefined ? dataObj[w] : null);
-}
-
-function getYoYSeries(dataObj, weeks) {
-  return weeks.map(w => {
-    const yoyDate = getYoYDate(w);
-    const nearestWeek = findNearestWeek(yoyDate);
-    if (!nearestWeek) return null;
-    return dataObj[nearestWeek] !== undefined ? dataObj[nearestWeek] : null;
+  destroyChart('s1');
+  charts['s1'] = new Chart(document.getElementById('chart-s1'), {
+    data: { labels: w.map(r=>r.label), datasets: [
+      { type:'bar',  label:'Google Spend',    data: w.map(r=>r.g_spend||0),  backgroundColor:'rgba(60,172,215,.7)', stack:'s', order:2 },
+      { type:'bar',  label:'Microsoft Spend', data: w.map(r=>r.m_spend||0),  backgroundColor:'rgba(0,164,239,.55)', stack:'s', order:2 },
+      { type:'line', label:'Blended CPA', data: w.map(r=>{const s=(r.g_spend||0)+(r.m_spend||0),c=(r.g_conversions||0)+(r.m_conversions||0);return c>0?s/c:null;}),
+        borderColor:'#E8694A', backgroundColor:'transparent', pointRadius:3, tension:.3, yAxisID:'yCPA', order:1 },
+    ]},
+    options: { responsive:true, maintainAspectRatio:false,
+      scales: { x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:11}}},
+                y:{stacked:true,ticks:{callback:v=>'$'+Math.round(v).toLocaleString()}},
+                yCPA:{position:'right',grid:{display:false},ticks:{callback:v=>'$'+Math.round(v)}} },
+      plugins: { legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}} } }
   });
 }
 
-// Stats calculations
-function sumNonNull(arr) {
-  let s = 0, count = 0;
-  for (const v of arr) { if (v !== null && v !== undefined) { s += v; count++; } }
-  return count > 0 ? s : null;
+/* ════════════════ S2: BUDGET PACING ════════════════ */
+function renderS2() {
+  const el = document.getElementById('s2-body');
+  if (!BUDGETS || !Object.keys(BUDGETS).length) { el.innerHTML = '<div class="empty-state">Budget data will appear after the first API sync.</div>'; return; }
+  const months = Object.keys(BUDGETS).sort().reverse().slice(0,4);
+  el.innerHTML = `<div class="budget-list">${months.map(m => {
+    const {budget:b, spend:s} = BUDGETS[m];
+    const pct = b > 0 ? Math.min(s/b*100, 120) : 0;
+    const color = pct > 100 ? '#E8694A' : pct > 90 ? '#FBBC05' : '#6CC395';
+    const lbl = new Date(m+'-01').toLocaleDateString('en-US',{month:'long',year:'numeric',timeZone:'UTC'});
+    return `<div><div class="budget-row-label"><span>${lbl}</span><span>${fmtUSD(s)} / ${fmtUSD(b)}</span></div>
+      <div class="budget-track"><div class="budget-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
+      <div class="budget-sub">${pct.toFixed(1)}% paced${pct>100?' — over budget':''}</div></div>`;
+  }).join('')}</div>`;
 }
 
-function avgNonNull(arr) {
-  let s = 0, count = 0;
-  for (const v of arr) { if (v !== null && v !== undefined) { s += v; count++; } }
-  return count > 0 ? s / count : null;
+/* ════════════════ S3: PLATFORM COMPARE ════════════════ */
+function renderS3() {
+  const w = getWindow(), el = document.getElementById('s3-body');
+  if (!w.length) { el.innerHTML = '<div class="empty-state">No data.</div>'; return; }
+  const gSp=w.reduce((s,r)=>s+(r.g_spend||0),0), mSp=w.reduce((s,r)=>s+(r.m_spend||0),0);
+  const gCl=w.reduce((s,r)=>s+(r.g_clicks||0),0), mCl=w.reduce((s,r)=>s+(r.m_clicks||0),0);
+  const gIm=w.reduce((s,r)=>s+(r.g_impressions||0),0);
+  const gCv=w.reduce((s,r)=>s+(r.g_conversions||0),0), mCv=w.reduce((s,r)=>s+(r.m_conversions||0),0);
+  const gCPA=gCv>0?gSp/gCv:0, mCPA=mCv>0?mSp/mCv:0;
+  const gCTR=gIm>0?gCl/gIm:0;
+  const mCTRArr=w.filter(r=>r.m_ctr); const mCTR=mCTRArr.length?mCTRArr.reduce((s,r)=>s+(r.m_ctr||0),0)/mCTRArr.length:0;
+  function bet(a,b,low=false){if(!a&&!b)return['','']; return (low?a<b:a>b)?['better','worse']:['worse','better'];}
+  const rows=[
+    ['Spend',       fmtUSD(gSp), fmtUSD(mSp), ...['','']],
+    ['Clicks',      fmtNum(gCl), fmtNum(mCl), ...bet(gCl,mCl)],
+    ['Impressions', fmtNum(gIm), '—',          ...['','']],
+    ['Conversions', fmtConv(gCv),fmtConv(mCv),...bet(gCv,mCv)],
+    ['CPA',         fmtUSD(gCPA),fmtUSD(mCPA),...bet(gCPA,mCPA,true)],
+    ['CTR',         fmtPct(gCTR),fmtPct(mCTR),...bet(gCTR,mCTR)],
+  ];
+  el.innerHTML=`<table class="compare-table"><thead><tr><th>Metric</th><th class="g-col">Google</th><th class="m-col">Microsoft</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td class="g-col ${r[3]}">${r[1]}</td><td class="m-col ${r[4]}">${r[2]}</td></tr>`).join('')}</tbody></table>
+    <p class="note">Campaign-level Microsoft detail coming soon.</p>`;
 }
 
-function yoyPct(curr, prior) {
-  if (prior === null || prior === 0) return null;
-  return (curr - prior) / Math.abs(prior) * 100;
-}
-
-function fmtPct(v, decimals=1) {
-  if (v === null) return '—';
-  return (v >= 0 ? '+' : '') + v.toFixed(decimals) + '%';
-}
-
-function fmtNum(v, prefix='', suffix='', decimals=0) {
-  if (v === null) return '—';
-  return prefix + v.toLocaleString('en-US', {minimumFractionDigits: decimals, maximumFractionDigits: decimals}) + suffix;
-}
-
-function renderStat(containerId, items) {
-  const el = document.getElementById(containerId);
-  el.innerHTML = items.map(item => `
-    <div class="stat-item">
-      <div class="stat-label">${item.label}</div>
-      <div class="stat-value">${item.value}</div>
-      ${item.yoy !== undefined ? `<div class="stat-yoy ${item.yoyClass}">${item.yoyArrow} ${item.yoy}</div>` : ''}
-    </div>
-  `).join('');
-}
-
-function yoyDisplay(pct, lowerIsBetter=false) {
-  if (pct === null) return { cls: 'neutral', arrow: '—', txt: '—' };
-  const positive = pct > 0;
-  const good = lowerIsBetter ? !positive : positive;
-  return {
-    cls: good ? 'good' : 'bad',
-    arrow: positive ? '▲' : '▼',
-    txt: fmtPct(pct)
-  };
-}
-
-// Chart defaults
-Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
-Chart.defaults.font.size = 12;
-
-function makeBarLineChart(canvasId, labels, barData, lineData, barColor, lineColor, yFmt) {
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  if (charts[canvasId]) charts[canvasId].destroy();
-  charts[canvasId] = new Chart(ctx, {
-    data: {
-      labels,
-      datasets: [
-        {
-          type: 'bar',
-          label: 'Current',
-          data: barData,
-          backgroundColor: barColor + 'cc',
-          borderColor: barColor,
-          borderWidth: 1,
-          borderRadius: 3,
-          order: 2,
-        },
-        {
-          type: 'line',
-          label: 'Prior Year',
-          data: lineData,
-          borderColor: lineColor,
-          borderDash: [5, 4],
-          borderWidth: 2,
-          pointRadius: 2,
-          pointHoverRadius: 4,
-          fill: false,
-          spanGaps: true,
-          tension: 0.3,
-          order: 1,
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${yFmt(ctx.parsed.y)}`
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { maxTicksLimit: 8, color: '#656d76' }
-        },
-        y: {
-          grid: { color: '#eaeef2' },
-          ticks: { color: '#656d76', callback: (v) => yFmt(v) }
-        }
-      }
-    }
+/* ════════════════ S4: SPEND & CPA TREND ════════════════ */
+function renderS4() {
+  const w = getWindow();
+  destroyChart('s4-spend'); destroyChart('s4-cpa');
+  if (!w.length) return;
+  const lbl = w.map(r=>r.label);
+  charts['s4-spend'] = new Chart(document.getElementById('chart-s4-spend'),{
+    type:'bar', data:{labels:lbl,datasets:[
+      {label:'Google',    data:w.map(r=>r.g_spend||0), backgroundColor:'rgba(60,172,215,.7)', stack:'s'},
+      {label:'Microsoft', data:w.map(r=>r.m_spend||0), backgroundColor:'rgba(0,164,239,.55)', stack:'s'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}},title:{display:true,text:'Weekly Spend',font:{size:12}}},
+      scales:{x:{stacked:true,ticks:{font:{size:10}}},y:{stacked:true,ticks:{callback:v=>'$'+Math.round(v/1000)+'k'}}}}
+  });
+  charts['s4-cpa'] = new Chart(document.getElementById('chart-s4-cpa'),{
+    type:'line', data:{labels:lbl,datasets:[{
+      label:'Blended CPA',
+      data:w.map(r=>{const s=(r.g_spend||0)+(r.m_spend||0),c=(r.g_conversions||0)+(r.m_conversions||0);return c>0?s/c:null;}),
+      borderColor:'#E8694A', backgroundColor:'rgba(232,105,74,.08)', fill:true, tension:.3, pointRadius:3,
+    }]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11}}},title:{display:true,text:'Blended CPA',font:{size:12}}},
+      scales:{x:{ticks:{font:{size:10}}},y:{ticks:{callback:v=>'$'+Math.round(v)}}}}
   });
 }
 
-function makeLineChart(canvasId, labels, currData, priorData, currColor, priorColor, yFmt) {
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  if (charts[canvasId]) charts[canvasId].destroy();
-  charts[canvasId] = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: 'Current',
-          data: currData,
-          borderColor: currColor,
-          backgroundColor: currColor + '20',
-          borderWidth: 2.5,
-          pointRadius: 2,
-          pointHoverRadius: 5,
-          fill: false,
-          spanGaps: true,
-          tension: 0.3,
-        },
-        {
-          label: 'Prior Year',
-          data: priorData,
-          borderColor: priorColor,
-          borderDash: [5, 4],
-          borderWidth: 1.5,
-          pointRadius: 1,
-          pointHoverRadius: 4,
-          fill: false,
-          spanGaps: true,
-          tension: 0.3,
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => `${ctx.dataset.label}: ${yFmt(ctx.parsed.y)}`
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { maxTicksLimit: 8, color: '#656d76' }
-        },
-        y: {
-          grid: { color: '#eaeef2' },
-          ticks: { color: '#656d76', callback: (v) => yFmt(v) }
-        }
-      }
-    }
+/* ════════════════ SORTABLE TABLE ════════════════ */
+function makeSortableTable(data, cols, sortState, containerId) {
+  const avgCPA = (() => { const v=data.map(r=>r.cpa||0).filter(x=>x>0); return v.length?v.reduce((a,b)=>a+b,0)/v.length:0; })();
+  const sorted = [...data].sort((a,b) => {
+    const av=a[sortState.col], bv=b[sortState.col];
+    return typeof av==='number' ? (sortState.dir==='asc'?av-bv:bv-av) : (sortState.dir==='asc'?String(av).localeCompare(String(bv)):String(bv).localeCompare(String(av)));
+  });
+  const wrap = document.createElement('div'); wrap.className='tbl-wrap';
+  wrap.innerHTML = `<table><thead><tr>${cols.map(c=>`<th class="${c.key===sortState.col?(sortState.dir==='asc'?'sort-asc':'sort-desc'):''}" data-col="${c.key}">${c.label}</th>`).join('')}</tr></thead>
+    <tbody>${sorted.map(row=>`<tr>${cols.map(c=>{
+      const v=row[c.key], fmt=c.fmt?c.fmt(v,row):v;
+      const warn=c.warn&&avgCPA>0&&typeof v==='number'&&v>avgCPA*1.5;
+      return `<td class="${warn?'warn':''}">${fmt}</td>`;
+    }).join('')}</tr>`).join('')}</tbody></table>`;
+  const el=document.getElementById(containerId); el.innerHTML=''; el.appendChild(wrap);
+  wrap.querySelectorAll('thead th').forEach(th=>th.addEventListener('click',()=>{
+    const col=th.dataset.col;
+    if(sortState.col===col) sortState.dir=sortState.dir==='asc'?'desc':'asc'; else {sortState.col=col;sortState.dir='desc';}
+    makeSortableTable(data,cols,sortState,containerId);
+  }));
+}
+
+/* ════════════════ S5: CAMPAIGNS GOOGLE ════════════════ */
+const s5Sort={col:'spend',dir:'desc'};
+function renderS5() {
+  const el=document.getElementById('s5-body');
+  if(!CAMPS_G||!CAMPS_G.length){el.innerHTML='<div class="empty-state">Google Ads campaign data will appear after the first weekly build.</div>';return;}
+  const w=getWindow(), s0=w.length?w[0].week_start:'', s1=w.length?w[w.length-1].week_start:'';
+  const agg={};
+  CAMPS_G.filter(r=>r.week>=s0&&r.week<=s1).forEach(r=>{
+    if(!agg[r.name]) agg[r.name]={name:r.name,type:r.type,spend:0,clicks:0,impressions:0,conversions:0};
+    agg[r.name].spend+=r.spend||0; agg[r.name].clicks+=r.clicks||0;
+    agg[r.name].impressions+=r.impressions||0; agg[r.name].conversions+=r.conversions||0;
+  });
+  const rows=Object.values(agg).map(r=>({...r,
+    cpa:r.conversions>0?r.spend/r.conversions:0,
+    ctr:r.impressions>0?r.clicks/r.impressions:0,
+  }));
+  makeSortableTable(rows,[
+    {key:'name',label:'Campaign',fmt:v=>v},{key:'type',label:'Type',fmt:v=>v},
+    {key:'spend',label:'Spend',fmt:fmtUSD},{key:'clicks',label:'Clicks',fmt:fmtNum},
+    {key:'impressions',label:'Impr',fmt:fmtNum},{key:'conversions',label:'Conv',fmt:fmtConv},
+    {key:'cpa',label:'CPA',fmt:fmtUSD,warn:true},{key:'ctr',label:'CTR',fmt:fmtPct},
+  ],s5Sort,'s5-body');
+}
+
+/* ════════════════ S7: ADS GOOGLE ════════════════ */
+const s7Sort={col:'cost',dir:'desc'};
+function renderS7() {
+  const el=document.getElementById('s7-body');
+  if(!ADS_G||!ADS_G.length){el.innerHTML='<div class="empty-state">Google Ads creative data will appear after the first weekly build.</div>';return;}
+  const avgCPA=(()=>{const v=ADS_G.map(r=>r.cpa||0).filter(x=>x>0);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;})();
+  const sorted=[...ADS_G].sort((a,b)=>s7Sort.dir==='asc'?(a[s7Sort.col]||0)-(b[s7Sort.col]||0):(b[s7Sort.col]||0)-(a[s7Sort.col]||0));
+  const cols=[
+    {key:'campaign',label:'Campaign'},{key:'ad_group',label:'Ad Group'},
+    {key:'_h',label:'Headlines'},{key:'description',label:'Description'},{key:'url',label:'URL'},
+    {key:'clicks',label:'Clicks',fmt:fmtNum},{key:'conversions',label:'Conv',fmt:fmtConv},
+    {key:'cpa',label:'CPA',fmt:fmtUSD,warn:true},{key:'conv_rate',label:'CVR',fmt:fmtPct},
+  ];
+  const wrap=document.createElement('div'); wrap.className='tbl-wrap';
+  wrap.innerHTML=`<table><thead><tr>${cols.map(c=>`<th class="${c.key===s7Sort.col?(s7Sort.dir==='asc'?'sort-asc':'sort-desc'):''}" data-col="${c.key}">${c.label}</th>`).join('')}</tr></thead>
+    <tbody>${sorted.map(row=>`<tr>
+      <td>${row.campaign}</td><td>${row.ad_group}</td>
+      <td><div class="headlines"><span>${row.headline1||''}</span><span>${row.headline2||''}</span><span>${row.headline3||''}</span></div></td>
+      <td>${row.description||''}</td><td>${row.url||''}</td>
+      <td>${fmtNum(row.clicks)}</td><td>${fmtConv(row.conversions)}</td>
+      <td class="${avgCPA>0&&(row.cpa||0)>avgCPA*1.5?'warn':''}">${fmtUSD(row.cpa)}</td>
+      <td>${fmtPct(row.conv_rate)}</td>
+    </tr>`).join('')}</tbody></table>`;
+  el.innerHTML=''; el.appendChild(wrap);
+  wrap.querySelectorAll('thead th').forEach(th=>th.addEventListener('click',()=>{
+    const col=th.dataset.col;
+    if(s7Sort.col===col) s7Sort.dir=s7Sort.dir==='asc'?'desc':'asc'; else {s7Sort.col=col;s7Sort.dir='desc';}
+    renderS7();
+  }));
+}
+
+/* ════════════════ S9: KEYWORDS GOOGLE ════════════════ */
+const s9Sort={col:'spend',dir:'desc'};
+let s9Filter='all';
+function renderS9() {
+  const el=document.getElementById('s9-body');
+  if(!KW_G||!KW_G.length){el.innerHTML='<div class="empty-state">Google Ads keyword data will appear after the first weekly build.</div>';return;}
+  let rows=KW_G;
+  if(s9Filter==='branded')    rows=rows.filter(r=>r.keyword.toLowerCase().includes('visme'));
+  if(s9Filter==='nonbranded') rows=rows.filter(r=>!r.keyword.toLowerCase().includes('visme'));
+  makeSortableTable(rows,[
+    {key:'keyword',label:'Keyword',fmt:v=>v},{key:'match_type',label:'Match',fmt:v=>v},
+    {key:'campaign',label:'Campaign',fmt:v=>v},{key:'spend',label:'Spend',fmt:fmtUSD},
+    {key:'clicks',label:'Clicks',fmt:fmtNum},{key:'impressions',label:'Impr',fmt:fmtNum},
+    {key:'ctr',label:'CTR',fmt:fmtPct},{key:'conversions',label:'Conv',fmt:fmtConv},
+    {key:'cpa',label:'CPA',fmt:fmtUSD,warn:true},
+  ],s9Sort,'s9-body');
+}
+
+/* ════════════════ S11: GEOGRAPHY ════════════════ */
+const s11Sort={col:'spend',dir:'desc'};
+let s11Month=null;
+function renderS11() {
+  const el=document.getElementById('s11-body'), pillsEl=document.getElementById('s11-months');
+  if(!GEO||!Object.keys(GEO).length){el.innerHTML='<div class="empty-state">Geographic data will appear after the first API sync.</div>';pillsEl.innerHTML='';return;}
+  const months=Object.keys(GEO).sort().reverse().slice(0,3);
+  if(!s11Month||!GEO[s11Month]) s11Month=months[0];
+  pillsEl.innerHTML=months.map(m=>{
+    const lbl=new Date(m+'-01').toLocaleDateString('en-US',{month:'short',year:'numeric',timeZone:'UTC'});
+    return `<button class="tpill ${m===s11Month?'active':''}" data-month="${m}">${lbl}</button>`;
+  }).join('');
+  pillsEl.querySelectorAll('.tpill').forEach(b=>b.addEventListener('click',()=>{s11Month=b.dataset.month;renderS11();}));
+  const rows=(GEO[s11Month]||[]).map(r=>({...r,cpa:r.conversions>0?r.spend/r.conversions:0}));
+  makeSortableTable(rows,[
+    {key:'state',label:'State',fmt:v=>v},{key:'spend',label:'Spend',fmt:fmtUSD},
+    {key:'clicks',label:'Clicks',fmt:fmtNum},{key:'conversions',label:'Conv',fmt:fmtConv},
+    {key:'cpa',label:'CPA',fmt:fmtUSD},
+  ],s11Sort,'s11-body');
+}
+
+/* ════════════════ S12: CTR TREND ════════════════ */
+function renderS12() {
+  const w=getWindow(); destroyChart('s12'); if(!w.length) return;
+  charts['s12']=new Chart(document.getElementById('chart-s12'),{
+    type:'line', data:{labels:w.map(r=>r.label),datasets:[
+      {label:'Google CTR',    data:w.map(r=>r.g_impressions>0?r.g_clicks/r.g_impressions:null), borderColor:'var(--g-color)', backgroundColor:'transparent', tension:.3, pointRadius:3},
+      {label:'Microsoft CTR', data:w.map(r=>r.m_ctr||null), borderColor:'var(--m-color)', backgroundColor:'transparent', tension:.3, pointRadius:3, borderDash:[4,3]},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}},
+      scales:{x:{ticks:{font:{size:11}}},y:{ticks:{callback:v=>(v*100).toFixed(2)+'%'}}}}
   });
 }
 
+/* ════════════════ S13: FREE SIGNUPS ════════════════ */
+function renderS13() {
+  const w=getWindow(); destroyChart('s13'); if(!w.length) return;
+  const sig=w.map(r=>r.ga4_new_users||0);
+  const avg=sig.map((_,i)=>{const sl=sig.slice(Math.max(0,i-3),i+1);return sl.reduce((a,b)=>a+b,0)/sl.length;});
+  charts['s13']=new Chart(document.getElementById('chart-s13'),{
+    data:{labels:w.map(r=>r.label),datasets:[
+      {type:'bar',  label:'Free Signups', data:sig, backgroundColor:'rgba(60,172,215,.5)', order:2},
+      {type:'line', label:'4-week avg',   data:avg, borderColor:'#6CC395', backgroundColor:'transparent', tension:.3, pointRadius:2, order:1},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}},
+      scales:{x:{ticks:{font:{size:11}}},y:{ticks:{stepSize:1}}}}
+  });
+}
+
+/* ════════════════ RENDER ALL ════════════════ */
 function renderAll() {
-  const n = currentWindow;
-  const weeks = getCurrentWeeks(n);
-  const labels = weeks.map(fmtDate);
-
-  // Update date range label
-  const startDate = weeks[0], endDate = weeks[weeks.length - 1];
-  document.getElementById('date-range-label').textContent =
-    fmtDateShort(startDate) + ' → ' + fmtDateShort(endDate);
-
-  // ---- SPEND ----
-  const spendCurr = getDataSeries(D.spend, weeks);
-  const spendPrior = getYoYSeries(D.spend, weeks);
-  const spendSum = sumNonNull(spendCurr);
-  const spendPriorSum = sumNonNull(spendPrior);
-  const spendPct = yoyPct(spendSum, spendPriorSum);
-  const spendYoy = yoyDisplay(spendPct, true);
-  renderStat('stat-spend', [
-    { label: 'Total Spend', value: fmtNum(spendSum, '$', '', 0) },
-    { label: 'Prior Year', value: fmtNum(spendPriorSum, '$', '', 0) },
-    { label: 'YoY', value: spendYoy.txt, yoy: spendYoy.txt, yoyClass: spendYoy.cls, yoyArrow: spendYoy.arrow }
-  ]);
-  makeBarLineChart('chart-spend', labels, spendCurr, spendPrior, '#0969da', '#0969da55',
-    v => v === null ? '—' : '$' + Math.round(v).toLocaleString());
-
-  // ---- CLICKS ----
-  const clicksCurr = getDataSeries(D.clicks, weeks);
-  const clicksPrior = getYoYSeries(D.clicks, weeks);
-  const clicksSum = sumNonNull(clicksCurr);
-  const clicksPriorSum = sumNonNull(clicksPrior);
-  const clicksPct = yoyPct(clicksSum, clicksPriorSum);
-  const clicksYoy = yoyDisplay(clicksPct, false);
-  renderStat('stat-clicks', [
-    { label: 'Total Clicks', value: fmtNum(clicksSum) },
-    { label: 'Prior Year', value: fmtNum(clicksPriorSum) },
-    { label: 'YoY', value: clicksYoy.txt, yoy: clicksYoy.txt, yoyClass: clicksYoy.cls, yoyArrow: clicksYoy.arrow }
-  ]);
-  makeLineChart('chart-clicks', labels, clicksCurr, clicksPrior, '#8250df', '#8250df80',
-    v => v === null ? '—' : Math.round(v).toLocaleString());
-
-  // ---- CTR ----
-  const ctrCurr = getDataSeries(D.ctr, weeks);
-  const ctrPrior = getYoYSeries(D.ctr, weeks);
-  const ctrAvg = avgNonNull(ctrCurr);
-  const ctrPriorAvg = avgNonNull(ctrPrior);
-  const ctrPct = yoyPct(ctrAvg, ctrPriorAvg);
-  const ctrYoy = yoyDisplay(ctrPct, false);
-  renderStat('stat-ctr', [
-    { label: 'Avg CTR', value: ctrAvg !== null ? (ctrAvg * 100).toFixed(2) + '%' : '—' },
-    { label: 'Prior Year', value: ctrPriorAvg !== null ? (ctrPriorAvg * 100).toFixed(2) + '%' : '—' },
-    { label: 'YoY', value: ctrYoy.txt, yoy: ctrYoy.txt, yoyClass: ctrYoy.cls, yoyArrow: ctrYoy.arrow }
-  ]);
-  makeLineChart('chart-ctr', labels, ctrCurr, ctrPrior, '#1a7f37', '#1a7f3780',
-    v => v === null ? '—' : (v * 100).toFixed(2) + '%');
-
-  // ---- SIGN UPS ----
-  const signupsCurr = getDataSeries(D.signups, weeks);
-  const signupsPrior = getYoYSeries(D.signups, weeks);
-  const signupsSum = sumNonNull(signupsCurr);
-  const signupsPriorSum = sumNonNull(signupsPrior);
-  const signupsPct = yoyPct(signupsSum, signupsPriorSum);
-  const signupsYoy = yoyDisplay(signupsPct, false);
-  renderStat('stat-signups', [
-    { label: 'Total Sign Ups', value: fmtNum(signupsSum) },
-    { label: 'Prior Year', value: fmtNum(signupsPriorSum) },
-    { label: 'YoY', value: signupsYoy.txt, yoy: signupsYoy.txt, yoyClass: signupsYoy.cls, yoyArrow: signupsYoy.arrow }
-  ]);
-  makeLineChart('chart-signups', labels, signupsCurr, signupsPrior, '#9a6700', '#9a670080',
-    v => v === null ? '—' : Math.round(v).toLocaleString());
-
-  // ---- CONVERSIONS ----
-  const convsCurr = getDataSeries(D.convs, weeks);
-  const convsPrior = getYoYSeries(D.convs, weeks);
-  const convsSum = sumNonNull(convsCurr);
-  const convsPriorSum = sumNonNull(convsPrior);
-  const convsPct = yoyPct(convsSum, convsPriorSum);
-  const convsYoy = yoyDisplay(convsPct, false);
-  renderStat('stat-convs', [
-    { label: 'Total Conversions', value: fmtNum(convsSum) },
-    { label: 'Prior Year', value: fmtNum(convsPriorSum) },
-    { label: 'YoY', value: convsYoy.txt, yoy: convsYoy.txt, yoyClass: convsYoy.cls, yoyArrow: convsYoy.arrow }
-  ]);
-  makeLineChart('chart-convs', labels, convsCurr, convsPrior, '#cf222e', '#cf222e80',
-    v => v === null ? '—' : Math.round(v).toLocaleString());
-
-  // ---- COST PER CONVERSION ----
-  const cpcCurr = weeks.map(w => {
-    const s = D.spend[w], c = D.convs[w];
-    return (s !== undefined && c !== undefined && c > 0) ? s / c : null;
-  });
-  const cpcPrior = weeks.map(w => {
-    const yoyDate = getYoYDate(w);
-    const nearestWeek = findNearestWeek(yoyDate);
-    if (!nearestWeek) return null;
-    const s = D.spend[nearestWeek], c = D.convs[nearestWeek];
-    return (s !== undefined && c !== undefined && c > 0) ? s / c : null;
-  });
-  const cpcAvg = avgNonNull(cpcCurr);
-  const cpcPriorAvg = avgNonNull(cpcPrior);
-  const cpcPct = yoyPct(cpcAvg, cpcPriorAvg);
-  const cpcYoy = yoyDisplay(cpcPct, true);
-  renderStat('stat-cpc', [
-    { label: 'Avg Cost/Conv', value: fmtNum(cpcAvg, '$', '', 2) },
-    { label: 'Prior Year', value: fmtNum(cpcPriorAvg, '$', '', 2) },
-    { label: 'YoY', value: cpcYoy.txt, yoy: cpcYoy.txt, yoyClass: cpcYoy.cls, yoyArrow: cpcYoy.arrow }
-  ]);
-  makeLineChart('chart-cpc', labels, cpcCurr, cpcPrior, '#0969da', '#0969da80',
-    v => v === null ? '—' : '$' + v.toFixed(0));
+  document.getElementById('date-range-label').textContent = getWindowDates();
+  if(typeof BUILD_DATE !== 'undefined') document.getElementById('build-date-badge').textContent = fmtDate(BUILD_DATE);
+  renderS1(); renderS2(); renderS3(); renderS4(); renderS5();
+  renderS7(); renderS9(); renderS11(); renderS12(); renderS13();
 }
 
-function setWindow(n) {
-  currentWindow = n;
-  WINDOWS.forEach(w => {
-    const btn = document.getElementById('btn-' + w);
-    if (btn) btn.classList.toggle('active', w === n);
-  });
+/* ════════════════ PILL LISTENERS ════════════════ */
+document.querySelectorAll('.pill').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  activeWeeks = parseInt(btn.dataset.w, 10);
   renderAll();
-}
+}));
 
-// Sidebar active state on scroll — one item highlighted at a time
-function updateActiveNav() {
-  const sections = ['spend', 'ctr', 'conversions'];
-  let active = sections[0];
-  for (const id of sections) {
-    const el = document.getElementById(id);
-    if (el && el.getBoundingClientRect().top <= 80) active = id;
-  }
-  // Map section → the single nav href that should be active
-  const sectionNav = { spend: 'spend', ctr: 'ctr', conversions: 'conversions' };
-  const activeHref = sectionNav[active];
-  document.querySelectorAll('#sidebar .source-nav a').forEach(a => {
-    const href = a.getAttribute('href').replace('#', '');
-    a.classList.toggle('active', href === activeHref);
-  });
-}
+document.getElementById('s9-toggle').querySelectorAll('.tpill').forEach(b => b.addEventListener('click', () => {
+  document.getElementById('s9-toggle').querySelectorAll('.tpill').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); s9Filter = b.dataset.kf; renderS9();
+}));
 
-window.addEventListener('scroll', updateActiveNav, { passive: true });
-window.addEventListener('load', () => {
-  renderAll();
-  updateActiveNav();
-  // Populate topbar date badge
-  const badge = document.getElementById('as-of-badge');
-  if (badge && typeof D !== 'undefined') {
-    const dateStr = D.generatedAt || '';
-    if (dateStr) badge.textContent = 'Data as of ' + String(dateStr).substring(0, 10);
-  }
-});
+/* ════════════════ SIDEBAR SCROLL SPY ════════════════ */
+(function(){
+  const links = document.querySelectorAll('.source-nav a[href^="#"]');
+  const sections = Array.from(links).map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  new IntersectionObserver(entries => entries.forEach(e => {
+    if(e.isIntersecting) { const id='#'+e.target.id; links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')===id)); }
+  }), {rootMargin:'-50% 0px -49% 0px'}).observe && sections.forEach(s=>
+    new IntersectionObserver(entries=>entries.forEach(e=>{
+      if(e.isIntersecting){const id='#'+e.target.id;links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')===id));}
+    }),{rootMargin:'-50% 0px -49% 0px'}).observe(s)
+  );
+})();
+
+/* ════════════════ INIT ════════════════ */
+renderAll();
 </script>
 </body>
 </html>

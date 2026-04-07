@@ -483,3 +483,104 @@ def fetch_gsc_sheet_data(sheet_id=None, credentials_file=None) -> dict:
     }
     print(f"  GSC sheet payload ready — {len(all_weeks)} weeks, endDate={end_date}")
     return payload
+
+
+def fetch_bing_weekly(sheet_id, credentials_file=None):
+    """
+    Read the "Bing Ads" tab from the colleague's transposed PPC sheet.
+
+    Layout (each column = one week, col A = metric label):
+      Row 1: empty
+      Row 2: "Week"  — date range strings like "03.30 - 04.05"
+      Row 3: Spent
+      Row 4: Conversions
+      Row 5: Cost/conv
+      Row 6: Clicks (Search)
+      Row 7: CTR (Search)
+      Row 8: Free sign ups
+
+    Returns a list of dicts sorted oldest-first (complete weeks only):
+      {
+        week_start:     "YYYY-MM-DD"  (Monday)
+        m_spend:        float
+        m_clicks:       int
+        m_impressions:  int           (always 0 — not in sheet)
+        m_conversions:  float
+        m_ctr:          float
+        m_free_signups: int
+      }
+    """
+    sheets = _get_sheets_service(credentials_file)
+    result = sheets.values().get(
+        spreadsheetId=sheet_id,
+        range="'Bing Ads'!A1:ZZ20",
+    ).execute()
+    raw = result.get("values", [])
+
+    max_cols = max((len(r) for r in raw), default=0)
+    rows = [r + [""] * (max_cols - len(r)) for r in raw]
+
+    if len(rows) < 8:
+        return []
+
+    week_row    = rows[1]   # "Week" date-range labels
+    spent_row   = rows[2]
+    conv_row    = rows[3]
+    # rows[4] = Cost/conv — skipped
+    clicks_row  = rows[5]
+    ctr_row     = rows[6]
+    signups_row = rows[7]
+
+    today       = date.today()
+    this_monday = today - timedelta(days=today.weekday())
+
+    def _parse_week_label(label):
+        """
+        "03.30 - 04.05" → Monday date on or before the start date.
+        Year: if start month <= current month → current year, else prior year.
+        """
+        label = label.strip()
+        if not label or label.lower() == "week":
+            return None
+        try:
+            left  = label.split("-")[0].strip()
+            parts = left.split(".")
+            if len(parts) != 2:
+                return None
+            month, day = int(parts[0]), int(parts[1])
+            year = today.year
+            if month > today.month + 2:
+                year -= 1
+            d = date(year, month, day)
+            return d - timedelta(days=d.weekday())   # snap to Monday
+        except (ValueError, IndexError):
+            return None
+
+    def _f(v):
+        try:    return round(float(str(v).replace("$","").replace(",","").replace("%","").strip()), 2)
+        except: return 0.0
+
+    def _i(v):
+        try:    return int(float(str(v).replace(",","").strip()))
+        except: return 0
+
+    seen = {}
+    for col in range(1, max_cols):
+        label = week_row[col] if col < len(week_row) else ""
+        if not label:
+            continue
+        ws = _parse_week_label(label)
+        if ws is None or ws >= this_monday:
+            continue
+        ws_str = ws.isoformat()
+        seen[ws_str] = {
+            "week_start":     ws_str,
+            "m_spend":        _f(spent_row[col]   if col < len(spent_row)   else ""),
+            "m_clicks":       _i(clicks_row[col]  if col < len(clicks_row)  else ""),
+            "m_impressions":  0,
+            "m_conversions":  _f(conv_row[col]    if col < len(conv_row)    else ""),
+            "m_ctr":          _f(ctr_row[col]     if col < len(ctr_row)     else ""),
+            "m_free_signups": _i(signups_row[col] if col < len(signups_row) else ""),
+        }
+
+    return sorted(seen.values(), key=lambda r: r["week_start"])
