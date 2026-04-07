@@ -544,11 +544,11 @@ def fetch_google_ads_from_sheet(sheet_id=None, credentials_file=None) -> dict:
     today       = date.today()
     this_monday = (today - timedelta(days=today.weekday())).strftime("%Y-%m-%d")
 
-    # Weekly accumulators
+    # Weekly totals (for WEEKLY array)
     w_spend = {}; w_impr = {}; w_clicks = {}; w_convs = {}
 
-    # Campaign accumulators (lifetime totals)
-    c_spend = {}; c_impr = {}; c_clicks = {}; c_convs = {}; c_type = {}
+    # Per-week per-campaign rows (for CAMPS_G — JS filters by week window)
+    wc_data = {}  # key: (week, camp) -> metrics dict
 
     for row in rows:
         if not row or not row[0]:
@@ -569,12 +569,22 @@ def fetch_google_ads_from_sheet(sheet_id=None, credentials_file=None) -> dict:
         w_clicks[week] = w_clicks.get(week, 0.0) + clk
         w_convs[week]  = w_convs.get(week, 0.0)  + conv
 
-        c_spend[camp]  = c_spend.get(camp, 0.0)  + cost
-        c_impr[camp]   = c_impr.get(camp, 0.0)   + impr
-        c_clicks[camp] = c_clicks.get(camp, 0.0) + clk
-        c_convs[camp]  = c_convs.get(camp, 0.0)  + conv
-        if camp not in c_type:
-            c_type[camp] = _infer_type(camp)
+        key = (week, camp)
+        if key not in wc_data:
+            wc_data[key] = {
+                "week":        week,
+                "name":        camp,
+                "type":        _infer_type(camp),
+                "status":      "ENABLED",
+                "spend":       0.0,
+                "clicks":      0,
+                "impressions": 0,
+                "conversions": 0.0,
+            }
+        wc_data[key]["spend"]       += cost
+        wc_data[key]["clicks"]      += int(clk)
+        wc_data[key]["impressions"] += int(impr)
+        wc_data[key]["conversions"] += conv
 
     all_weeks = [w for w in sorted(w_spend) if w < this_monday]
     print(f"  -> {len(all_weeks)} complete weeks  "
@@ -596,19 +606,20 @@ def fetch_google_ads_from_sheet(sheet_id=None, credentials_file=None) -> dict:
     camps = sorted(
         [
             {
-                "name":        camp,
-                "type":        c_type[camp],
-                "spend":       round(c_spend[camp], 2),
-                "clicks":      int(c_clicks[camp]),
-                "impressions": int(c_impr[camp]),
-                "conversions": round(c_convs[camp], 2),
+                "week":        r["week"],
+                "name":        r["name"],
+                "type":        r["type"],
+                "status":      r["status"],
+                "spend":       round(r["spend"], 2),
+                "clicks":      r["clicks"],
+                "impressions": r["impressions"],
+                "conversions": round(r["conversions"], 2),
             }
-            for camp in c_spend
+            for r in wc_data.values()
         ],
-        key=lambda r: r["spend"],
-        reverse=True,
+        key=lambda r: (r["week"], r["name"]),
     )
-    print(f"  -> {len(camps)} campaigns")
+    print(f"  -> {len(camps)} campaign-week rows ({len(set(r['name'] for r in camps))} campaigns)")
 
     return {
         "weekly":    weekly,
@@ -616,7 +627,7 @@ def fetch_google_ads_from_sheet(sheet_id=None, credentials_file=None) -> dict:
         "ads":       [],
         "kw":        [],
         "kw_weekly": [],
-        "geo":       {},
+        "geo":       [],
         "budgets":   {},
         "build_date": today.isoformat(),
     }

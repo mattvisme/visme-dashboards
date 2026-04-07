@@ -113,7 +113,7 @@ def main():
             "KW_M":       [],
             "KW_G_W":     google_data["kw_weekly"],
             "KW_M_W":     [],
-            "GEO":        google_data["geo"],
+            "GEO":        google_data["geo"],   # flat array [{state, g_cost, ...}]
             "BUDGETS":    google_data["budgets"],
             "MS_ENABLED": False,
             "BUILD_DATE": date.today().isoformat(),
