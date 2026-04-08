@@ -1,125 +1,212 @@
 #!/usr/bin/env python3
 """
 scripts/build_ppc.py
-Builds paid-media/index.html from:
-  1. PPC Google Sheet      — raw_campaign_daily (Google Ads data exported by script)
-  2. Colleague's Sheet     — Bing Ads weekly data (transposed layout)
-  3. Amplitude Sheet       — free sign-up counts by week
+Builds paid-media/index.html from Google Ads API + Microsoft Advertising API.
 
 Usage (local dev):
-  set GA4_CREDENTIALS_FILE=C:/Users/mattj/Downloads/visme-marketing-491309-47059dacd5b9.json
-  python scripts/build_ppc.py
+    set GA4_CREDENTIALS_FILE=C:/Users/mattj/Downloads/visme-marketing-491309-47059dacd5b9.json
+    set GOOGLE_ADS_DEVELOPER_TOKEN=...
+    set MS_ADS_DEVELOPER_TOKEN=...
+    set MS_ADS_CLIENT_ID=...
+    set MS_ADS_CLIENT_SECRET=...
+    set MS_ADS_REFRESH_TOKEN=...
+    python scripts/build_ppc.py
 """
 
 import os
 import sys
+import tempfile
 from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from scripts.shared.sheets_client import (
-    fetch_google_ads_from_sheet,
-    fetch_bing_weekly,
-    fetch_amplitude_data,
-)
+from scripts.shared.google_ads_client import fetch_all_google
+from scripts.shared.msads_client import fetch_all_msads
+from scripts.shared.sheets_client import fetch_amplitude_data
 from scripts.shared.html_utils import inject_data
+
+# ─── PATHS ────────────────────────────────────────────────────────────────────
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE  = os.path.join(REPO_ROOT, "paid-media", "index.html")
 OUTPUT    = os.path.join(REPO_ROOT, "paid-media", "index.html")
 
-GOOGLE_ADS_SHEET_ID = os.environ.get(
-    "GOOGLE_ADS_SHEET_ID",
-    "11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho",
-)
-COLLEAGUE_SHEET_ID = os.environ.get(
-    "COLLEAGUE_PPC_SHEET_ID",
-    "1dvV2lkAbAT9kJLEB2At_0AG8emEhhe5jmubzscKw-uY",
-)
+# ─── MONTHLY BUDGET CONFIG ────────────────────────────────────────────────────
+# Update manually at the start of each month.
+
+MONTHLY_BUDGETS = {
+    "2026-01": 10000,
+    "2026-02": 10000,
+    "2026-03": 11111,
+    "2026-04": 11111,
+    "2026-05": 11111,
+    "2026-06": 11111,
+    "2026-07": 11111,
+    "2026-08": 11111,
+    "2026-09": 11111,
+    "2026-10": 11111,
+    "2026-11": 11111,
+    "2026-12": 11111,
+}
+
+# ─── ENV VARS ─────────────────────────────────────────────────────────────────
+
+GOOGLE_ADS_DEVELOPER_TOKEN = os.environ.get("GOOGLE_ADS_DEVELOPER_TOKEN", "")
+GOOGLE_ADS_MANAGER_ID      = os.environ.get("GOOGLE_ADS_MANAGER_ID",      "4091490058")
+GOOGLE_ADS_CUSTOMER_ID     = os.environ.get("GOOGLE_ADS_CUSTOMER_ID",     "2405880186")
+
+MS_ADS_DEVELOPER_TOKEN = os.environ.get("MS_ADS_DEVELOPER_TOKEN", "")
+MS_ADS_CLIENT_ID       = os.environ.get("MS_ADS_CLIENT_ID",       "")
+MS_ADS_CLIENT_SECRET   = os.environ.get("MS_ADS_CLIENT_SECRET",   "")
+MS_ADS_REFRESH_TOKEN   = os.environ.get("MS_ADS_REFRESH_TOKEN",   "")
+MS_ADS_CUSTOMER_ID     = os.environ.get("MS_ADS_CUSTOMER_ID",     "169512962")
+MS_ADS_ACCOUNT_ID      = os.environ.get("MS_ADS_ACCOUNT_ID",      "176012710")
+
 AMPLITUDE_SHEET_ID = os.environ.get(
     "AMPLITUDE_SHEET_ID",
     "11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw",
 )
 
 
+# ─── HELPERS ──────────────────────────────────────────────────────────────────
+
+def _resolve_credentials_file():
+    """Return path to a service-account JSON file (writes tempfile if needed)."""
+    creds_json = os.environ.get("GA4_CREDENTIALS_JSON")
+    if creds_json:
+        tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
+        tmp.write(creds_json)
+        tmp.close()
+        return tmp.name
+    return os.environ.get(
+        "GA4_CREDENTIALS_FILE",
+        os.path.join(os.path.expanduser("~"), "Downloads",
+                     "visme-marketing-491309-47059dacd5b9.json"),
+    )
+
+def _empty_google():
+    return {"weekly": [], "camps": [], "ads": [], "kw": [], "kw_weekly": [], "geo": {}}
+
+def _empty_msads():
+    return {"weekly": [], "camps": [], "ads": [], "kw": [], "kw_weekly": [], "geo": {}}
+
+
+# ─── MAIN ─────────────────────────────────────────────────────────────────────
+
 def main():
     print("=" * 60)
-    print("Building paid-media/index.html (v2)")
+    print("Building paid-media/index.html")
     print("=" * 60)
 
-    # ── 1. Google Ads (from sheet) ─────────────────────────────────────────────
-    try:
-        google_data = fetch_google_ads_from_sheet(GOOGLE_ADS_SHEET_ID)
-    except Exception as e:
-        print(f"  WARNING: Google Ads sheet failed: {e}")
-        google_data = {
-            "weekly": [], "camps": [], "ads": [], "kw": [],
-            "kw_weekly": [], "geo": {}, "budgets": {},
-            "build_date": date.today().isoformat(),
-        }
+    credentials_file = _resolve_credentials_file()
 
-    # ── 2. Bing Ads ────────────────────────────────────────────────────────────
-    print("Bing Ads: reading sheet...")
+    # ── 1. Google Ads ─────────────────────────────────────────────────────────
     try:
-        bing_list    = fetch_bing_weekly(COLLEAGUE_SHEET_ID)
-        bing_by_week = {r["week_start"]: r for r in bing_list}
-        print(f"  -> {len(bing_list)} Bing weeks")
+        google_data = fetch_all_google(
+            developer_token=GOOGLE_ADS_DEVELOPER_TOKEN,
+            credentials_file=credentials_file,
+            manager_id=GOOGLE_ADS_MANAGER_ID,
+            customer_id=GOOGLE_ADS_CUSTOMER_ID,
+        )
     except Exception as e:
-        print(f"  WARNING: Bing sheet failed: {e}")
-        bing_by_week = {}
+        print(f"  ⚠️  Google Ads failed: {e}")
+        google_data = _empty_google()
 
-    # ── 3. Amplitude ───────────────────────────────────────────────────────────
-    print("Amplitude: signups...")
+    # ── 2. Microsoft Ads ──────────────────────────────────────────────────────
+    try:
+        msads_data = fetch_all_msads(
+            developer_token=MS_ADS_DEVELOPER_TOKEN,
+            client_id=MS_ADS_CLIENT_ID,
+            client_secret=MS_ADS_CLIENT_SECRET,
+            refresh_token=MS_ADS_REFRESH_TOKEN,
+            customer_id=MS_ADS_CUSTOMER_ID,
+            account_id=MS_ADS_ACCOUNT_ID,
+        )
+    except Exception as e:
+        print(f"  ⚠️  Microsoft Ads failed: {e}")
+        msads_data = _empty_msads()
+
+    # ── 3. Amplitude signups ──────────────────────────────────────────────────
+    print("⏳  Amplitude: signups...")
     try:
         amp_data    = fetch_amplitude_data(AMPLITUDE_SHEET_ID)
         amp_by_week = {w: amp_data["signups"].get(w, 0) for w in amp_data.get("weeks", [])}
-        print(f"  -> {len(amp_by_week)} Amplitude weeks")
+        print(f"    → {len(amp_by_week)} Amplitude weeks")
     except Exception as e:
-        print(f"  WARNING: Amplitude failed: {e}")
+        print(f"    ⚠️  Amplitude failed: {e}")
         amp_by_week = {}
 
-    # ── 4. Merge WEEKLY ────────────────────────────────────────────────────────
+    # ── 4. Merge WEEKLY ───────────────────────────────────────────────────────
+    ms_by_week = {r["week_start"]: r for r in msads_data["weekly"]}
+
     merged_weekly = []
     for gw in google_data["weekly"]:
         ws = gw["week_start"]
-        bw = bing_by_week.get(ws, {})
+        mw = ms_by_week.get(ws, {})
         merged_weekly.append({
-            "week_start":     gw["week_start"],
-            "week_end":       gw["week_end"],
-            "label":          gw["label"],
-            "g_spend":        gw["g_spend"],
-            "g_clicks":       gw["g_clicks"],
-            "g_impressions":  gw["g_impressions"],
-            "g_conversions":  gw["g_conversions"],
-            "m_spend":        bw.get("m_spend",        0.0),
-            "m_clicks":       bw.get("m_clicks",        0),
-            "m_impressions":  bw.get("m_impressions",   0),
-            "m_conversions":  bw.get("m_conversions",   0.0),
-            "m_ctr":          bw.get("m_ctr",           0.0),
-            "m_free_signups": bw.get("m_free_signups",  0),
-            "ga4_new_users":  amp_by_week.get(ws, 0),
+            "week_start":    gw["week_start"],
+            "week_end":      gw["week_end"],
+            "label":         gw["label"],
+            "g_spend":       gw["g_spend"],
+            "g_clicks":      gw["g_clicks"],
+            "g_impressions": gw["g_impressions"],
+            "g_conversions": gw["g_conversions"],
+            "m_spend":       mw.get("m_spend",       0.0),
+            "m_clicks":      mw.get("m_clicks",       0),
+            "m_impressions": mw.get("m_impressions",  0),
+            "m_conversions": mw.get("m_conversions",  0.0),
+            "ga4_new_users": amp_by_week.get(ws, 0),
         })
 
-    # ── 5. Inject ──────────────────────────────────────────────────────────────
+    # ── 5. Merge GEO ──────────────────────────────────────────────────────────
+    all_states  = set(google_data["geo"]) | set(msads_data["geo"])
+    merged_geo  = {}
+    empty_g = {"g_spend": 0.0, "g_clicks": 0, "g_conversions": 0.0,
+               "g_cpa": 0.0, "g_conv_rate": 0.0}
+    empty_m = {"ms_spend": 0.0, "ms_clicks": 0, "ms_conversions": 0.0,
+               "ms_cpa": 0.0, "ms_conv_rate": 0.0}
+    for state in sorted(all_states):
+        merged_geo[state] = {
+            **google_data["geo"].get(state, empty_g),
+            **msads_data["geo"].get(state, empty_m),
+        }
+
+    # ── 6. Build BUDGETS ──────────────────────────────────────────────────────
+    spend_by_month = {}
+    for row in merged_weekly:
+        month = row["week_start"][:7]   # "YYYY-MM"
+        spend_by_month[month] = spend_by_month.get(month, 0.0) + \
+            row["g_spend"] + row["m_spend"]
+
+    budgets_dict = {
+        month: {
+            "budget": budget,
+            "spend":  round(spend_by_month.get(month, 0.0), 2),
+        }
+        for month, budget in MONTHLY_BUDGETS.items()
+    }
+
+    # ── 7. Inject ─────────────────────────────────────────────────────────────
     inject_data(
         template_path=TEMPLATE,
         data_dict={
             "WEEKLY":     merged_weekly,
             "CAMPS_G":    google_data["camps"],
-            "CAMPS_M":    [],
+            "CAMPS_M":    msads_data["camps"],
             "ADS_G":      google_data["ads"],
-            "ADS_M":      [],
+            "ADS_M":      msads_data["ads"],
             "KW_G":       google_data["kw"],
-            "KW_M":       [],
+            "KW_M":       msads_data["kw"],
             "KW_G_W":     google_data["kw_weekly"],
-            "KW_M_W":     [],
-            "GEO":        google_data["geo"],   # flat array [{state, g_cost, ...}]
-            "BUDGETS":    google_data["budgets"],
-            "MS_ENABLED": False,
-            "BUILD_DATE": date.today().isoformat(),
+            "KW_M_W":     msads_data["kw_weekly"],
+            "GEO":        merged_geo,
+            "BUDGETS":    budgets_dict,
+            "MS_ENABLED": True,
+            "BUILD_DATE": date.today().strftime("%Y-%m-%d"),
         },
         output_path=OUTPUT,
     )
+    print("\nDone → paid-media/index.html")
 
 
 if __name__ == "__main__":

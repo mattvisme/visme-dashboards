@@ -21,6 +21,10 @@ from collections import defaultdict
 import google.auth
 from google.ads.googleads.client import GoogleAdsClient
 
+# ─── CONSTANTS ────────────────────────────────────────────────────────────────
+
+CUSTOMER_ID = "2405880186"  # Visme — no dashes
+
 # ─── US STATE CRITERION ID MAP ────────────────────────────────────────────────
 US_STATES = {
     21137: "Alabama",        21138: "Alaska",         21139: "Arizona",
@@ -48,7 +52,14 @@ _CHANNEL_MAP = {
     "DISPLAY":         "Display",
     "VIDEO":           "Video",
     "SHOPPING":        "Shopping",
-    "PERFORMANCE_MAX": "PMax",
+    "PERFORMANCE_MAX": "Performance max",
+    "DEMAND_GEN":      "Demand gen",
+}
+
+# ─── STATUS MAP ───────────────────────────────────────────────────────────────
+_STATUS_MAP = {
+    "ENABLED": "Active",
+    "PAUSED":  "Paused",
 }
 
 # ─── MATCH TYPE MAP ───────────────────────────────────────────────────────────
@@ -105,7 +116,7 @@ def _float(v, decimals=2):
 
 def _stream_rows(client, customer_id, query):
     service = client.get_service("GoogleAdsService")
-    stream  = service.search_stream(customer_id=customer_id, query=query)
+    stream  = service.search_stream(customer_id, query=query)
     rows = []
     for batch in stream:
         for row in batch.results:
@@ -115,9 +126,9 @@ def _stream_rows(client, customer_id, query):
 
 # ─── FUNCTION 1: fetch_weekly_google ─────────────────────────────────────────
 
-def fetch_weekly_google(client, customer_id):
+def fetch_weekly_google(client):
     """Weekly account-level totals. One dict per complete week, oldest first."""
-    start, end, this_monday = _get_date_range()
+    start, end, this_monday = _get_date_range(156)
     query = f"""
         SELECT
           segments.week,
@@ -129,7 +140,7 @@ def fetch_weekly_google(client, customer_id):
         WHERE segments.date BETWEEN '{start}' AND '{end}'
           AND campaign.status = 'ENABLED'
     """
-    rows = _stream_rows(client, customer_id, query)
+    rows = _stream_rows(client, CUSTOMER_ID, query)
 
     agg = defaultdict(lambda: {"cost": 0, "clicks": 0, "impressions": 0, "conversions": 0.0})
     for row in rows:
@@ -160,9 +171,9 @@ def fetch_weekly_google(client, customer_id):
 
 # ─── FUNCTION 2: fetch_campaigns_google ──────────────────────────────────────
 
-def fetch_campaigns_google(client, customer_id):
+def fetch_campaigns_google(client):
     """Per-campaign, per-week rows. Oldest first."""
-    start, end, this_monday = _get_date_range()
+    start, end, this_monday = _get_date_range(156)
     query = f"""
         SELECT
           segments.week,
@@ -177,7 +188,7 @@ def fetch_campaigns_google(client, customer_id):
         WHERE segments.date BETWEEN '{start}' AND '{end}'
           AND campaign.status IN ('ENABLED', 'PAUSED')
     """
-    rows = _stream_rows(client, customer_id, query)
+    rows = _stream_rows(client, CUSTOMER_ID, query)
 
     agg = {}
     for row in rows:
@@ -189,7 +200,7 @@ def fetch_campaigns_google(client, customer_id):
             agg[key] = {
                 "week":        w,
                 "name":        row.campaign.name,
-                "status":      row.campaign.status.name,
+                "status":      _STATUS_MAP.get(row.campaign.status.name, row.campaign.status.name),
                 "type":        _CHANNEL_MAP.get(row.campaign.advertising_channel_type.name, "Other"),
                 "spend":       0.0,
                 "clicks":      0,
@@ -212,9 +223,9 @@ def fetch_campaigns_google(client, customer_id):
 
 # ─── FUNCTION 3: fetch_ads_google ────────────────────────────────────────────
 
-def fetch_ads_google(client, customer_id):
-    """RSA ad performance aggregated over full date window. Sorted by cost desc."""
-    start, end, _ = _get_date_range()
+def fetch_ads_google(client):
+    """RSA ad performance aggregated over last 26 weeks. Sorted by cost desc."""
+    start, end, _ = _get_date_range(26)
     query = f"""
         SELECT
           campaign.name,
@@ -226,13 +237,15 @@ def fetch_ads_google(client, customer_id):
           metrics.clicks,
           metrics.impressions,
           metrics.conversions,
-          metrics.cost_micros
+          metrics.cost_micros,
+          metrics.cost_per_conversion,
+          metrics.all_conversions_from_interactions_rate
         FROM ad_group_ad
         WHERE segments.date BETWEEN '{start}' AND '{end}'
           AND ad_group_ad.status IN ('ENABLED', 'PAUSED')
           AND ad_group_ad.ad.type = 'RESPONSIVE_SEARCH_AD'
     """
-    rows = _stream_rows(client, customer_id, query)
+    rows = _stream_rows(client, CUSTOMER_ID, query)
 
     agg = {}
     for row in rows:
@@ -271,10 +284,9 @@ def fetch_ads_google(client, customer_id):
 
 # ─── FUNCTION 4: fetch_keywords_google ───────────────────────────────────────
 
-def fetch_keywords_google(client, customer_id):
-    """Returns (kw_summary, kw_weekly)."""
-    start, end, this_monday = _get_date_range(weeks=156)
-    start_26, _, _          = _get_date_range(weeks=26)
+def fetch_keywords_google(client):
+    """Returns (kw_summary, kw_weekly). Both windows use last 26 weeks."""
+    start_26, end, this_monday = _get_date_range(26)
 
     def _kw_query(date_filter, with_week=False):
         week_field = "segments.week," if with_week else ""
@@ -288,16 +300,18 @@ def fetch_keywords_google(client, customer_id):
               metrics.cost_micros,
               metrics.clicks,
               metrics.impressions,
-              metrics.conversions
+              metrics.conversions,
+              metrics.cost_per_conversion,
+              metrics.all_conversions_from_interactions_rate
             FROM keyword_view
             WHERE {date_filter}
               AND ad_group_criterion.status IN ('ENABLED', 'PAUSED')
-              AND campaign.status IN ('ENABLED', 'PAUSED')
         """
 
-    # — Summary (full window) —
+    # — Summary (last 26 weeks) —
     agg_s = {}
-    for row in _stream_rows(client, customer_id, _kw_query(f"segments.date BETWEEN '{start}' AND '{end}'")):
+    for row in _stream_rows(client, CUSTOMER_ID,
+                            _kw_query(f"segments.date BETWEEN '{start_26}' AND '{end}'")):
         kw  = row.ad_group_criterion.keyword.text
         mt  = _MATCH_MAP.get(row.ad_group_criterion.keyword.match_type.name, "")
         key = (kw, mt, row.campaign.name, row.ad_group.name)
@@ -321,7 +335,7 @@ def fetch_keywords_google(client, customer_id):
 
     # — Weekly (last 26 weeks) —
     agg_w = {}
-    for row in _stream_rows(client, customer_id,
+    for row in _stream_rows(client, CUSTOMER_ID,
                             _kw_query(f"segments.date BETWEEN '{start_26}' AND '{end}'", with_week=True)):
         w   = row.segments.week
         if w >= this_monday:
@@ -349,13 +363,14 @@ def fetch_keywords_google(client, customer_id):
 
 # ─── FUNCTION 5: fetch_geo_google ────────────────────────────────────────────
 
-def fetch_geo_google(client, customer_id):
-    """US state performance by month. Returns dict keyed by YYYY-MM."""
-    start, end, _ = _get_date_range()
+def fetch_geo_google(client):
+    """US state performance aggregated over last 26 weeks. Returns dict keyed by state name."""
+    start, end, _ = _get_date_range(26)
     query = f"""
         SELECT
-          segments.month,
+          geographic_view.location_type,
           geographic_view.country_criterion_id,
+          segments.geo_target_region,
           metrics.cost_micros,
           metrics.clicks,
           metrics.conversions
@@ -363,61 +378,38 @@ def fetch_geo_google(client, customer_id):
         WHERE segments.date BETWEEN '{start}' AND '{end}'
           AND geographic_view.country_criterion_id = 2840
     """
-    rows = _stream_rows(client, customer_id, query)
+    rows = _stream_rows(client, CUSTOMER_ID, query)
 
-    agg = defaultdict(lambda: defaultdict(lambda: {"cost": 0, "clicks": 0, "conversions": 0.0}))
+    agg = defaultdict(lambda: {"cost": 0, "clicks": 0, "conversions": 0.0})
     for row in rows:
-        month   = row.segments.month[:7]
         crit_id = row.geographic_view.country_criterion_id
-        agg[month][crit_id]["cost"]        += row.metrics.cost_micros
-        agg[month][crit_id]["clicks"]      += _int(row.metrics.clicks)
-        agg[month][crit_id]["conversions"] += _float(row.metrics.conversions)
+        if crit_id not in US_STATES:
+            continue
+        state = US_STATES[crit_id]
+        agg[state]["cost"]        += row.metrics.cost_micros
+        agg[state]["clicks"]      += _int(row.metrics.clicks)
+        agg[state]["conversions"] += _float(row.metrics.conversions)
 
     result = {}
-    for month in sorted(agg):
-        states = [
-            {"state": US_STATES[cid], "spend": _micros(a["cost"]),
-             "clicks": a["clicks"], "conversions": round(a["conversions"], 2)}
-            for cid, a in agg[month].items()
-            if cid in US_STATES
-        ]
-        states.sort(key=lambda x: x["spend"], reverse=True)
-        result[month] = states
+    for state, a in agg.items():
+        spend = _micros(a["cost"])
+        convs = round(a["conversions"], 2)
+        clks  = a["clicks"]
+        result[state] = {
+            "g_spend":     spend,
+            "g_clicks":    clks,
+            "g_conversions": convs,
+            "g_cpa":       round(spend / convs, 2) if convs > 0 else 0.0,
+            "g_conv_rate": round(convs / clks,  4) if clks  > 0 else 0.0,
+        }
     return result
-
-
-# ─── FUNCTION 6: fetch_budgets_google ────────────────────────────────────────
-
-def fetch_budgets_google(client, customer_id):
-    """Monthly budget vs spend. Returns dict keyed by YYYY-MM."""
-    start, end, _ = _get_date_range()
-    query = f"""
-        SELECT
-          campaign.name,
-          campaign_budget.amount_micros,
-          segments.month,
-          metrics.cost_micros
-        FROM campaign
-        WHERE segments.date BETWEEN '{start}' AND '{end}'
-          AND campaign.status = 'ENABLED'
-    """
-    rows = _stream_rows(client, customer_id, query)
-
-    agg = defaultdict(lambda: {"budget": 0.0, "spend": 0.0})
-    for row in rows:
-        month = row.segments.month[:7]
-        agg[month]["budget"] += _micros(row.campaign_budget.amount_micros)
-        agg[month]["spend"]  += _micros(row.metrics.cost_micros)
-
-    return {m: {"budget": round(v["budget"], 2), "spend": round(v["spend"], 2)}
-            for m, v in sorted(agg.items())}
 
 
 # ─── MAIN ENTRY POINT ─────────────────────────────────────────────────────────
 
-def fetch_all_google_ads(developer_token, credentials_file, manager_id, customer_id):
+def fetch_all_google(developer_token, credentials_file, manager_id, customer_id):
     """
-    Authenticate and call all 6 fetch functions.
+    Authenticate and call all fetch functions.
     Each is wrapped in try/except — failures return [] or {} so the build
     never aborts on a single query error.
     """
@@ -431,47 +423,40 @@ def fetch_all_google_ads(developer_token, credentials_file, manager_id, customer
         login_customer_id=manager_id,
     )
 
-    print("⏳ Google Ads: weekly totals...")
+    print("⏳  Google Ads: weekly totals...")
     try:
-        weekly = fetch_weekly_google(client, customer_id)
-        print(f"  → {len(weekly)} complete weeks")
+        weekly = fetch_weekly_google(client)
+        print(f"    → {len(weekly)} complete weeks")
     except Exception as e:
-        print(f"  ⚠️  weekly failed: {e}"); weekly = []
+        print(f"    ⚠️  weekly failed: {e}"); weekly = []
 
-    print("⏳ Google Ads: campaigns...")
+    print("⏳  Google Ads: campaigns...")
     try:
-        camps = fetch_campaigns_google(client, customer_id)
-        print(f"  → {len(camps)} campaign-week rows")
+        camps = fetch_campaigns_google(client)
+        print(f"    → {len(camps)} campaign-week rows")
     except Exception as e:
-        print(f"  ⚠️  campaigns failed: {e}"); camps = []
+        print(f"    ⚠️  campaigns failed: {e}"); camps = []
 
-    print("⏳ Google Ads: ads...")
+    print("⏳  Google Ads: ads...")
     try:
-        ads = fetch_ads_google(client, customer_id)
-        print(f"  → {len(ads)} ads")
+        ads = fetch_ads_google(client)
+        print(f"    → {len(ads)} ads")
     except Exception as e:
-        print(f"  ⚠️  ads failed: {e}"); ads = []
+        print(f"    ⚠️  ads failed: {e}"); ads = []
 
-    print("⏳ Google Ads: keywords...")
+    print("⏳  Google Ads: keywords...")
     try:
-        kw, kw_weekly = fetch_keywords_google(client, customer_id)
-        print(f"  → {len(kw)} keywords, {len(kw_weekly)} keyword-week rows")
+        kw, kw_weekly = fetch_keywords_google(client)
+        print(f"    → {len(kw)} keywords, {len(kw_weekly)} keyword-week rows")
     except Exception as e:
-        print(f"  ⚠️  keywords failed: {e}"); kw, kw_weekly = [], []
+        print(f"    ⚠️  keywords failed: {e}"); kw, kw_weekly = [], []
 
-    print("⏳ Google Ads: geography...")
+    print("⏳  Google Ads: geography...")
     try:
-        geo = fetch_geo_google(client, customer_id)
-        print(f"  → {sum(len(v) for v in geo.values())} state-month entries")
+        geo = fetch_geo_google(client)
+        print(f"    → {len(geo)} states")
     except Exception as e:
-        print(f"  ⚠️  geography failed: {e}"); geo = {}
-
-    print("⏳ Google Ads: budgets...")
-    try:
-        budgets = fetch_budgets_google(client, customer_id)
-        print(f"  → {len(budgets)} months")
-    except Exception as e:
-        print(f"  ⚠️  budgets failed: {e}"); budgets = {}
+        print(f"    ⚠️  geography failed: {e}"); geo = {}
 
     return {
         "weekly":    weekly,
@@ -480,6 +465,4 @@ def fetch_all_google_ads(developer_token, credentials_file, manager_id, customer
         "kw":        kw,
         "kw_weekly": kw_weekly,
         "geo":       geo,
-        "budgets":   budgets,
-        "build_date": date.today().isoformat(),
     }
