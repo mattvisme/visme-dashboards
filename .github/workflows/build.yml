@@ -28,7 +28,9 @@ jobs:
             google-api-python-client \
             google-auth-httplib2 \
             google-auth-oauthlib \
-            gspread
+            gspread \
+            google-ads \
+            bingads
 
       - name: Build Executive dashboard
         env:
@@ -59,9 +61,16 @@ jobs:
       - name: Build Paid Media (PPC) dashboard
         env:
           GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
-          GOOGLE_ADS_SHEET_ID: "11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho"
-          COLLEAGUE_PPC_SHEET_ID: ${{ secrets.COLLEAGUE_PPC_SHEET_ID }}
-          AMPLITUDE_SHEET_ID: "11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw"
+          GOOGLE_ADS_DEVELOPER_TOKEN: ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
+          GOOGLE_ADS_MANAGER_ID: ${{ secrets.GOOGLE_ADS_MANAGER_ID }}
+          MS_ADS_DEVELOPER_TOKEN: ${{ secrets.MS_ADS_DEVELOPER_TOKEN }}
+          MS_ADS_CLIENT_ID: ${{ secrets.MS_ADS_CLIENT_ID }}
+          MS_ADS_CLIENT_SECRET: ${{ secrets.MS_ADS_CLIENT_SECRET }}
+          MS_ADS_REFRESH_TOKEN: ${{ secrets.MS_ADS_REFRESH_TOKEN }}
+          MS_ADS_CUSTOMER_ID: ${{ secrets.MS_ADS_CUSTOMER_ID }}
+          MS_ADS_ACCOUNT_ID: ${{ secrets.MS_ADS_ACCOUNT_ID }}
+          AMPLITUDE_SHEET_ID: ${{ secrets.AMPLITUDE_SHEET_ID }}
         run: python scripts/build_ppc.py
 
       - name: Build GSC SEO dashboard
