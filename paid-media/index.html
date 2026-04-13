@@ -148,6 +148,10 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
 .filter-label{font-size:11.5px;font-weight:600;color:var(--text-muted);letter-spacing:.3px;text-transform:uppercase}
 .filter-select{font-size:12.5px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 10px;cursor:pointer;outline:none;font-family:var(--font-ui)}
 .filter-select:focus{border-color:var(--accent)}
+.search-input{font-size:12.5px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:5px 10px;outline:none;font-family:var(--font-ui);width:200px}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--text-dim)}
+.filter-row .ml-auto{margin-left:auto}
 .kw-toggle-group{display:flex;gap:4px}
 .kw-toggle{font-size:12px;font-weight:500;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;transition:all .12s}
 .kw-toggle:hover{background:var(--surface2)}
@@ -500,6 +504,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
           <select id="s7CampFilter" class="filter-select" onchange="renderS7()">
             <option value="">All Campaigns</option>
           </select>
+          <input id="s7Search" class="search-input ml-auto" type="text" placeholder="Search URL, headline, ad group…" oninput="renderS7()">
         </div>
         <div class="tbl-scroll">
           <table id="tbl-s7">
@@ -575,6 +580,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
             <button class="kw-toggle" data-f="branded" onclick="s9Filter='branded';renderS9()">Branded</button>
             <button class="kw-toggle" data-f="nb" onclick="s9Filter='nb';renderS9()">Non-Branded</button>
           </div>
+          <input id="s9Search" class="search-input ml-auto" type="text" placeholder="Search keywords, campaign…" oninput="renderS9()">
         </div>
         <div class="tbl-scroll">
           <table id="tbl-s9">
@@ -611,6 +617,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
             <button class="kw-toggle" data-f="branded" onclick="s10Filter='branded';renderS10()">Branded</button>
             <button class="kw-toggle" data-f="nb" onclick="s10Filter='nb';renderS10()">Non-Branded</button>
           </div>
+          <input id="s10Search" class="search-input ml-auto" type="text" placeholder="Search keywords, campaign…" oninput="renderS10()">
         </div>
         <div class="tbl-scroll">
           <table id="tbl-s10">
@@ -1017,7 +1024,10 @@ function renderAdsTable(prefix,adsData,initFlag){
     makeSortable(`tbl-${prefix}`,`tbody-${prefix}`);
   }
   const filterVal=filterEl?filterEl.value:'';
-  const filtered=filterVal?adsData.filter(a=>a.campaign===filterVal):adsData;
+  const searchEl=document.getElementById(`${prefix}Search`);
+  const q=(searchEl?searchEl.value:'').toLowerCase().trim();
+  const filtered=(filterVal?adsData.filter(a=>a.campaign===filterVal):adsData)
+    .filter(a=>!q||[a.url,a.headline1,a.headline2,a.headline3,a.ad_group,a.campaign,a.description].some(f=>(f||'').toLowerCase().includes(q)));
   const totConv=filtered.reduce((s,a)=>s+(+a.conversions||0),0);
   const totSpend=filtered.reduce((s,a)=>s+(+a.cost||0),0);
   const avgCpa=totConv>0?totSpend/totConv:0;
@@ -1036,7 +1046,10 @@ function renderS8(){
 /* ── S9/S10: Keywords ── */
 function renderKwTable(prefix,kwData,filter){
   document.querySelectorAll(`#${prefix}-toggle .kw-toggle`).forEach(b=>b.classList.toggle('active',b.dataset.f===filter));
-  const filtered=filter==='branded'?kwData.filter(k=>k.keyword.toLowerCase().includes('visme')):filter==='nb'?kwData.filter(k=>!k.keyword.toLowerCase().includes('visme')):kwData;
+  const searchEl=document.getElementById(`${prefix}Search`);
+  const q=(searchEl?searchEl.value:'').toLowerCase().trim();
+  const byFilter=filter==='branded'?kwData.filter(k=>k.keyword.toLowerCase().includes('visme')):filter==='nb'?kwData.filter(k=>!k.keyword.toLowerCase().includes('visme')):kwData;
+  const filtered=byFilter.filter(k=>!q||k.keyword.toLowerCase().includes(q)||k.campaign.toLowerCase().includes(q)||(k.ad_group||'').toLowerCase().includes(q));
   const totConv=filtered.reduce((s,k)=>s+(+k.conversions||0),0);
   const totSpend=filtered.reduce((s,k)=>s+(+k.spend||0),0);
   const avgCpa=totConv>0?totSpend/totConv:0;
