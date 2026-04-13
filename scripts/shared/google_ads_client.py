@@ -395,7 +395,12 @@ def fetch_geo_google(client):
 
     agg = defaultdict(lambda: {"cost": 0, "clicks": 0, "conversions": 0.0})
     for row in rows:
-        crit_id = row.geographic_view.country_criterion_id
+        # geo_target_region is a resource name like "geoTargetConstants/21137"
+        region = row.segments.geo_target_region
+        try:
+            crit_id = int(str(region).rsplit("/", 1)[-1])
+        except (ValueError, AttributeError):
+            continue
         if crit_id not in US_STATES:
             continue
         state = US_STATES[crit_id]
