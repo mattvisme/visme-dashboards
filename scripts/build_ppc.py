@@ -16,13 +16,17 @@ Usage (local dev):
 import os
 import sys
 import tempfile
-from datetime import date
+from datetime import date, timedelta
+
+# Force UTF-8 stdout on Windows so emoji in print() don't crash
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scripts.shared.google_ads_client import fetch_all_google
 from scripts.shared.msads_client import fetch_all_msads
-from scripts.shared.sheets_client import fetch_amplitude_data
+from scripts.shared.sheets_client import fetch_amplitude_data, fetch_bing_weekly, fetch_ppc_data, fetch_google_ads_from_sheet
 from scripts.shared.html_utils import inject_data
 
 # ─── PATHS ────────────────────────────────────────────────────────────────────
@@ -65,6 +69,10 @@ MS_ADS_ACCOUNT_ID      = os.environ.get("MS_ADS_ACCOUNT_ID",      "176012710")
 AMPLITUDE_SHEET_ID = os.environ.get(
     "AMPLITUDE_SHEET_ID",
     "11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw",
+)
+PPC_SHEET_ID = os.environ.get(
+    "PPC_SHEET_ID",
+    "11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho",
 )
 
 
@@ -109,8 +117,16 @@ def main():
             customer_id=GOOGLE_ADS_CUSTOMER_ID,
         )
     except Exception as e:
-        print(f"  ⚠️  Google Ads failed: {e}")
+        print(f"  ⚠️  Google Ads API failed: {e}")
         google_data = _empty_google()
+
+    if not google_data["weekly"]:
+        print("  ↳ No Google Ads API data — falling back to Google Sheet...")
+        try:
+            google_data = fetch_google_ads_from_sheet(PPC_SHEET_ID)
+            print(f"    → {len(google_data['weekly'])} weeks, {len(google_data['camps'])} campaign rows from sheet")
+        except Exception as e2:
+            print(f"  ⚠️  Sheet fallback also failed: {e2}")
 
     # ── 2. Microsoft Ads ──────────────────────────────────────────────────────
     try:
@@ -123,8 +139,17 @@ def main():
             account_id=MS_ADS_ACCOUNT_ID,
         )
     except Exception as e:
-        print(f"  ⚠️  Microsoft Ads failed: {e}")
+        print(f"  ⚠️  Microsoft Ads API failed: {e}")
         msads_data = _empty_msads()
+
+    if not msads_data["weekly"]:
+        print("  ↳ No MS Ads API data — falling back to Google Sheet (Bing Ads tab)...")
+        try:
+            sheet_weekly = fetch_bing_weekly(PPC_SHEET_ID)
+            msads_data["weekly"] = sheet_weekly
+            print(f"    → {len(sheet_weekly)} weeks from sheet")
+        except Exception as e2:
+            print(f"  ⚠️  Sheet fallback also failed: {e2}")
 
     # ── 3. Amplitude signups ──────────────────────────────────────────────────
     print("⏳  Amplitude: signups...")

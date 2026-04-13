@@ -22,7 +22,7 @@ import sys
 import webbrowser
 
 try:
-    from bingads import OAuthWebAuthCodeGrant
+    from bingads import OAuthDesktopMobileAuthCodeGrant
 except ImportError:
     sys.exit("bingads SDK not installed. Run: pip install bingads")
 
@@ -36,19 +36,12 @@ def main():
 
     if not client_id:
         sys.exit("Error: MS_ADS_CLIENT_ID environment variable is not set.")
-    if not client_secret:
-        sys.exit("Error: MS_ADS_CLIENT_SECRET environment variable is not set.")
 
-    authentication = OAuthWebAuthCodeGrant(
-        client_id=client_id,
-        client_secret=client_secret,
-        redirection_uri=REDIRECT_URI,
-    )
+    authentication = OAuthDesktopMobileAuthCodeGrant(client_id=client_id)
 
-    auth_url = authentication.get_authorization_endpoint()
-    print("\nOpening browser for Microsoft Advertising login...")
-    print(f"\nIf the browser does not open automatically, visit:\n{auth_url}\n")
-    webbrowser.open(auth_url)
+    auth_url = authentication.get_authorization_endpoint() + "&domain_hint=organizations"
+    print(f"\nOpen this URL in a private/incognito window and sign in:\n\n{auth_url}\n")
+    print("(domain_hint=organizations forces work/school account login)\n")
 
     print("After signing in, Microsoft will redirect to a blank page.")
     print("Copy the FULL URL from the browser address bar and paste it below.")
