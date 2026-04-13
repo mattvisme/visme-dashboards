@@ -132,6 +132,11 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
 .type-badge{font-size:13px;font-weight:700;color:var(--text);font-family:var(--font-display);letter-spacing:-.2px}
 .toggle-paused-btn{font-size:11px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px 10px;cursor:pointer;transition:all .12s}
 .toggle-paused-btn:hover{background:var(--border);color:var(--text)}
+.ms-coming-soon{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;gap:12px;text-align:center}
+.ms-coming-soon .ms-cs-icon{font-size:36px;line-height:1}
+.ms-coming-soon .ms-cs-title{font-size:16px;font-weight:700;color:var(--text)}
+.ms-coming-soon .ms-cs-desc{font-size:13px;color:var(--text-muted);max-width:380px;line-height:1.5}
+.ms-coming-soon .ms-cs-badge{font-size:11px;font-weight:500;color:#0078d4;background:#e6f2fb;border:1px solid #b3d7f5;border-radius:12px;padding:4px 12px;margin-top:4px}
 .type-section .paused-row{display:none}
 .type-section.show-paused .paused-row{display:table-row}
 /* ── Status pills ── */
@@ -463,7 +468,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
         <span class="section-subtitle" id="s6-sub"></span>
       </div>
       <div class="section-divider"></div>
-      <div class="card">
+      <div id="s6-content"><div class="card">
         <div class="card-title">By Campaign Type</div>
         <div class="tbl-scroll">
           <table id="tbl-s6-types">
@@ -479,7 +484,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
           </table>
         </div>
       </div>
-      <div id="s6-type-sections"></div>
+      <div id="s6-type-sections"></div></div>
     </div>
 
     <!-- S7: Ads Google -->
@@ -526,7 +531,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
         <span class="section-subtitle" id="s8-sub">Last 26 weeks aggregated</span>
       </div>
       <div class="section-divider"></div>
-      <div class="card">
+      <div id="s8-content"><div class="card">
         <div class="filter-row">
           <span class="filter-label">Campaign</span>
           <select id="s8CampFilter" class="filter-select" onchange="renderS8()">
@@ -553,7 +558,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
             <tbody id="tbody-s8"></tbody>
           </table>
         </div>
-      </div>
+      </div></div>
     </div>
 
     <!-- S9: Keywords Google -->
@@ -599,7 +604,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
         <span class="section-subtitle" id="s10-sub">Last 26 weeks aggregated</span>
       </div>
       <div class="section-divider"></div>
-      <div class="card">
+      <div id="s10-content"><div class="card">
         <div class="filter-row">
           <div class="kw-toggle-group" id="s10-toggle">
             <button class="kw-toggle active" data-f="all" onclick="s10Filter='all';renderS10()">All</button>
@@ -625,7 +630,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
             <tbody id="tbody-s10"></tbody>
           </table>
         </div>
-      </div>
+      </div></div>
     </div>
 
     <!-- S11: Geography -->
@@ -995,8 +1000,12 @@ function renderCampaignSection(prefix,campsData){
     makeSortableEl(tbl,tbody);
   });
 }
+const MS_COMING_SOON=`<div class="ms-coming-soon"><div class="ms-cs-icon">🔒</div><div class="ms-cs-title">Microsoft Advertising — Coming Soon</div><div class="ms-cs-desc">Microsoft Advertising data will appear here once the API connection is configured. Google Ads and GA4 data are live above.</div><div class="ms-cs-badge">Integration in progress</div></div>`;
 function renderS5(){renderCampaignSection('s5',CAMPS_G);}
-function renderS6(){renderCampaignSection('s6',CAMPS_M);}
+function renderS6(){
+  if(!CAMPS_M.length){el('s6-content',MS_COMING_SOON);return;}
+  renderCampaignSection('s6',CAMPS_M);
+}
 
 /* ── S7/S8: Ads ── */
 function renderAdsTable(prefix,adsData,initFlag){
@@ -1019,7 +1028,10 @@ function renderAdsTable(prefix,adsData,initFlag){
 }
 const _adsInit={};
 function renderS7(){renderAdsTable('s7',ADS_G,_adsInit);}
-function renderS8(){renderAdsTable('s8',ADS_M,_adsInit);}
+function renderS8(){
+  if(!ADS_M.length){el('s8-content',MS_COMING_SOON);return;}
+  renderAdsTable('s8',ADS_M,_adsInit);
+}
 
 /* ── S9/S10: Keywords ── */
 function renderKwTable(prefix,kwData,filter){
@@ -1035,7 +1047,10 @@ function renderKwTable(prefix,kwData,filter){
   makeSortable(`tbl-${prefix}`,`tbody-${prefix}`);
 }
 function renderS9(){renderKwTable('s9',KW_G,s9Filter);}
-function renderS10(){renderKwTable('s10',KW_M,s10Filter);}
+function renderS10(){
+  if(!KW_M.length){el('s10-content',MS_COMING_SOON);return;}
+  renderKwTable('s10',KW_M,s10Filter);
+}
 
 /* ── S11: Geography ── */
 function renderS11(){
