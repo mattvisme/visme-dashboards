@@ -577,7 +577,7 @@ def fetch_google_ads_from_sheet(sheet_id=None, credentials_file=None) -> dict:
                 "week":        week,
                 "name":        camp,
                 "type":        _infer_type(camp),
-                "status":      "ENABLED",
+                "status":      "Active",
                 "spend":       0.0,
                 "clicks":      0,
                 "impressions": 0,

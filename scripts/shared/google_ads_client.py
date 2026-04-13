@@ -277,7 +277,7 @@ def fetch_ads_google(client):
                 "campaign": row.campaign.name, "ad_group": row.ad_group.name,
                 "headline1": h1, "headline2": h2, "headline3": h3,
                 "description": descs[0] if descs else "",
-                "url": url, "status": _enum_name(row.ad_group_ad.status, _STATUS_INT),
+                "url": url, "status": _STATUS_MAP.get(_enum_name(row.ad_group_ad.status, _STATUS_INT), "Unknown"),
                 "clicks": 0, "impressions": 0, "conversions": 0.0, "cost": 0.0,
             }
         agg[key]["clicks"]      += _int(row.metrics.clicks)
