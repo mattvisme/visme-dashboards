@@ -58,6 +58,9 @@ MONTHLY_BUDGETS = {
 GOOGLE_ADS_DEVELOPER_TOKEN = os.environ.get("GOOGLE_ADS_DEVELOPER_TOKEN", "")
 GOOGLE_ADS_MANAGER_ID      = os.environ.get("GOOGLE_ADS_MANAGER_ID",      "4091490058")
 GOOGLE_ADS_CUSTOMER_ID     = os.environ.get("GOOGLE_ADS_CUSTOMER_ID",     "2405880186")
+GOOGLE_ADS_CLIENT_ID       = os.environ.get("GOOGLE_ADS_CLIENT_ID",       "")
+GOOGLE_ADS_CLIENT_SECRET   = os.environ.get("GOOGLE_ADS_CLIENT_SECRET",   "")
+GOOGLE_ADS_REFRESH_TOKEN   = os.environ.get("GOOGLE_ADS_REFRESH_TOKEN",   "")
 
 MS_ADS_DEVELOPER_TOKEN = os.environ.get("MS_ADS_DEVELOPER_TOKEN", "")
 MS_ADS_CLIENT_ID       = os.environ.get("MS_ADS_CLIENT_ID",       "")
@@ -115,6 +118,9 @@ def main():
             credentials_file=credentials_file,
             manager_id=GOOGLE_ADS_MANAGER_ID,
             customer_id=GOOGLE_ADS_CUSTOMER_ID,
+            client_id=GOOGLE_ADS_CLIENT_ID,
+            client_secret=GOOGLE_ADS_CLIENT_SECRET,
+            refresh_token=GOOGLE_ADS_REFRESH_TOKEN,
         )
     except Exception as e:
         print(f"  ⚠️  Google Ads API failed: {e}")

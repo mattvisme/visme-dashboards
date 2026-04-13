@@ -20,6 +20,7 @@ from collections import defaultdict
 
 import google.auth
 from google.ads.googleads.client import GoogleAdsClient
+from google.oauth2.credentials import Credentials
 
 # ─── CONSTANTS ────────────────────────────────────────────────────────────────
 
@@ -55,12 +56,15 @@ _CHANNEL_MAP = {
     "PERFORMANCE_MAX": "Performance max",
     "DEMAND_GEN":      "Demand gen",
 }
+_CHANNEL_INT = {2: "SEARCH", 3: "DISPLAY", 4: "SHOPPING", 6: "VIDEO",
+                10: "PERFORMANCE_MAX", 14: "DEMAND_GEN"}
 
 # ─── STATUS MAP ───────────────────────────────────────────────────────────────
 _STATUS_MAP = {
     "ENABLED": "Active",
     "PAUSED":  "Paused",
 }
+_STATUS_INT = {2: "ENABLED", 3: "PAUSED", 4: "REMOVED"}
 
 # ─── MATCH TYPE MAP ───────────────────────────────────────────────────────────
 _MATCH_MAP = {
@@ -68,6 +72,15 @@ _MATCH_MAP = {
     "PHRASE": "Phrase",
     "BROAD":  "Broad",
 }
+_MATCH_INT = {2: "EXACT", 3: "PHRASE", 4: "BROAD"}
+
+
+def _enum_name(field, int_map):
+    """Return the string name of a proto enum field, handling both enum and int."""
+    try:
+        return field.name
+    except AttributeError:
+        return int_map.get(int(field), str(field))
 
 
 # ─── CREDENTIALS ──────────────────────────────────────────────────────────────
@@ -200,8 +213,8 @@ def fetch_campaigns_google(client):
             agg[key] = {
                 "week":        w,
                 "name":        row.campaign.name,
-                "status":      _STATUS_MAP.get(row.campaign.status.name, row.campaign.status.name),
-                "type":        _CHANNEL_MAP.get(row.campaign.advertising_channel_type.name, "Other"),
+                "status":      _STATUS_MAP.get(_enum_name(row.campaign.status, _STATUS_INT), "Unknown"),
+                "type":        _CHANNEL_MAP.get(_enum_name(row.campaign.advertising_channel_type, _CHANNEL_INT), "Other"),
                 "spend":       0.0,
                 "clicks":      0,
                 "impressions": 0,
@@ -264,7 +277,7 @@ def fetch_ads_google(client):
                 "campaign": row.campaign.name, "ad_group": row.ad_group.name,
                 "headline1": h1, "headline2": h2, "headline3": h3,
                 "description": descs[0] if descs else "",
-                "url": url, "status": row.ad_group_ad.status.name,
+                "url": url, "status": _enum_name(row.ad_group_ad.status, _STATUS_INT),
                 "clicks": 0, "impressions": 0, "conversions": 0.0, "cost": 0.0,
             }
         agg[key]["clicks"]      += _int(row.metrics.clicks)
@@ -313,7 +326,7 @@ def fetch_keywords_google(client):
     for row in _stream_rows(client, CUSTOMER_ID,
                             _kw_query(f"segments.date BETWEEN '{start_26}' AND '{end}'")):
         kw  = row.ad_group_criterion.keyword.text
-        mt  = _MATCH_MAP.get(row.ad_group_criterion.keyword.match_type.name, "")
+        mt  = _MATCH_MAP.get(_enum_name(row.ad_group_criterion.keyword.match_type, _MATCH_INT), "")
         key = (kw, mt, row.campaign.name, row.ad_group.name)
         if key not in agg_s:
             agg_s[key] = {"keyword": kw, "match_type": mt, "campaign": row.campaign.name,
@@ -341,7 +354,7 @@ def fetch_keywords_google(client):
         if w >= this_monday:
             continue
         kw  = row.ad_group_criterion.keyword.text
-        mt  = _MATCH_MAP.get(row.ad_group_criterion.keyword.match_type.name, "")
+        mt  = _MATCH_MAP.get(_enum_name(row.ad_group_criterion.keyword.match_type, _MATCH_INT), "")
         key = (w, kw, mt, row.campaign.name, row.ad_group.name)
         if key not in agg_w:
             agg_w[key] = {"week": w, "keyword": kw, "match_type": mt,
@@ -382,7 +395,12 @@ def fetch_geo_google(client):
 
     agg = defaultdict(lambda: {"cost": 0, "clicks": 0, "conversions": 0.0})
     for row in rows:
-        crit_id = row.geographic_view.country_criterion_id
+        # geo_target_region is a resource name like "geoTargetConstants/21137"
+        region = row.segments.geo_target_region
+        try:
+            crit_id = int(str(region).rsplit("/", 1)[-1])
+        except (ValueError, AttributeError):
+            continue
         if crit_id not in US_STATES:
             continue
         state = US_STATES[crit_id]
@@ -407,21 +425,42 @@ def fetch_geo_google(client):
 
 # ─── MAIN ENTRY POINT ─────────────────────────────────────────────────────────
 
-def fetch_all_google(developer_token, credentials_file, manager_id, customer_id):
+def fetch_all_google(developer_token, credentials_file, manager_id, customer_id,
+                     client_id=None, client_secret=None, refresh_token=None):
     """
     Authenticate and call all fetch functions.
     Each is wrapped in try/except — failures return [] or {} so the build
     never aborts on a single query error.
+
+    If client_id + client_secret + refresh_token are provided, uses OAuth2
+    user credentials (preferred). Otherwise falls back to service account.
     """
-    credentials, _ = google.auth.load_credentials_from_file(
-        credentials_file,
-        scopes=["https://www.googleapis.com/auth/adwords"],
-    )
-    client = GoogleAdsClient(
-        credentials=credentials,
-        developer_token=developer_token,
-        login_customer_id=customer_id,
-    )
+    if client_id and client_secret and refresh_token:
+        credentials = Credentials(
+            token=None,
+            refresh_token=refresh_token,
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=client_id,
+            client_secret=client_secret,
+        )
+    else:
+        credentials, _ = google.auth.load_credentials_from_file(
+            credentials_file,
+            scopes=["https://www.googleapis.com/auth/adwords"],
+        )
+    # Use login_customer_id (manager) only when authenticating via service account.
+    # With OAuth user credentials, authenticate directly against the client account.
+    if client_id and client_secret and refresh_token:
+        client = GoogleAdsClient(
+            credentials=credentials,
+            developer_token=developer_token,
+        )
+    else:
+        client = GoogleAdsClient(
+            credentials=credentials,
+            developer_token=developer_token,
+            login_customer_id=manager_id,
+        )
 
     print("⏳  Google Ads: weekly totals...")
     try:
