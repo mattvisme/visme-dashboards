@@ -116,7 +116,7 @@ def _float(v, decimals=2):
 
 def _stream_rows(client, customer_id, query):
     service = client.get_service("GoogleAdsService")
-    stream  = service.search_stream(customer_id, query=query)
+    stream  = service.search_stream(customer_id=customer_id, query=query)
     rows = []
     for batch in stream:
         for row in batch.results:
@@ -420,7 +420,7 @@ def fetch_all_google(developer_token, credentials_file, manager_id, customer_id)
     client = GoogleAdsClient(
         credentials=credentials,
         developer_token=developer_token,
-        login_customer_id=manager_id,
+        login_customer_id=customer_id,
     )
 
     print("⏳  Google Ads: weekly totals...")

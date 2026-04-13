@@ -16,7 +16,7 @@ Usage (local dev):
 import os
 import sys
 import tempfile
-from datetime import date
+from datetime import date, timedelta
 
 # Force UTF-8 stdout on Windows so emoji in print() don't crash
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scripts.shared.google_ads_client import fetch_all_google
 from scripts.shared.msads_client import fetch_all_msads
-from scripts.shared.sheets_client import fetch_amplitude_data, fetch_bing_weekly
+from scripts.shared.sheets_client import fetch_amplitude_data, fetch_bing_weekly, fetch_ppc_data
 from scripts.shared.html_utils import inject_data
 
 # ─── PATHS ────────────────────────────────────────────────────────────────────
@@ -117,8 +117,29 @@ def main():
             customer_id=GOOGLE_ADS_CUSTOMER_ID,
         )
     except Exception as e:
-        print(f"  ⚠️  Google Ads failed: {e}")
+        print(f"  ⚠️  Google Ads API failed: {e}")
         google_data = _empty_google()
+
+    if not google_data["weekly"]:
+        print("  ↳ No Google Ads API data — falling back to Google Sheet...")
+        try:
+            ppc = fetch_ppc_data(PPC_SHEET_ID)
+            weeks = ppc.get("weeks", [])
+            google_data["weekly"] = [
+                {
+                    "week_start":    w,
+                    "week_end":      (date.fromisoformat(w) + timedelta(days=6)).isoformat(),
+                    "label":         f"{date.fromisoformat(w).month}/{date.fromisoformat(w).day}",
+                    "g_spend":       round(ppc["spend"].get(w, 0.0), 2),
+                    "g_clicks":      int(ppc["clicks"].get(w, 0)),
+                    "g_impressions": 0,
+                    "g_conversions": round(ppc["convs"].get(w, 0.0), 2),
+                }
+                for w in weeks
+            ]
+            print(f"    → {len(google_data['weekly'])} weeks from sheet")
+        except Exception as e2:
+            print(f"  ⚠️  Sheet fallback also failed: {e2}")
 
     # ── 2. Microsoft Ads ──────────────────────────────────────────────────────
     try:
