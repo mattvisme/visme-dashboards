@@ -49,7 +49,9 @@ Thumbs.db
 *.bak
 .cache/
 
-# Google service account credentials — never commit
+# Google credentials — never commit
 visme-marketing-*.json
 *-credentials.json
 service-account*.json
+*client-secrets*.json
+*client_secrets*.json

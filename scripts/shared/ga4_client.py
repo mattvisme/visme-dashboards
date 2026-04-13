@@ -38,7 +38,7 @@ def _get_credentials(credentials_file=None):
         credentials_file = os.environ.get(
             "GA4_CREDENTIALS_FILE",
             os.path.join(os.path.expanduser("~"), "Downloads",
-                         "visme-marketing-491309-47059dacd5b9.json")
+                         "visme-marketing-491309-8316da126688.json")
         )
 
     return service_account.Credentials.from_service_account_file(
@@ -224,3 +224,57 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
 
     print(f"✅  GA4 collected — {len(all_weeks)} weeks, {len(top_channels)} channels")
     return payload
+
+
+def fetch_paid_search_new_users(property_id=None, credentials_file=None, weeks=156) -> dict:
+    """
+    Fetch weekly new users from Paid Search channel only.
+    Returns dict keyed by week_start (YYYY-MM-DD) → int new users.
+    Used by the PPC dashboard for the Free Signups (Paid) metric.
+    """
+    if property_id is None:
+        property_id = os.environ.get("GA4_PROPERTY_ID", "368188880")
+
+    credentials = _get_credentials(credentials_file)
+    client = BetaAnalyticsDataClient(credentials=credentials)
+
+    today = date.today()
+    this_monday = today - timedelta(days=today.weekday())
+    start_dt = this_monday - timedelta(weeks=weeks)
+    last_sunday = this_monday - timedelta(days=1)
+
+    request = RunReportRequest(
+        property=f"properties/{property_id}",
+        date_ranges=[DateRange(
+            start_date=start_dt.strftime("%Y-%m-%d"),
+            end_date=last_sunday.strftime("%Y-%m-%d"),
+        )],
+        dimensions=[Dimension(name="date")],
+        metrics=[Metric(name="newUsers")],
+        dimension_filter=FilterExpression(
+            filter=Filter(
+                field_name="sessionDefaultChannelGroup",
+                in_list_filter=InListFilter(values=["Paid Search"]),
+            )
+        ),
+    )
+
+    this_monday_str = this_monday.strftime("%Y-%m-%d")
+    weekly: dict[str, int] = defaultdict(int)
+
+    for attempt in range(3):
+        try:
+            response = client.run_report(request, timeout=120)
+            for row in response.rows:
+                date_str = row.dimension_values[0].value
+                w = _get_monday_str(date_str)
+                if w < this_monday_str:
+                    weekly[w] += int(row.metric_values[0].value or 0)
+            break
+        except Exception as e:
+            if attempt < 2:
+                time.sleep(15 * (attempt + 1))
+            else:
+                raise
+
+    return dict(weekly)

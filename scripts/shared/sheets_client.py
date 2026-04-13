@@ -36,7 +36,7 @@ def _get_sheets_service(credentials_file=None):
         credentials_file = os.environ.get(
             "GA4_CREDENTIALS_FILE",
             os.path.join(os.path.expanduser("~"), "Downloads",
-                         "visme-marketing-491309-47059dacd5b9.json")
+                         "visme-marketing-491309-8316da126688.json")
         )
 
     creds = Credentials.from_service_account_file(credentials_file, scopes=SCOPES)
@@ -529,10 +529,12 @@ def fetch_google_ads_from_sheet(sheet_id=None, credentials_file=None) -> dict:
 
     def _infer_type(name: str) -> str:
         n = name.upper()
+        # Check specific patterns before generic prefixes
+        if "PMAX" in n or n.startswith("PM_"): return "Performance max"
+        if "DEMAND_GEN" in n or "DEMAND GEN" in n: return "Demand gen"
         if n.startswith("GS_"):    return "Search"
         if n.startswith("GV_"):    return "Video"
         if n.startswith("GD_"):    return "Display"
-        if n.startswith("PMAX_") or n.startswith("PM_"): return "PMax"
         return "Other"
 
     print("Google Ads (sheet): reading raw_campaign_daily...")

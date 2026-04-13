@@ -96,7 +96,7 @@ def _resolve_credentials_file():
     return os.environ.get(
         "GA4_CREDENTIALS_FILE",
         os.path.join(os.path.expanduser("~"), "Downloads",
-                     "visme-marketing-491309-47059dacd5b9.json"),
+                     "visme-marketing-491309-8316da126688.json"),
     )
 
 
@@ -432,8 +432,9 @@ def fetch_all_google(developer_token, credentials_file, manager_id, customer_id,
     Each is wrapped in try/except — failures return [] or {} so the build
     never aborts on a single query error.
 
-    If client_id + client_secret + refresh_token are provided, uses OAuth2
-    user credentials (preferred). Otherwise falls back to service account.
+    Auth priority:
+      1. OAuth user credentials (client_id + client_secret + refresh_token)
+      2. Service account JSON (credentials_file)
     """
     if client_id and client_secret and refresh_token:
         credentials = Credentials(

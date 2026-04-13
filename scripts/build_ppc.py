@@ -4,7 +4,7 @@ scripts/build_ppc.py
 Builds paid-media/index.html from Google Ads API + Microsoft Advertising API.
 
 Usage (local dev):
-    set GA4_CREDENTIALS_FILE=C:/Users/mattj/Downloads/visme-marketing-491309-47059dacd5b9.json
+    set GA4_CREDENTIALS_FILE=C:/Users/stryd/OneDrive/Documents/visme-marketing-491309-8316da126688.json
     set GOOGLE_ADS_DEVELOPER_TOKEN=...
     set MS_ADS_DEVELOPER_TOKEN=...
     set MS_ADS_CLIENT_ID=...
@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.shared.google_ads_client import fetch_all_google
 from scripts.shared.msads_client import fetch_all_msads
 from scripts.shared.sheets_client import fetch_amplitude_data, fetch_bing_weekly, fetch_ppc_data, fetch_google_ads_from_sheet
+from scripts.shared.ga4_client import fetch_paid_search_new_users
 from scripts.shared.html_utils import inject_data
 
 # ─── PATHS ────────────────────────────────────────────────────────────────────
@@ -92,7 +93,7 @@ def _resolve_credentials_file():
     return os.environ.get(
         "GA4_CREDENTIALS_FILE",
         os.path.join(os.path.expanduser("~"), "Downloads",
-                     "visme-marketing-491309-47059dacd5b9.json"),
+                     "visme-marketing-491309-8316da126688.json"),
     )
 
 def _empty_google():
@@ -157,14 +158,16 @@ def main():
         except Exception as e2:
             print(f"  ⚠️  Sheet fallback also failed: {e2}")
 
-    # ── 3. Amplitude signups ──────────────────────────────────────────────────
-    print("⏳  Amplitude: signups...")
+    # ── 3. GA4 paid-search new users ─────────────────────────────────────────
+    print("⏳  GA4: paid search new users...")
     try:
-        amp_data    = fetch_amplitude_data(AMPLITUDE_SHEET_ID)
-        amp_by_week = {w: amp_data["signups"].get(w, 0) for w in amp_data.get("weeks", [])}
-        print(f"    → {len(amp_by_week)} Amplitude weeks")
+        amp_by_week = fetch_paid_search_new_users(
+            property_id=os.environ.get("GA4_PROPERTY_ID", "368188880"),
+            credentials_file=credentials_file,
+        )
+        print(f"    → {len(amp_by_week)} weeks")
     except Exception as e:
-        print(f"    ⚠️  Amplitude failed: {e}")
+        print(f"    ⚠️  GA4 paid search failed: {e}")
         amp_by_week = {}
 
     # ── 4. Merge WEEKLY ───────────────────────────────────────────────────────
