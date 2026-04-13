@@ -169,7 +169,7 @@ def fetch_weekly_msads(auth_data):
     report = svc.factory.create("AccountPerformanceReportRequest")
     report.Aggregation          = "Weekly"
     report.Format               = "Csv"
-    report.Language             = "English"
+
     report.ReportName           = "Weekly MS Ads Performance"
     report.ReturnOnlyCompleteData = False
     report.ExcludeReportHeader  = True
@@ -217,7 +217,7 @@ def fetch_campaigns_msads(auth_data):
     report = svc.factory.create("CampaignPerformanceReportRequest")
     report.Aggregation          = "Weekly"
     report.Format               = "Csv"
-    report.Language             = "English"
+
     report.ReportName           = "Weekly Campaign Performance"
     report.ReturnOnlyCompleteData = False
     report.ExcludeReportHeader  = True
@@ -278,7 +278,7 @@ def fetch_ads_msads(auth_data):
     report = svc.factory.create("AdPerformanceReportRequest")
     report.Aggregation          = "Summary"
     report.Format               = "Csv"
-    report.Language             = "English"
+
     report.ReportName           = "Ad Performance 26w"
     report.ReturnOnlyCompleteData = False
     report.ExcludeReportHeader  = True
@@ -347,7 +347,6 @@ def fetch_keywords_msads(auth_data):
     report_s = svc.factory.create("KeywordPerformanceReportRequest")
     report_s.Aggregation          = "Summary"
     report_s.Format               = "Csv"
-    report_s.Language             = "English"
     report_s.ReportName           = "Keyword Summary 26w"
     report_s.ReturnOnlyCompleteData = False
     report_s.ExcludeReportHeader  = True
@@ -389,7 +388,6 @@ def fetch_keywords_msads(auth_data):
     report_w = svc.factory.create("KeywordPerformanceReportRequest")
     report_w.Aggregation          = "Weekly"
     report_w.Format               = "Csv"
-    report_w.Language             = "English"
     report_w.ReportName           = "Keyword Weekly 26w"
     report_w.ReturnOnlyCompleteData = False
     report_w.ExcludeReportHeader  = True
@@ -443,7 +441,7 @@ def fetch_geo_msads(auth_data):
     report = svc.factory.create("GeographicPerformanceReportRequest")
     report.Aggregation          = "Summary"
     report.Format               = "Csv"
-    report.Language             = "English"
+
     report.ReportName           = "Geo Performance 26w"
     report.ReturnOnlyCompleteData = False
     report.ExcludeReportHeader  = True

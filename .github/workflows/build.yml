@@ -62,6 +62,9 @@ jobs:
         env:
           GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
           GOOGLE_ADS_DEVELOPER_TOKEN: ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CLIENT_ID: ${{ secrets.GOOGLE_ADS_CLIENT_ID }}
+          GOOGLE_ADS_CLIENT_SECRET: ${{ secrets.GOOGLE_ADS_CLIENT_SECRET }}
+          GOOGLE_ADS_REFRESH_TOKEN: ${{ secrets.GOOGLE_ADS_REFRESH_TOKEN }}
           GOOGLE_ADS_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_CUSTOMER_ID }}
           GOOGLE_ADS_MANAGER_ID: ${{ secrets.GOOGLE_ADS_MANAGER_ID }}
           MS_ADS_DEVELOPER_TOKEN: ${{ secrets.MS_ADS_DEVELOPER_TOKEN }}
@@ -71,6 +74,7 @@ jobs:
           MS_ADS_CUSTOMER_ID: ${{ secrets.MS_ADS_CUSTOMER_ID }}
           MS_ADS_ACCOUNT_ID: ${{ secrets.MS_ADS_ACCOUNT_ID }}
           AMPLITUDE_SHEET_ID: ${{ secrets.AMPLITUDE_SHEET_ID }}
+          PPC_SHEET_ID: ${{ secrets.PPC_SHEET_ID }}
         run: python scripts/build_ppc.py
 
       - name: Build GSC SEO dashboard
