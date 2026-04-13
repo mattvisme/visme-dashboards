@@ -22,7 +22,7 @@ import tempfile
 from collections import defaultdict
 from datetime import date, datetime, timedelta
 
-from bingads import AuthorizationData, OAuthWebAuthCodeGrant, ServiceClient
+from bingads import AuthorizationData, OAuthDesktopMobileAuthCodeGrant, OAuthWebAuthCodeGrant, ServiceClient
 from bingads.v13.reporting import ReportingDownloadParameters, ReportingServiceManager
 
 
@@ -169,7 +169,6 @@ def fetch_weekly_msads(auth_data):
     report = svc.factory.create("AccountPerformanceReportRequest")
     report.Aggregation          = "Weekly"
     report.Format               = "Csv"
-
     report.ReportName           = "Weekly MS Ads Performance"
     report.ReturnOnlyCompleteData = False
     report.ExcludeReportHeader  = True
@@ -217,7 +216,6 @@ def fetch_campaigns_msads(auth_data):
     report = svc.factory.create("CampaignPerformanceReportRequest")
     report.Aggregation          = "Weekly"
     report.Format               = "Csv"
-
     report.ReportName           = "Weekly Campaign Performance"
     report.ReturnOnlyCompleteData = False
     report.ExcludeReportHeader  = True
@@ -278,7 +276,6 @@ def fetch_ads_msads(auth_data):
     report = svc.factory.create("AdPerformanceReportRequest")
     report.Aggregation          = "Summary"
     report.Format               = "Csv"
-
     report.ReportName           = "Ad Performance 26w"
     report.ReturnOnlyCompleteData = False
     report.ExcludeReportHeader  = True
@@ -441,7 +438,6 @@ def fetch_geo_msads(auth_data):
     report = svc.factory.create("GeographicPerformanceReportRequest")
     report.Aggregation          = "Summary"
     report.Format               = "Csv"
-
     report.ReportName           = "Geo Performance 26w"
     report.ReturnOnlyCompleteData = False
     report.ExcludeReportHeader  = True
@@ -500,11 +496,15 @@ def fetch_all_msads(developer_token, client_id, client_secret,
             "then save it as the MS_ADS_REFRESH_TOKEN GitHub secret."
         )
 
-    authentication = OAuthWebAuthCodeGrant(
-        client_id=client_id,
-        client_secret=client_secret,
-        redirection_uri="https://login.microsoftonline.com/common/oauth2/nativeClient",
-    )
+    # Use public-client flow if no secret is provided
+    if client_secret:
+        authentication = OAuthWebAuthCodeGrant(
+            client_id=client_id,
+            client_secret=client_secret,
+            redirection_uri="https://login.microsoftonline.com/common/oauth2/nativeClient",
+        )
+    else:
+        authentication = OAuthDesktopMobileAuthCodeGrant(client_id=client_id)
     try:
         authentication.request_oauth_tokens_by_refresh_token(refresh_token)
     except Exception as e:
