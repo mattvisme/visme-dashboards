@@ -345,6 +345,7 @@ def fetch_keywords_google(client):
         a["conv_rate"] = round(a["conversions"] / a["clicks"],  4) if a["clicks"]      > 0 else 0.0
         kw_summary.append(a)
     kw_summary.sort(key=lambda x: x["spend"], reverse=True)
+    kw_summary = kw_summary[:500]   # cap to top 500 keywords by spend
 
     # — Weekly (last 26 weeks) —
     agg_w = {}
@@ -365,8 +366,13 @@ def fetch_keywords_google(client):
         agg_w[key]["impressions"] += _int(row.metrics.impressions)
         agg_w[key]["conversions"] += _float(row.metrics.conversions)
 
+    # Only keep weekly rows for keywords in the top-500 summary
+    top_kw_keys = {(k["keyword"], k["match_type"], k["campaign"], k["ad_group"])
+                   for k in kw_summary}
     kw_weekly = []
     for a in sorted(agg_w.values(), key=lambda x: (x["week"], x["keyword"])):
+        if (a["keyword"], a["match_type"], a["campaign"], a["ad_group"]) not in top_kw_keys:
+            continue
         a["spend"] = round(a["spend"], 2); a["conversions"] = round(a["conversions"], 2)
         a["ctr"] = round(a["clicks"] / a["impressions"], 4) if a["impressions"] > 0 else 0.0
         kw_weekly.append(a)
