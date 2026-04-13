@@ -151,7 +151,6 @@ def fetch_weekly_google(client):
           metrics.conversions
         FROM campaign
         WHERE segments.date BETWEEN '{start}' AND '{end}'
-          AND campaign.status = 'ENABLED'
     """
     rows = _stream_rows(client, CUSTOMER_ID, query)
 
