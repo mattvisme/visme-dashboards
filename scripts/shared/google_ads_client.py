@@ -473,35 +473,50 @@ def fetch_all_google(developer_token, credentials_file, manager_id, customer_id,
         weekly = fetch_weekly_google(client)
         print(f"    → {len(weekly)} complete weeks")
     except Exception as e:
-        print(f"    ⚠️  weekly failed: {e}"); weekly = []
+        import traceback
+        print(f"    ❌ weekly FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
+        weekly = []
 
     print("⏳  Google Ads: campaigns...")
     try:
         camps = fetch_campaigns_google(client)
         print(f"    → {len(camps)} campaign-week rows")
     except Exception as e:
-        print(f"    ⚠️  campaigns failed: {e}"); camps = []
+        import traceback
+        print(f"    ❌ campaigns FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
+        camps = []
 
     print("⏳  Google Ads: ads...")
     try:
         ads = fetch_ads_google(client)
         print(f"    → {len(ads)} ads")
     except Exception as e:
-        print(f"    ⚠️  ads failed: {e}"); ads = []
+        import traceback
+        print(f"    ❌ ads FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
+        ads = []
 
     print("⏳  Google Ads: keywords...")
     try:
         kw, kw_weekly = fetch_keywords_google(client)
         print(f"    → {len(kw)} keywords, {len(kw_weekly)} keyword-week rows")
     except Exception as e:
-        print(f"    ⚠️  keywords failed: {e}"); kw, kw_weekly = [], []
+        import traceback
+        print(f"    ❌ keywords FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
+        kw, kw_weekly = [], []
 
     print("⏳  Google Ads: geography...")
     try:
         geo = fetch_geo_google(client)
         print(f"    → {len(geo)} states")
     except Exception as e:
-        print(f"    ⚠️  geography failed: {e}"); geo = {}
+        import traceback
+        print(f"    ❌ geography FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
+        geo = {}
 
     return {
         "weekly":    weekly,

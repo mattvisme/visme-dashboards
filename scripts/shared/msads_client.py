@@ -496,15 +496,9 @@ def fetch_all_msads(developer_token, client_id, client_secret,
             "then save it as the MS_ADS_REFRESH_TOKEN GitHub secret."
         )
 
-    # Use public-client flow if no secret is provided
-    if client_secret:
-        authentication = OAuthWebAuthCodeGrant(
-            client_id=client_id,
-            client_secret=client_secret,
-            redirection_uri="https://login.microsoftonline.com/common/oauth2/nativeClient",
-        )
-    else:
-        authentication = OAuthDesktopMobileAuthCodeGrant(client_id=client_id)
+    # Public client flow — Azure app has "Allow public client flows: Yes"
+    # so no client_secret is sent (AADSTS90023 if you do)
+    authentication = OAuthDesktopMobileAuthCodeGrant(client_id=client_id)
     try:
         authentication.request_oauth_tokens_by_refresh_token(refresh_token)
     except Exception as e:
@@ -526,35 +520,50 @@ def fetch_all_msads(developer_token, client_id, client_secret,
         weekly = fetch_weekly_msads(auth_data)
         print(f"    → {len(weekly)} complete weeks")
     except Exception as e:
-        print(f"    ⚠️  weekly failed: {e}"); weekly = []
+        import traceback
+        print(f"    ❌ weekly FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
+        weekly = []
 
     print("⏳  Microsoft Ads: campaigns...")
     try:
         camps = fetch_campaigns_msads(auth_data)
         print(f"    → {len(camps)} campaign-week rows")
     except Exception as e:
-        print(f"    ⚠️  campaigns failed: {e}"); camps = []
+        import traceback
+        print(f"    ❌ campaigns FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
+        camps = []
 
     print("⏳  Microsoft Ads: ads...")
     try:
         ads = fetch_ads_msads(auth_data)
         print(f"    → {len(ads)} ads")
     except Exception as e:
-        print(f"    ⚠️  ads failed: {e}"); ads = []
+        import traceback
+        print(f"    ❌ ads FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
+        ads = []
 
     print("⏳  Microsoft Ads: keywords...")
     try:
         kw, kw_weekly = fetch_keywords_msads(auth_data)
         print(f"    → {len(kw)} keywords, {len(kw_weekly)} keyword-week rows")
     except Exception as e:
-        print(f"    ⚠️  keywords failed: {e}"); kw, kw_weekly = [], []
+        import traceback
+        print(f"    ❌ keywords FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
+        kw, kw_weekly = [], []
 
     print("⏳  Microsoft Ads: geography...")
     try:
         geo = fetch_geo_msads(auth_data)
         print(f"    → {len(geo)} states")
     except Exception as e:
-        print(f"    ⚠️  geography failed: {e}"); geo = {}
+        import traceback
+        print(f"    ❌ geography FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
+        geo = {}
 
     return {
         "weekly":    weekly,

@@ -39,9 +39,18 @@ def main():
 
     authentication = OAuthDesktopMobileAuthCodeGrant(client_id=client_id)
 
-    auth_url = authentication.get_authorization_endpoint() + "&domain_hint=organizations"
-    print(f"\nOpen this URL in a private/incognito window and sign in:\n\n{auth_url}\n")
-    print("(domain_hint=organizations forces work/school account login)\n")
+    # matt@visme.com is a personal Microsoft account (live.com) — use consumers tenant
+    import urllib.parse
+    params = urllib.parse.urlencode({
+        "client_id": client_id,
+        "scope": "https://ads.microsoft.com/msads.manage offline_access",
+        "response_type": "code",
+        "redirect_uri": REDIRECT_URI,
+        "prompt": "login",
+        "login_hint": "matt@visme.com",
+    })
+    auth_url = f"https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?{params}"
+    print(f"\nOpen this URL in a private/incognito window (signs in as personal Microsoft account):\n\n{auth_url}\n")
 
     print("After signing in, Microsoft will redirect to a blank page.")
     print("Copy the FULL URL from the browser address bar and paste it below.")
@@ -51,13 +60,32 @@ def main():
     if not redirect_url:
         sys.exit("No URL entered. Aborting.")
 
-    try:
-        authentication.request_oauth_tokens_by_response_uri(redirect_url)
-    except Exception as e:
-        sys.exit(f"Error exchanging code for tokens: {e}")
+    # Extract code from redirect URL manually
+    import urllib.parse, requests as req
+    parsed = urllib.parse.urlparse(redirect_url)
+    qs = urllib.parse.parse_qs(parsed.query or parsed.fragment)
+    code = (qs.get("code") or [""])[0]
+    if not code:
+        sys.exit(f"Could not find 'code' in redirect URL. Got: {redirect_url}")
 
-    refresh_token = authentication.oauth_tokens.refresh_token
-    access_token  = authentication.oauth_tokens.access_token
+    # Exchange code for tokens using the same tenant + redirect_uri
+    resp = req.post(
+        "https://login.microsoftonline.com/consumers/oauth2/v2.0/token",
+        data={
+            "client_id":    client_id,
+            "grant_type":   "authorization_code",
+            "code":         code,
+            "redirect_uri": REDIRECT_URI,
+            "scope":        "https://ads.microsoft.com/msads.manage offline_access",
+        },
+        timeout=15,
+    )
+    tokens = resp.json()
+    if "error" in tokens:
+        sys.exit(f"Token exchange failed: {tokens.get('error')}: {tokens.get('error_description')}")
+
+    refresh_token = tokens.get("refresh_token", "")
+    access_token  = tokens.get("access_token", "")
 
     print("\n" + "=" * 60)
     print("SUCCESS — tokens obtained.")

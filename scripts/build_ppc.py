@@ -124,7 +124,9 @@ def main():
             refresh_token=GOOGLE_ADS_REFRESH_TOKEN,
         )
     except Exception as e:
-        print(f"  ⚠️  Google Ads API failed: {e}")
+        import traceback
+        print(f"  ❌ Google Ads API FAILED: {type(e).__name__}: {e}")
+        print("  Full traceback:"); traceback.print_exc()
         google_data = _empty_google()
 
     if not google_data["weekly"]:
@@ -133,7 +135,9 @@ def main():
             google_data = fetch_google_ads_from_sheet(PPC_SHEET_ID)
             print(f"    → {len(google_data['weekly'])} weeks, {len(google_data['camps'])} campaign rows from sheet")
         except Exception as e2:
-            print(f"  ⚠️  Sheet fallback also failed: {e2}")
+            import traceback
+            print(f"  ❌ Sheet fallback FAILED: {type(e2).__name__}: {e2}")
+            print("  Full traceback:"); traceback.print_exc()
 
     # ── 2. Microsoft Ads ──────────────────────────────────────────────────────
     try:
@@ -146,7 +150,9 @@ def main():
             account_id=MS_ADS_ACCOUNT_ID,
         )
     except Exception as e:
-        print(f"  ⚠️  Microsoft Ads API failed: {e}")
+        import traceback
+        print(f"  ❌ Microsoft Ads API FAILED: {type(e).__name__}: {e}")
+        print("  Full traceback:"); traceback.print_exc()
         msads_data = _empty_msads()
 
     if not msads_data["weekly"]:
@@ -156,7 +162,9 @@ def main():
             msads_data["weekly"] = sheet_weekly
             print(f"    → {len(sheet_weekly)} weeks from sheet")
         except Exception as e2:
-            print(f"  ⚠️  Sheet fallback also failed: {e2}")
+            import traceback
+            print(f"  ❌ Sheet fallback FAILED: {type(e2).__name__}: {e2}")
+            print("  Full traceback:"); traceback.print_exc()
 
     # ── 3. GA4 paid-search new users ─────────────────────────────────────────
     print("⏳  GA4: paid search new users...")
@@ -167,7 +175,9 @@ def main():
         )
         print(f"    → {len(amp_by_week)} weeks")
     except Exception as e:
-        print(f"    ⚠️  GA4 paid search failed: {e}")
+        import traceback
+        print(f"    ❌ GA4 paid search FAILED: {type(e).__name__}: {e}")
+        print("    Full traceback:"); traceback.print_exc()
         amp_by_week = {}
 
     # ── 4. Merge WEEKLY ───────────────────────────────────────────────────────
@@ -221,6 +231,18 @@ def main():
     }
 
     # ── 7. Inject ─────────────────────────────────────────────────────────────
+    print("\n=== DATA SUMMARY ===")
+    print(f"WEEKLY:   {len(merged_weekly)} weeks")
+    print(f"CAMPS_G:  {len(google_data['camps'])} rows")
+    print(f"CAMPS_M:  {len(msads_data['camps'])} rows")
+    print(f"ADS_G:    {len(google_data['ads'])} rows")
+    print(f"ADS_M:    {len(msads_data['ads'])} rows")
+    print(f"KW_G:     {len(google_data['kw'])} rows")
+    print(f"KW_M:     {len(msads_data['kw'])} rows")
+    print(f"GEO:      {len(merged_geo)} states")
+    print(f"BUDGETS:  {len(budgets_dict)} months")
+    print("====================\n")
+
     inject_data(
         template_path=TEMPLATE,
         data_dict={
