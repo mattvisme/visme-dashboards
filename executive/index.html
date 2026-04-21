@@ -52,6 +52,9 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .pill{padding:5px 12px;border-radius:20px;font-size:12.5px;font-weight:500;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s ease;user-select:none;}
 .pill:hover{background:var(--surface2);color:var(--text)}
 .pill.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(60,172,215,.35);}
+.gpill{padding:5px 11px;border-radius:20px;font-size:12.5px;font-weight:500;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s ease;user-select:none;}
+.gpill:hover{background:var(--surface2);color:var(--text)}
+.gpill.active{background:#3CACD7;color:#fff;border-color:#3CACD7;box-shadow:0 2px 8px rgba(60,172,215,.35);}
 #content{padding:32px;display:flex;flex-direction:column;gap:32px;max-width:1400px;width:100%;}
 .section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;}
 .section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}
@@ -135,6 +138,10 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
         <span class="pill" data-w="52">52W</span>
         <span class="pill" data-w="104">104W</span>
       </div>
+      <div id="groupToggle" style="display:flex;gap:4px;margin-left:8px;padding-left:8px;border-left:1px solid var(--border)">
+        <span class="gpill active" data-g="1">1W</span>
+        <span class="gpill" data-g="2">2W</span>
+      </div>
       <span class="date-range-badge" id="dateRange"></span>
     </div>
   </div>
@@ -183,11 +190,33 @@ const HS = {"weeks":["2024-03-25","2024-04-01","2024-04-08","2024-04-15","2024-0
 
 <script>
 let activeWeeks = 13;
+let biweekly = false;
 const charts = {};
 let hsSortCol = 0, hsSortAsc = false;
 const HS_CHANNELS = ['Organic Search','Paid Search','Paid Social','Direct','Referral','Social Media','Email'];
 const HS_COL_KEYS = ['leads','deals','pipeline','revenue'];
 const HS_COL_LABELS = ['Leads','Deals Created','Pipeline Value','Closed Won Revenue'];
+
+// ── Biweekly helpers ─────────────────────────────────────────────────────────
+function bwGroup(weeks, labels) {
+  if (!biweekly || weeks.length < 2) return {weeks, labels};
+  const ws = weeks.length % 2 === 0 ? weeks : weeks.slice(1);
+  const ls = labels.length % 2 === 0 ? labels : labels.slice(1);
+  const ow = [], ol = [];
+  for (let i = 0; i < ws.length; i += 2) { ow.push(ws[i]+'§'+ws[i+1]); ol.push(ls[i+1]); }
+  return {weeks: ow, labels: ol};
+}
+function gv(w, dict) {
+  if (!w.includes('§')) return dict[w] ?? 0;
+  const [a,b] = w.split('§');
+  return (dict[a]??0) + (dict[b]??0);
+}
+function gvSub(w, dict, key) {
+  if (!w.includes('§')) return dict[w]?.[key] ?? 0;
+  const [a,b] = w.split('§');
+  return (dict[a]?.[key]??0) + (dict[b]?.[key]??0);
+}
+function expandW(w) { return w.includes('§') ? w.split('§') : [w]; }
 
 document.addEventListener('DOMContentLoaded', () => {
   const dates = [GA4.asOfDate,
@@ -197,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('asOfBadge').textContent = 'Data as of ' + dates.pop();
   buildAllCharts();
   setupPills();
+  setupGroupToggle();
   setupNavHighlight();
   setTimeout(() => document.getElementById('loading').classList.add('hide'), 1400);
 });
@@ -207,6 +237,16 @@ function setupPills() {
       document.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
       p.classList.add('active');
       activeWeeks = parseInt(p.dataset.w);
+      updateAll();
+    });
+  });
+}
+function setupGroupToggle() {
+  document.querySelectorAll('.gpill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.gpill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      biweekly = parseInt(p.dataset.g) === 2;
       updateAll();
     });
   });
@@ -255,19 +295,25 @@ function fmtUSD(v) {
 
 function getSlice(n) {
   const allW=GA4.weeks;const total=allW.length;
-  return{curr:allW.slice(Math.max(0,total-n),total),prev:allW.slice(Math.max(0,total-52-n),Math.max(0,total-52)),currLabels:GA4.weekLabels.slice(Math.max(0,total-n),total),prevLabels:GA4.weekLabels.slice(Math.max(0,total-52-n),Math.max(0,total-52))};
+  const gc=bwGroup(allW.slice(Math.max(0,total-n),total),GA4.weekLabels.slice(Math.max(0,total-n),total));
+  const gp=bwGroup(allW.slice(Math.max(0,total-52-n),Math.max(0,total-52)),GA4.weekLabels.slice(Math.max(0,total-52-n),Math.max(0,total-52)));
+  return{curr:gc.weeks,prev:gp.weeks,currLabels:gc.labels,prevLabels:gp.labels};
 }
 function getAmpSlice(n) {
   const allW=AMP.weeks;const total=allW.length;
   if(!total)return{curr:[],prev:[],currLabels:[],prevLabels:[]};
   const cs=Math.max(0,total-n),pe=Math.max(0,total-52),ps=Math.max(0,pe-n);
-  return{curr:allW.slice(cs,total),prev:ps<pe?allW.slice(ps,pe):[],currLabels:AMP.weekLabels.slice(cs,total),prevLabels:ps<pe?AMP.weekLabels.slice(ps,pe):[]};
+  const gc=bwGroup(allW.slice(cs,total),AMP.weekLabels.slice(cs,total));
+  const gp=bwGroup(ps<pe?allW.slice(ps,pe):[],ps<pe?AMP.weekLabels.slice(ps,pe):[]);
+  return{curr:gc.weeks,prev:gp.weeks,currLabels:gc.labels,prevLabels:gp.labels};
 }
 function getHSSlice(n) {
   const allW=HS.weeks;const total=allW.length;
   if(!total)return{curr:[],prev:[],currLabels:[],prevLabels:[]};
   const cs=Math.max(0,total-n),pe=Math.max(0,total-52),ps=Math.max(0,pe-n);
-  return{curr:allW.slice(cs,total),prev:ps<pe?allW.slice(ps,pe):[],currLabels:HS.weekLabels.slice(cs,total),prevLabels:ps<pe?HS.weekLabels.slice(ps,pe):[]};
+  const gc=bwGroup(allW.slice(cs,total),HS.weekLabels.slice(cs,total));
+  const gp=bwGroup(ps<pe?allW.slice(ps,pe):[],ps<pe?HS.weekLabels.slice(ps,pe):[]);
+  return{curr:gc.weeks,prev:gp.weeks,currLabels:gc.labels,prevLabels:gp.labels};
 }
 function padPrev(arr,n){const out=arr.slice();while(out.length<n)out.unshift(null);return out;}
 
@@ -291,12 +337,12 @@ function updateExecSummary() {
   const s=getSlice(n);
   const sAmp=(typeof AMP!=='undefined'&&AMP.weeks.length)?getAmpSlice(n):null;
   const sHS=(typeof HS!=='undefined'&&HS.weeks.length)?getHSSlice(n):null;
-  function sumGA4(m){return s.curr.reduce((a,w)=>a+(GA4[m][w]||0),0);}
-  function sumGA4P(m){return s.prev.reduce((a,w)=>a+(GA4[m][w]||0),0);}
-  function sumAmp(f){return sAmp?sAmp.curr.reduce((a,w)=>a+(AMP[f][w]||0),0):null;}
-  function sumAmpP(f){return sAmp?sAmp.prev.reduce((a,w)=>a+(AMP[f][w]||0),0):null;}
-  function sumHS(f){return sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.[f]||0),0):null;}
-  function sumHSP(f){return sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.[f]||0),0):null;}
+  function sumGA4(m){return s.curr.reduce((a,w)=>a+gv(w,GA4[m]),0);}
+  function sumGA4P(m){return s.prev.reduce((a,w)=>a+gv(w,GA4[m]),0);}
+  function sumAmp(f){return sAmp?sAmp.curr.reduce((a,w)=>a+gv(w,AMP[f]),0):null;}
+  function sumAmpP(f){return sAmp?sAmp.prev.reduce((a,w)=>a+gv(w,AMP[f]),0):null;}
+  function sumHS(f){return sHS?sHS.curr.reduce((a,w)=>a+gvSub(w,HS.summary,f),0):null;}
+  function sumHSP(f){return sHS?sHS.prev.reduce((a,w)=>a+gvSub(w,HS.summary,f),0):null;}
   const rows=[
     {metric:'Website Traffic (Sessions)',source:'GA4',curr:sumGA4('sessions'),prev:sumGA4P('sessions'),fmt:fmtNum},
     {metric:'New Signups (PLG)',source:'Amplitude',curr:sumAmp('signups'),prev:sumAmpP('signups'),fmt:fmtNum},
@@ -341,18 +387,18 @@ function updateFullFunnel() {
   const s=getSlice(n);
   const sAmp=(typeof AMP!=='undefined'&&AMP.weeks.length)?getAmpSlice(n):null;
   const sHS=(typeof HS!=='undefined'&&HS.weeks.length)?getHSSlice(n):null;
-  const sessions=s.curr.reduce((a,w)=>a+(GA4.sessions[w]||0),0);
-  const signups=sAmp?sAmp.curr.reduce((a,w)=>a+(AMP.signups[w]||0),0):null;
-  const leads=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.leads||0),0):null;
-  const mqls=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.mqls||0),0):null;
-  const deals=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.deals||0),0):null;
-  const customers=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.closedWonCount||0),0):null;
-  const pSessions=s.prev.reduce((a,w)=>a+(GA4.sessions[w]||0),0);
-  const pSignups=sAmp?sAmp.prev.reduce((a,w)=>a+(AMP.signups[w]||0),0):null;
-  const pLeads=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.leads||0),0):null;
-  const pMqls=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.mqls||0),0):null;
-  const pDeals=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.deals||0),0):null;
-  const pCustomers=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.closedWonCount||0),0):null;
+  const sessions=s.curr.reduce((a,w)=>a+gv(w,GA4.sessions),0);
+  const signups=sAmp?sAmp.curr.reduce((a,w)=>a+gv(w,AMP.signups),0):null;
+  const leads=sHS?sHS.curr.reduce((a,w)=>a+gvSub(w,HS.summary,'leads'),0):null;
+  const mqls=sHS?sHS.curr.reduce((a,w)=>a+gvSub(w,HS.summary,'mqls'),0):null;
+  const deals=sHS?sHS.curr.reduce((a,w)=>a+gvSub(w,HS.summary,'deals'),0):null;
+  const customers=sHS?sHS.curr.reduce((a,w)=>a+gvSub(w,HS.summary,'closedWonCount'),0):null;
+  const pSessions=s.prev.reduce((a,w)=>a+gv(w,GA4.sessions),0);
+  const pSignups=sAmp?sAmp.prev.reduce((a,w)=>a+gv(w,AMP.signups),0):null;
+  const pLeads=sHS?sHS.prev.reduce((a,w)=>a+gvSub(w,HS.summary,'leads'),0):null;
+  const pMqls=sHS?sHS.prev.reduce((a,w)=>a+gvSub(w,HS.summary,'mqls'),0):null;
+  const pDeals=sHS?sHS.prev.reduce((a,w)=>a+gvSub(w,HS.summary,'deals'),0):null;
+  const pCustomers=sHS?sHS.prev.reduce((a,w)=>a+gvSub(w,HS.summary,'closedWonCount'),0):null;
   function rate(num,den){return(num!=null&&den>0)?num/den*100:null;}
   function fmtRate(r){return r!=null?r.toFixed(2)+'%':'—';}
   function chgHtml(curr,prev){
@@ -396,7 +442,7 @@ function updateHSChannelTable() {
   const s=getHSSlice(activeWeeks);
   function agg(weeks){
     const out={};HS_CHANNELS.forEach(ch=>out[ch]={leads:0,deals:0,pipeline:0,revenue:0});
-    weeks.forEach(w=>{const cd=HS.channels[w];if(!cd)return;Object.keys(cd).forEach(ch=>{if(!out[ch])out[ch]={leads:0,deals:0,pipeline:0,revenue:0};HS_COL_KEYS.forEach(k=>{out[ch][k]+=cd[ch][k]||0;});});});
+    weeks.forEach(w=>{expandW(w).forEach(rw=>{const cd=HS.channels[rw];if(!cd)return;Object.keys(cd).forEach(ch=>{if(!out[ch])out[ch]={leads:0,deals:0,pipeline:0,revenue:0};HS_COL_KEYS.forEach(k=>{out[ch][k]+=cd[ch][k]||0;});});});});
     return out;
   }
   const curr=agg(s.curr);const prev=agg(s.prev);

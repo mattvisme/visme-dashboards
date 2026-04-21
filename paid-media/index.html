@@ -61,6 +61,9 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .pill{padding:5px 12px;border-radius:20px;font-size:12.5px;font-weight:500;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s ease;white-space:nowrap;user-select:none}
 .pill:hover{background:var(--surface2);color:var(--text)}
 .pill.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(60,172,215,.35)}
+.gpill{padding:5px 11px;border-radius:20px;font-size:12.5px;font-weight:500;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s ease;user-select:none}
+.gpill:hover{background:var(--surface2);color:var(--text)}
+.gpill.active{background:#3CACD7;color:#fff;border-color:#3CACD7;box-shadow:0 2px 8px rgba(60,172,215,.35)}
 /* ── Content ── */
 #content{padding:32px;display:flex;flex-direction:column;gap:32px;max-width:1400px;width:100%}
 .section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;scroll-margin-top:80px}
@@ -312,6 +315,10 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
         <span class="pill active" data-w="13">13w</span>
         <span class="pill" data-w="26">26w</span>
         <span class="pill" data-w="52">52w</span>
+      </div>
+      <div style="display:flex;gap:4px;padding-left:8px;border-left:1px solid var(--border)">
+        <span class="gpill active" data-g="1">1W</span>
+        <span class="gpill" data-g="2">2W</span>
       </div>
       <span id="topbarDateRange" class="topbar-daterange">—</span>
     </div>
@@ -743,6 +750,7 @@ if(typeof WEEKLY==='undefined'){window.WEEKLY=[];window.CAMPS_G=[];window.CAMPS_
 
 /* ── State ── */
 let activeWeeks=13;
+let biweekly=false;
 const charts={};
 let s9Filter='all',s10Filter='all';
 const _sortInit={};
@@ -773,9 +781,30 @@ function fmtDateLabel(iso){
 function sum(arr,field){return arr.reduce((s,r)=>s+(+r[field]||0),0);}
 function el(id,html){const e=document.getElementById(id);if(e)e.innerHTML=html;}
 
+/* ── Biweekly grouping ── */
+function groupWindow(win){
+  if(!biweekly||win.length<2)return win;
+  const ws=win.length%2===0?win:win.slice(1);
+  const out=[];
+  for(let i=0;i<ws.length;i+=2){
+    const a=ws[i],b=ws[i+1];
+    out.push({
+      week_start:a.week_start,week_end:b.week_end,label:b.label,
+      g_spend:+(a.g_spend+b.g_spend).toFixed(2),m_spend:+(a.m_spend+b.m_spend).toFixed(2),
+      g_clicks:a.g_clicks+b.g_clicks,m_clicks:a.m_clicks+b.m_clicks,
+      g_impressions:a.g_impressions+b.g_impressions,m_impressions:a.m_impressions+b.m_impressions,
+      g_conversions:+(a.g_conversions+b.g_conversions).toFixed(2),
+      m_conversions:+(a.m_conversions+b.m_conversions).toFixed(2),
+      ga4_new_users:a.ga4_new_users+b.ga4_new_users,
+    });
+  }
+  return out;
+}
+
 /* ── Window helpers ── */
-function getWindow(){return WEEKLY.slice(-activeWeeks);}
-function getPriorWindow(){const s=WEEKLY.length-activeWeeks-52;return s>=0?WEEKLY.slice(s,s+activeWeeks):null;}
+function getRawWindow(){return WEEKLY.slice(-activeWeeks);}
+function getWindow(){return groupWindow(WEEKLY.slice(-activeWeeks));}
+function getPriorWindow(){const s=WEEKLY.length-activeWeeks-52;return s>=0?groupWindow(WEEKLY.slice(s,s+activeWeeks)):null;}
 
 /* ── Chart helper ── */
 function makeChart(id,config){if(charts[id]){charts[id].destroy();delete charts[id];}const c=document.getElementById(id);if(!c)return;charts[id]=new Chart(c.getContext('2d'),config);}
@@ -948,14 +977,13 @@ function renderS3(){
 
 /* ── S4: Spend & CPA Trend ── */
 function renderS4(){
-  const win=getWindow();if(!win.length)return;
-  const si=WEEKLY.length-activeWeeks;
+  const win=getWindow();const prior=getPriorWindow();if(!win.length)return;
   makeChart('chartS4spend',{type:'bar',data:{labels:win.map(w=>w.label),datasets:[
     {label:'Google',data:win.map(w=>w.g_spend),backgroundColor:'#3CACD7',stack:'spend',borderRadius:4},
     {label:'Microsoft',data:win.map(w=>w.m_spend),backgroundColor:'#00A4EF',stack:'spend',borderRadius:4}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:11}}}},scales:{x:{stacked:true,grid:{display:false},ticks:{font:{size:10}}},y:{stacked:true,grid:{color:'rgba(0,0,0,.04)'},ticks:{callback:v=>'$'+Math.round(v/1000)+'k',font:{size:10}}}}}});
   const curCpa=win.map(w=>{const v=w.g_conversions+w.m_conversions;return v>0?(w.g_spend+w.m_spend)/v:null;});
-  const prCpa=win.map((_,i)=>{const pw=WEEKLY[si+i-52];if(!pw)return null;const v=pw.g_conversions+pw.m_conversions;return v>0?(pw.g_spend+pw.m_spend)/v:null;});
+  const prCpa=win.map((_,i)=>{const pw=prior?.[i];if(!pw)return null;const v=pw.g_conversions+pw.m_conversions;return v>0?(pw.g_spend+pw.m_spend)/v:null;});
   makeChart('chartS4cpa',{type:'line',data:{labels:win.map(w=>w.label),datasets:[
     {label:'Blended CPA',data:curCpa,borderColor:'#3CACD7',backgroundColor:'rgba(60,172,215,.08)',tension:.3,borderWidth:2,pointRadius:3,fill:true,spanGaps:true},
     {label:'Prior Year',data:prCpa,borderColor:'rgba(60,172,215,.5)',backgroundColor:'transparent',borderDash:[5,4],tension:.3,borderWidth:1.5,pointRadius:2,spanGaps:true}
@@ -964,7 +992,7 @@ function renderS4(){
 
 /* ── S5/S6: Campaign Health ── */
 function renderCampaignSection(prefix,campsData){
-  const win=getWindow();
+  const win=getRawWindow();
   const winWeeks=new Set(win.map(w=>w.week_start));
   const campMap={};
   for(const r of campsData){
@@ -1081,11 +1109,10 @@ function renderS11(){
 /* ── S12: CTR Trend ── */
 function renderS12(){
   const win=getWindow();const prior=getPriorWindow();if(!win.length)return;
-  const si=WEEKLY.length-activeWeeks;
   const gCtr=win.map(w=>w.g_impressions>0?w.g_clicks/w.g_impressions:null);
   const mCtr=win.map(w=>w.m_impressions>0?w.m_clicks/w.m_impressions:null);
-  const pgCtr=win.map((_,i)=>{const pw=WEEKLY[si+i-52];return pw&&pw.g_impressions>0?pw.g_clicks/pw.g_impressions:null;});
-  const pmCtr=win.map((_,i)=>{const pw=WEEKLY[si+i-52];return pw&&pw.m_impressions>0?pw.m_clicks/pw.m_impressions:null;});
+  const pgCtr=win.map((_,i)=>{const pw=prior?.[i];return pw&&pw.g_impressions>0?pw.g_clicks/pw.g_impressions:null;});
+  const pmCtr=win.map((_,i)=>{const pw=prior?.[i];return pw&&pw.m_impressions>0?pw.m_clicks/pw.m_impressions:null;});
   const gI=sum(win,'g_impressions'),gC=sum(win,'g_clicks'),mI=sum(win,'m_impressions'),mC=sum(win,'m_clicks');
   const avgGCtr=gI>0?gC/gI:0,avgMCtr=mI>0?mC/mI:0;
   el('kpi-s12-gctr',fmtCtr(avgGCtr));el('kpi-s12-mctr',fmtCtr(avgMCtr));
@@ -1106,7 +1133,6 @@ function renderS12(){
 /* ── S13: Free Signups ── */
 function renderS13(){
   const win=getWindow();const prior=getPriorWindow();if(!win.length)return;
-  const si=WEEKLY.length-activeWeeks;
   const tSpend=sum(win,'g_spend')+sum(win,'m_spend');
   const tSignups=sum(win,'ga4_new_users');
   const cpu=tSignups>0?tSpend/tSignups:0;
@@ -1119,7 +1145,7 @@ function renderS13(){
     {label:'COST PER PAID USER',val:fmtCpa(cpu),delta:pCpu?fmtDelta((cpu-pCpu)/pCpu,true):'',inv:true}
   ];
   el('s13-kpis',kpis.map(k=>`<div class="kpi">${kpiHtml(k.label,k.val,k.delta,'')}</div>`).join(''));
-  const prSU=win.map((_,i)=>{const pw=WEEKLY[si+i-52];return pw?pw.ga4_new_users:null;});
+  const prSU=win.map((_,i)=>{const pw=prior?.[i];return pw?pw.ga4_new_users:null;});
   makeChart('chartS13',{type:'bar',data:{labels:win.map(w=>w.label),datasets:[
     {label:'Google Spend',data:win.map(w=>w.g_spend),backgroundColor:'#3CACD7',stack:'spend',borderRadius:4,order:2},
     {label:'MS Spend',data:win.map(w=>w.m_spend),backgroundColor:'#00A4EF',stack:'spend',borderRadius:4,order:2},
@@ -1139,6 +1165,14 @@ function updateAll(){
 }
 
 /* ── Event listeners ── */
+document.querySelectorAll('.gpill').forEach(p=>{
+  p.addEventListener('click',()=>{
+    document.querySelectorAll('.gpill').forEach(x=>x.classList.remove('active'));
+    p.classList.add('active');
+    biweekly=parseInt(p.dataset.g)===2;
+    updateAll();
+  });
+});
 document.querySelectorAll('#rangePills .pill').forEach(p=>{
   p.addEventListener('click',()=>{
     document.querySelectorAll('#rangePills .pill').forEach(x=>x.classList.remove('active'));
