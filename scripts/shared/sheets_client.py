@@ -430,7 +430,9 @@ def fetch_gsc_sheet_data(sheet_id=None, credentials_file=None) -> dict:
 
     all_weeks  = sorted(w_clicks.keys())
     start_date = all_weeks[0]  if all_weeks else ""
-    end_date   = all_weeks[-1] if all_weeks else ""
+    # end_date is the Sunday (week-end) of the last complete week
+    from datetime import date, timedelta
+    end_date = (date.fromisoformat(all_weeks[-1]) + timedelta(days=6)).isoformat() if all_weeks else ""
     print(f"    {len(all_weeks)} weeks  ({skipped} skipped)  endDate={end_date}")
 
     # ── dimension windows (queries / pages / countries) ───────────────────────

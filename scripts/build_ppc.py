@@ -259,6 +259,7 @@ def main():
             "BUDGETS":    budgets_dict,
             "MS_ENABLED": True,
             "BUILD_DATE": date.today().strftime("%Y-%m-%d"),
+            "generatedAt": merged_weekly[-1]["week_end"] if merged_weekly else "",
         },
         output_path=OUTPUT,
     )
