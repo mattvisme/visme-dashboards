@@ -170,14 +170,6 @@ a:hover{text-decoration:underline}
 }
 .window-btns button:hover{background:var(--surface2)}
 .window-btns button.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.group-btns{display:flex;gap:4px;padding-left:12px;border-left:1px solid var(--border)}
-.group-btns button{
-  padding:5px 11px;border:1px solid var(--border);background:var(--bg);
-  border-radius:6px;cursor:pointer;font-size:13px;color:var(--text);
-  transition:all .15s;
-}
-.group-btns button:hover{background:var(--surface2)}
-.group-btns button.active{background:#3CACD7;color:#fff;border-color:#3CACD7}
 #period-label{font-size:13px;color:var(--muted)}
 #as-of{margin-left:auto;font-size:12px;color:var(--muted)}
 
@@ -308,10 +300,6 @@ tbody tr:last-child td{border-bottom:none}
       <button onclick="setWindow(13)" id="btn-13" class="active">13w</button>
       <button onclick="setWindow(26)" id="btn-26">26w</button>
       <button onclick="setWindow(52)" id="btn-52">52w</button>
-    </div>
-    <div class="group-btns">
-      <button id="gbtn-1" class="active" onclick="setGrouping(1)">1W</button>
-      <button id="gbtn-2" onclick="setGrouping(2)">2W</button>
     </div>
     <span id="period-label"></span>
     <span id="as-of">Data as of March 23, 2026</span>
@@ -494,33 +482,7 @@ const D = {"generatedAt":"2026-04-19","startDate":"2024-12-02","endDate":"2026-0
 
 // ── State ────────────────────────────────────────────────────────────────────
 let lookback = 13;
-let biweekly = false;
 const WINDOWS = [8, 13, 26, 52];
-
-// ── Biweekly helpers (GSC) ───────────────────────────────────────────────────
-function gscGv(w, dict) {
-  if (!w.includes('§')) return dict[w] ?? 0;
-  const [a,b] = w.split('§');
-  return (dict[a]??0) + (dict[b]??0);
-}
-function gscGvSub(w, dict, key) {
-  if (!w.includes('§')) return dict[w]?.[key] ?? 0;
-  const [a,b] = w.split('§');
-  return (dict[a]?.[key]??0) + (dict[b]?.[key]??0);
-}
-function gscLabel(w) {
-  // Return the display ISO date for a (possibly synthetic) week key
-  if (!w.includes('§')) return w;
-  return w.split('§')[1];
-}
-function setGrouping(g) {
-  biweekly = g === 2;
-  [1,2].forEach(n => {
-    const btn = document.getElementById('gbtn-'+n);
-    if(btn) btn.classList.toggle('active', n===g);
-  });
-  updateAll();
-}
 
 // Sort state per table
 const sortState = {
@@ -567,32 +529,24 @@ function formatDateLong(isoWeek) {
 // ── Window math ──────────────────────────────────────────────────────────────
 function getWindows(n) {
   const W = D.weeks;
-  let cur = W.slice(Math.max(0, W.length - n));
-  const priorMap = w => { const d=new Date(w+'T00:00:00'); d.setDate(d.getDate()-364); return d.toISOString().slice(0,10); };
-  if (biweekly && cur.length >= 2) {
-    if (cur.length % 2 !== 0) cur = cur.slice(1);
-    const curPaired = [], priorPaired = [];
-    for (let i = 0; i < cur.length; i += 2) {
-      curPaired.push(cur[i]+'§'+cur[i+1]);
-      priorPaired.push(priorMap(cur[i])+'§'+priorMap(cur[i+1]));
-    }
-    return {cur: curPaired, prior: priorPaired};
-  }
-  const prior = cur.map(priorMap);
+  const cur = W.slice(Math.max(0, W.length - n));
+  const prior = cur.map(w => {
+    const d = new Date(w + 'T00:00:00');
+    d.setDate(d.getDate() - 364);
+    return d.toISOString().slice(0,10);
+  });
   return {cur, prior};
 }
 
 function sumDict(dict, weeks) {
-  return weeks.reduce((a,w) => a + gscGv(w, dict), 0);
+  return weeks.reduce((a,w) => a + (dict[w] ?? 0), 0);
 }
 
 function wtdAvgPos(weeks) {
   let sp=0, si=0;
   weeks.forEach(w => {
-    (w.includes('§') ? w.split('§') : [w]).forEach(rw => {
-      const p=D.wPosition[rw], i=D.wImpressions[rw];
-      if(p!=null&&i!=null){sp+=p*i;si+=i;}
-    });
+    const p=D.wPosition[w], i=D.wImpressions[w];
+    if(p!=null&&i!=null){sp+=p*i;si+=i;}
   });
   return si>0 ? sp/si : null;
 }
@@ -804,14 +758,13 @@ function initPosDistChart(weeks) {
   });
 }
 
-function updatePosDistChart(weeks, labels) {
-  labels = labels || weeks;
-  chPosDist.data.labels = labels;
-  chPosDist.data.datasets[0].data = weeks.map(w => gscGvSub(w, D.positionDist, 'top3'));
-  chPosDist.data.datasets[1].data = weeks.map(w => gscGvSub(w, D.positionDist, 'top10'));
-  chPosDist.data.datasets[2].data = weeks.map(w => gscGvSub(w, D.positionDist, 'top20'));
-  chPosDist.data.datasets[3].data = weeks.map(w => gscGvSub(w, D.positionDist, 'other'));
-  chPosDist.options.scales.x.ticks.callback = function(v,i){return formatDate(labels[i]);};
+function updatePosDistChart(weeks) {
+  chPosDist.data.labels = weeks;
+  chPosDist.data.datasets[0].data = weeks.map(w => D.positionDist[w]?.top3  ?? 0);
+  chPosDist.data.datasets[1].data = weeks.map(w => D.positionDist[w]?.top10 ?? 0);
+  chPosDist.data.datasets[2].data = weeks.map(w => D.positionDist[w]?.top20 ?? 0);
+  chPosDist.data.datasets[3].data = weeks.map(w => D.positionDist[w]?.other ?? 0);
+  chPosDist.options.scales.x.ticks.callback = function(v,i){return formatDate(weeks[i]);};
   chPosDist.update('none');
 }
 
@@ -1028,9 +981,7 @@ function updateSortHeaders(tableId, col, dir) {
 // ── Period label ───────────────────────────────────────────────────────────────
 function updatePeriodLabel(cur) {
   if(!cur.length) return;
-  const firstKey = cur[0], lastKey = cur[cur.length-1];
-  const first = firstKey.includes('§') ? firstKey.split('§')[0] : firstKey;
-  const last  = lastKey.includes('§')  ? lastKey.split('§')[1]  : lastKey;
+  const first = cur[0], last = cur[cur.length-1];
   function _fmtWeekEnd(iso) {
     const d = new Date(iso+'T12:00:00');
     d.setDate(d.getDate()+6);
@@ -1089,51 +1040,34 @@ function renderOppsTable() {
 
 function updateAll() {
   const {cur, prior} = getWindows(lookback);
-  // Display labels (for synthetic keys, use the end-week date)
-  const curLabels = cur.map(gscLabel);
-  const priorLabels = prior.map(gscLabel);
 
   updateStats(cur, prior);
   updatePeriodLabel(cur);
 
-  // Update line charts — additive metrics summed per bucket
-  const cClicks = cur.map(w=>gscGv(w,D.wClicks)||null);
-  const pClicks = prior.map(w=>gscGv(w,D.wClicks)||null);
-  const cImpr   = cur.map(w=>gscGv(w,D.wImpressions)||null);
-  const pImpr   = prior.map(w=>gscGv(w,D.wImpressions)||null);
-  // CTR computed as sum_clicks/sum_impr per bucket (not avg of weekly rates)
-  const cCtr = cur.map(w => { const cl=gscGv(w,D.wClicks),im=gscGv(w,D.wImpressions); return im>0?cl/im*100:null; });
-  const pCtr = prior.map(w => { const cl=gscGv(w,D.wClicks),im=gscGv(w,D.wImpressions); return im>0?cl/im*100:null; });
-  // Position as impression-weighted average per bucket
-  const cPos = cur.map(w => {
-    if (!w.includes('§')) return D.wPosition[w]??null;
-    const [a,b]=w.split('§'); const ia=D.wImpressions[a]??0,ib=D.wImpressions[b]??0;
-    const pa=D.wPosition[a],pb=D.wPosition[b];
-    const total=ia+ib; if(!total)return null;
-    return ((pa??0)*ia+(pb??0)*ib)/total;
-  });
-  const pPos = prior.map(w => {
-    if (!w.includes('§')) return D.wPosition[w]??null;
-    const [a,b]=w.split('§'); const ia=D.wImpressions[a]??0,ib=D.wImpressions[b]??0;
-    const pa=D.wPosition[a],pb=D.wPosition[b];
-    const total=ia+ib; if(!total)return null;
-    return ((pa??0)*ia+(pb??0)*ib)/total;
-  });
+  // Update line charts
+  const cClicks = cur.map(w=>D.wClicks[w]??null);
+  const pClicks = prior.map(w=>D.wClicks[w]??null);
+  const cImpr   = cur.map(w=>D.wImpressions[w]??null);
+  const pImpr   = prior.map(w=>D.wImpressions[w]??null);
+  const cCtr    = cur.map(w=>D.wCtr[w]!=null?D.wCtr[w]*100:null);
+  const pCtr    = prior.map(w=>D.wCtr[w]!=null?D.wCtr[w]*100:null);
+  const cPos    = cur.map(w=>D.wPosition[w]??null);
+  const pPos    = prior.map(w=>D.wPosition[w]??null);
 
-  updateLineChart(chClicks, curLabels, cClicks, pClicks);
-  updateLineChart(chImpr,   curLabels, cImpr,   pImpr);
-  updateLineChart(chCtr,    curLabels, cCtr,    pCtr);
-  updateLineChart(chPos,    curLabels, cPos,    pPos);
+  updateLineChart(chClicks, cur, cClicks, pClicks);
+  updateLineChart(chImpr,   cur, cImpr,   pImpr);
+  updateLineChart(chCtr,    cur, cCtr,    pCtr);
+  updateLineChart(chPos,    cur, cPos,    pPos);
 
   // Dual axis
-  chDual.data.labels = curLabels;
+  chDual.data.labels = cur;
   chDual.data.datasets[0].data = cClicks;
   chDual.data.datasets[1].data = cImpr;
-  chDual.options.scales.x.ticks.callback = function(v,i){return formatDate(curLabels[i]);};
+  chDual.options.scales.x.ticks.callback = function(v,i){return formatDate(cur[i]);};
   chDual.update('none');
 
-  // Position dist (only shows additive bucket counts)
-  updatePosDistChart(cur, curLabels);
+  // Position dist
+  updatePosDistChart(cur);
 
   // Tables
   renderQueries();
