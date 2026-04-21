@@ -22,7 +22,7 @@ PLACEHOLDER = "<!-- DATA_INJECTION_POINT -->"
 #   const VARNAME = {single-line JSON};
 #   </script>
 _INJECTED_RE = re.compile(
-    r"<script>\n(?:const [A-Z][A-Z0-9_]* = [^\n]+;\n)+</script>"
+    r"<script>\n(?:const [A-Za-z_][A-Za-z0-9_]* = [^\n]+;\n)+</script>"
 )
 
 
