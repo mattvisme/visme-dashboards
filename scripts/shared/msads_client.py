@@ -208,7 +208,14 @@ def fetch_weekly_msads(auth_data):
     agg = defaultdict(lambda: {"spend": 0.0, "clicks": 0, "impressions": 0, "conversions": 0.0})
     for row in rows:
         week_start = _parse_week_start(row.get("Time period") or row.get("TimePeriod", ""))
-        if not week_start or week_start >= this_monday:
+        if not week_start:
+            continue
+        # MS Ads reports weeks starting Sunday; shift to Monday to align with Google Ads
+        ws_dt = datetime.strptime(week_start, "%Y-%m-%d")
+        if ws_dt.weekday() == 6:  # Sunday → shift to Monday
+            ws_dt += timedelta(days=1)
+            week_start = ws_dt.strftime("%Y-%m-%d")
+        if week_start >= this_monday:
             continue
         agg[week_start]["spend"]       += _float(row.get("Spend", 0))
         agg[week_start]["clicks"]      += _int(row.get("Clicks", 0))
@@ -256,7 +263,12 @@ def fetch_campaigns_msads(auth_data):
     agg = {}
     for row in rows:
         week = _parse_week_start(row.get("Time period") or row.get("TimePeriod", ""))
-        if not week or week >= this_monday:
+        if not week:
+            continue
+        ws_dt = datetime.strptime(week, "%Y-%m-%d")
+        if ws_dt.weekday() == 6:
+            week = (ws_dt + timedelta(days=1)).strftime("%Y-%m-%d")
+        if week >= this_monday:
             continue
         name = row.get("Campaign name") or row.get("CampaignName", "")
         key  = (week, name)
@@ -418,7 +430,12 @@ def fetch_keywords_msads(auth_data):
     agg_w = {}
     for row in rows_w:
         week = _parse_week_start(row.get("Time period") or row.get("TimePeriod", ""))
-        if not week or week >= this_monday:
+        if not week:
+            continue
+        ws_dt = datetime.strptime(week, "%Y-%m-%d")
+        if ws_dt.weekday() == 6:
+            week = (ws_dt + timedelta(days=1)).strftime("%Y-%m-%d")
+        if week >= this_monday:
             continue
         kw   = row.get("Keyword", "")
         mt   = row.get("BidMatchType") or row.get("Match type") or row.get("MatchType", "")
