@@ -304,10 +304,11 @@ def fetch_ads_msads(auth_data):
     report.Scope                = _adgroup_scope(svc, auth_data.account_id)
     report.Time                 = _make_report_time(svc, start_dt, end_dt)
 
+    # MS Ads uses Responsive Search Ads — TitlePart1/2/3 are not available.
+    # Aggregate by campaign + ad group, using FinalUrl for the landing page.
     cols = svc.factory.create("ArrayOfAdPerformanceReportColumn")
     cols.AdPerformanceReportColumn = [
-        "CampaignName", "AdGroupName", "TitlePart1", "TitlePart2", "TitlePart3",
-        "AdDescription", "DisplayUrl", "AdStatus",
+        "CampaignName", "AdGroupName", "AdStatus", "FinalUrl",
         "Clicks", "Impressions", "Conversions", "Spend",
     ]
     report.Columns = cols
@@ -316,22 +317,18 @@ def fetch_ads_msads(auth_data):
 
     agg = {}
     for row in rows:
-        campaign = row.get("Campaign name") or row.get("CampaignName", "")
-        ad_group = row.get("Ad group")      or row.get("AdGroupName", "")
-        h1       = row.get("Title part 1")  or row.get("TitlePart1", "")
-        h2       = row.get("Title part 2")  or row.get("TitlePart2", "")
-        h3       = row.get("Title part 3")  or row.get("TitlePart3", "")
-        desc     = row.get("Ad description") or row.get("AdDescription", "")
-        raw_url  = row.get("Display URL")   or row.get("DisplayUrl", "")
-        url      = _strip_url(raw_url)
-        status   = row.get("Ad status")     or row.get("AdStatus", "")
+        campaign = row.get("CampaignName", "")
+        ad_group = row.get("AdGroupName", "")
+        raw_url  = row.get("FinalUrl", "")
+        url      = _strip_url(raw_url.split(";")[0].strip()) if raw_url else "/"
+        status   = row.get("AdStatus", "")
 
-        key = (campaign, ad_group, h1, h2, h3, url)
+        key = (campaign, ad_group)
         if key not in agg:
             agg[key] = {
                 "campaign": campaign, "ad_group": ad_group,
-                "headline1": h1, "headline2": h2, "headline3": h3,
-                "description": desc, "url": url, "status": status,
+                "headline1": "Responsive Search Ad", "headline2": ad_group, "headline3": "",
+                "description": "", "url": url, "status": status,
                 "clicks": 0, "impressions": 0, "conversions": 0.0, "cost": 0.0,
             }
         agg[key]["clicks"]      += _int(row.get("Clicks", 0))
