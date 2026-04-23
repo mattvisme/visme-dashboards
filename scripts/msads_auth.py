@@ -22,6 +22,12 @@ import sys
 import webbrowser
 
 try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+try:
     from bingads import OAuthDesktopMobileAuthCodeGrant
 except ImportError:
     sys.exit("bingads SDK not installed. Run: pip install bingads")
@@ -39,7 +45,7 @@ def main():
 
     authentication = OAuthDesktopMobileAuthCodeGrant(client_id=client_id)
 
-    # matt@visme.com is a personal Microsoft account (live.com) — use consumers tenant
+    # matt@visme.com is a work/Azure AD account — use common tenant
     import urllib.parse
     params = urllib.parse.urlencode({
         "client_id": client_id,
@@ -47,10 +53,10 @@ def main():
         "response_type": "code",
         "redirect_uri": REDIRECT_URI,
         "prompt": "login",
-        "login_hint": "matt@visme.com",
+        "login_hint": "visme-ads-api@outlook.com",
     })
     auth_url = f"https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize?{params}"
-    print(f"\nOpen this URL in a private/incognito window (signs in as personal Microsoft account):\n\n{auth_url}\n")
+    print(f"\nOpen this URL in a private/incognito window (signs in as visme-ads-api@outlook.com):\n\n{auth_url}\n")
 
     print("After signing in, Microsoft will redirect to a blank page.")
     print("Copy the FULL URL from the browser address bar and paste it below.")

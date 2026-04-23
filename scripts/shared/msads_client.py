@@ -51,11 +51,17 @@ def _float(v, decimals=2):
     except: return 0.0
 
 def _parse_week_start(time_period):
-    """Parse Bing's 'M/D/YYYY - M/D/YYYY' time-period string → 'YYYY-MM-DD'."""
+    """Parse Bing's time-period string → 'YYYY-MM-DD'.
+    Handles both 'YYYY-MM-DD' (new SDK) and 'M/D/YYYY - M/D/YYYY' (old CSV)."""
     if not time_period:
         return None
+    s = str(time_period).strip()
+    # New SDK: already YYYY-MM-DD
+    if len(s) == 10 and s[4] == "-":
+        return s
+    # Old CSV format: M/D/YYYY - M/D/YYYY
     try:
-        start_str = str(time_period).split(" - ")[0].strip()
+        start_str = s.split(" - ")[0].strip()
         return datetime.strptime(start_str, "%m/%d/%Y").strftime("%Y-%m-%d")
     except Exception:
         return None
@@ -139,13 +145,14 @@ def _parse_report_csv(file_path):
     return rows
 
 def _download_rows(auth_data, report_request):
-    """Submit a report, poll until complete, parse CSV, return list of dicts."""
+    """Submit a report, poll until complete, return list of dicts."""
     manager = ReportingServiceManager(
         authorization_data=auth_data,
         poll_interval_in_milliseconds=5000,
         environment="production",
     )
-    with tempfile.TemporaryDirectory() as tmpdir:
+    tmpdir = tempfile.mkdtemp()
+    try:
         params = ReportingDownloadParameters(
             report_request=report_request,
             result_file_directory=tmpdir,
@@ -153,10 +160,24 @@ def _download_rows(auth_data, report_request):
             overwrite_result_file=True,
             timeout_in_milliseconds=3_600_000,
         )
-        result_file = manager.download_report(params)
-        if result_file is None:
+        result = manager.download_report(params)
+        if result is None:
             return []
-        return _parse_report_csv(result_file)
+        # SDK returns a _RowReport object — iterate report_records directly
+        if hasattr(result, 'report_records'):
+            columns = result.report_columns
+            rows = []
+            for record in result.report_records:
+                rows.append({col: record.value(col) for col in columns})
+            return rows
+        # Fallback: older SDK returned a file path string
+        if isinstance(result, str):
+            return _parse_report_csv(result)
+        return []
+    finally:
+        import shutil, time
+        time.sleep(0.5)  # Let SDK release file handle on Windows
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 # ─── FUNCTION 1: fetch_weekly_msads ──────────────────────────────────────────
@@ -336,7 +357,7 @@ def fetch_keywords_msads(auth_data):
     svc = _reporting_service(auth_data)
 
     COMMON_COLS = [
-        "Keyword", "MatchType", "CampaignName", "AdGroupName",
+        "Keyword", "BidMatchType", "CampaignName", "AdGroupName",
         "Spend", "Clicks", "Impressions", "Conversions",
     ]
 
@@ -359,7 +380,7 @@ def fetch_keywords_msads(auth_data):
     agg_s = {}
     for row in rows_s:
         kw   = row.get("Keyword", "")
-        mt   = row.get("Match type") or row.get("MatchType", "")
+        mt   = row.get("BidMatchType") or row.get("Match type") or row.get("MatchType", "")
         camp = row.get("Campaign name") or row.get("CampaignName", "")
         ag   = row.get("Ad group")      or row.get("AdGroupName", "")
         key  = (kw, mt, camp, ag)
@@ -403,7 +424,7 @@ def fetch_keywords_msads(auth_data):
         if not week or week >= this_monday:
             continue
         kw   = row.get("Keyword", "")
-        mt   = row.get("Match type") or row.get("MatchType", "")
+        mt   = row.get("BidMatchType") or row.get("Match type") or row.get("MatchType", "")
         camp = row.get("Campaign name") or row.get("CampaignName", "")
         ag   = row.get("Ad group")      or row.get("AdGroupName", "")
         key  = (week, kw, mt, camp, ag)
