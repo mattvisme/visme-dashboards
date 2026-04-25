@@ -384,8 +384,9 @@ function updateAmpKPIs() {
   document.getElementById('kpi-amp-activations').textContent=fmtNum(cAc);
   fmtDelta(cAc,pAc,'kpi-amp-activations-delta');
 
-  const cCR=s.curr.map(w=>AMP.cr[w]).filter(v=>v!=null);
-  const pCR=s.prev.map(w=>AMP.cr[w]).filter(v=>v!=null);
+  function getCR(w){const su=AMP.signups?.[w]||0,ac=AMP.activations?.[w]||0;return su>0?ac/su*100:null;}
+  const cCR=s.curr.map(getCR).filter(v=>v!=null);
+  const pCR=s.prev.map(getCR).filter(v=>v!=null);
   const cCRavg=cCR.length?cCR.reduce((a,v)=>a+v,0)/cCR.length:null;
   const pCRavg=pCR.length?pCR.reduce((a,v)=>a+v,0)/pCR.length:null;
   document.getElementById('kpi-amp-cr').textContent=cCRavg!=null?cCRavg.toFixed(2)+'%':'—';
@@ -410,8 +411,8 @@ function updateAmpCharts() {
   const acP=padPrev(s.prev.map(w=>AMP.activations[w]||0),n);
   updateChartData('chartAmpActivations',[makeLineDS('Current',acC,'#3D92E7'),makeLineDS('Prior Year',acP,'#BBD0E5',true)],s.currLabels);
 
-  const crC=s.curr.map(w=>AMP.cr[w]!=null?AMP.cr[w]:null);
-  const crP=padPrev(s.prev.map(w=>AMP.cr[w]!=null?AMP.cr[w]:null),n);
+  const crC=s.curr.map(w=>{const su=AMP.signups?.[w]||0,ac=AMP.activations?.[w]||0;return su>0?ac/su*100:null;});
+  const crP=padPrev(s.prev.map(w=>{const su=AMP.signups?.[w]||0,ac=AMP.activations?.[w]||0;return su>0?ac/su*100:null;}),n);
   updateChartData('chartAmpCR',[makeLineDS('Current',crC,'#FCBC41'),makeLineDS('Prior Year',crP,'#FDDA87',true)],s.currLabels);
 
   const upC=s.curr.map(w=>AMP.upgrades[w]||0);

@@ -567,20 +567,26 @@ function updateStats(cur, prior) {
   document.getElementById('stat-ctr').textContent    = fmtCtr(ctr);
   document.getElementById('stat-pos').textContent    = fmtPos(pos);
 
-  // YoY
-  function setYoy(id, cur2, py, invert) {
-    const el = document.getElementById(id);
-    if(!py||py===0){el.textContent='No prior data';el.className='stat-yoy neutral';return;}
-    const p = ((cur2-py)/py)*100;
-    const sign = p>=0?'+':'';
-    const better = invert ? p<0 : p>=0;
-    el.textContent = `${sign}${p.toFixed(1)}% YoY`;
-    el.className = 'stat-yoy '+(better?'up':'down');
+  // YoY — paired-week calculation; tolerates partial prior-year coverage
+  function yoySum(dict, curW, prW) {
+    let cs=0,ps=0,n=0;
+    curW.forEach((w,idx)=>{const pv=dict[prW[idx]];if(pv!=null){cs+=dict[w]??0;ps+=pv;n++;}});
+    return {cs,ps,n};
   }
-  setYoy('yoy-clicks', c, cp, false);
-  setYoy('yoy-impr', i, ip, false);
-  setYoy('yoy-ctr', ctr, ctrp, false);
-  setYoy('yoy-pos', pos, posp, true); // lower pos = better
+  function setYoy(id, cs, ps, n, invert) {
+    const elY = document.getElementById(id);
+    if(n<4){elY.textContent=n>0?`Partial YoY (${n}w)`:'No prior data';elY.className='stat-yoy neutral';return;}
+    if(!ps){elY.textContent='No prior data';elY.className='stat-yoy neutral';return;}
+    const p=((cs-ps)/ps)*100,sign=p>=0?'+':'',better=invert?p<0:p>=0;
+    elY.textContent=`${sign}${p.toFixed(1)}% YoY`;
+    elY.className='stat-yoy '+(better?'up':'down');
+  }
+  const rc=yoySum(D.wClicks,cur,prior); setYoy('yoy-clicks',rc.cs,rc.ps,rc.n,false);
+  const ri=yoySum(D.wImpressions,cur,prior); setYoy('yoy-impr',ri.cs,ri.ps,ri.n,false);
+  // CTR: derive from paired clicks/impressions sums
+  {let cc=0,ci=0,pc=0,pi=0,n=0;cur.forEach((w,idx)=>{const pw=prior[idx],piv=D.wImpressions[pw];if(piv!=null){cc+=D.wClicks[w]??0;ci+=D.wImpressions[w]??0;pc+=D.wClicks[pw]??0;pi+=piv;n++;}});setYoy('yoy-ctr',ci>0?cc/ci:0,pi>0?pc/pi:0,n,false);}
+  // Position: impressions-weighted average over paired weeks
+  {let cs=0,csi=0,ps=0,psi=0,n=0;cur.forEach((w,idx)=>{const pw=prior[idx],pp=D.wPosition[pw],piv=D.wImpressions[pw];if(pp!=null&&piv!=null){const civ=D.wImpressions[w]??0;cs+=(D.wPosition[w]??0)*civ;csi+=civ;ps+=pp*piv;psi+=piv;n++;}});setYoy('yoy-pos',csi>0?cs/csi:0,psi>0?ps/psi:0,n,true);}
 }
 
 // ── Chart helpers ─────────────────────────────────────────────────────────────
