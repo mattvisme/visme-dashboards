@@ -529,11 +529,12 @@ function formatDateLong(isoWeek) {
 // ── Window math ──────────────────────────────────────────────────────────────
 function getWindows(n) {
   const W = D.weeks;
-  const cur = W.slice(Math.max(0, W.length - n));
-  const prior = cur.map(w => {
-    const d = new Date(w + 'T00:00:00');
-    d.setDate(d.getDate() - 364);
-    return d.toISOString().slice(0,10);
+  const startIdx = Math.max(0, W.length - n);
+  const cur = W.slice(startIdx);
+  // Use index-based lookup (52 weeks back in dataset) to avoid timezone date-math errors
+  const prior = cur.map((_, i) => {
+    const pi = startIdx + i - 52;
+    return pi >= 0 ? W[pi] : null;
   });
   return {cur, prior};
 }
