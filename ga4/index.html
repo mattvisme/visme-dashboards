@@ -265,10 +265,10 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
             <thead><tr>
               <th>#</th>
               <th onclick="sortTable('channels',0)" data-col="0">Channel</th>
-              <th onclick="sortTable('channels',1)" data-col="1" class="sort-desc">Current Sessions</th>
-              <th onclick="sortTable('channels',2)" data-col="2">YoY Sessions</th>
-              <th onclick="sortTable('channels',3)" data-col="3">Change</th>
-              <th>Share</th>
+              <th onclick="sortTable('channels',1)" data-col="1" class="num-cell sort-desc">Current Sessions</th>
+              <th onclick="sortTable('channels',2)" data-col="2" class="num-cell">YoY Sessions</th>
+              <th onclick="sortTable('channels',3)" data-col="3" class="num-cell">Change</th>
+              <th class="num-cell">Share</th>
             </tr></thead>
             <tbody id="tbodyChannels"></tbody>
           </table>
@@ -294,10 +294,10 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
             <thead><tr>
               <th>#</th>
               <th onclick="sortTable('landing',0)" data-col="0">Landing Page</th>
-              <th onclick="sortTable('landing',1)" data-col="1" class="sort-desc">Sessions (Current)</th>
-              <th onclick="sortTable('landing',2)" data-col="2">New Users</th>
-              <th onclick="sortTable('landing',3)" data-col="3">Bounce Rate</th>
-              <th>Traffic Share</th>
+              <th onclick="sortTable('landing',1)" data-col="1" class="num-cell sort-desc">Sessions (Current)</th>
+              <th onclick="sortTable('landing',2)" data-col="2" class="num-cell">New Users</th>
+              <th onclick="sortTable('landing',3)" data-col="3" class="num-cell">Bounce Rate</th>
+              <th class="num-cell">Traffic Share</th>
             </tr></thead>
             <tbody id="tbodyLanding"></tbody>
           </table>
