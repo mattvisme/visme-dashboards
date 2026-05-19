@@ -437,9 +437,9 @@ function updateAmpKPIs() {
   const n = activeWeeks;
   document.getElementById('ampKpiSubtitle').textContent = `Last ${n} weeks vs. same ${n} weeks prior year`;
 
-  // hasFullHistory signals whether Amplitude has ≥54 weeks of data for valid YoY.
-  // When false, all YoY deltas show "No prior data" instead of misleading %.
-  const hasPrior = AMP.hasFullHistory === true;
+  // hasPrior: full history AND meaningful prior signups (>100 guards against
+  // tiny stray activations in early weeks causing millions-% YoY changes)
+  const hasPrior = AMP.hasFullHistory === true && pSu > 100;
   function showNoPrior(id) {
     const el = document.getElementById(id);
     if (el) { el.textContent = 'No prior data'; el.style.color = 'var(--text-dim)'; el.style.fontSize = '10.5px'; }
