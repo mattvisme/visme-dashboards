@@ -84,12 +84,15 @@ def _fmt_label(date_str: str) -> str:
 # Public API
 # ---------------------------------------------------------------------------
 
-def fetch_amplitude_data(start_date: str = "20240101") -> dict:
+def fetch_amplitude_data() -> dict:
     """
     Pull weekly PLG metrics from the Amplitude API.
 
     Fetches three events (Sign Up Completed, Upgrade Completed, Project Created)
     using the /api/2/events/segmentation endpoint with i=7 (weekly intervals).
+    The Amplitude API limits weekly queries to ~1 year, so we make two calls
+    per event (current year + prior year) to cover the 2-year window the
+    dashboard needs for YoY comparison.
     CR is computed as upgrades / signups per week.
 
     Returns the same payload shape as the legacy sheets_client version:
@@ -106,7 +109,11 @@ def fetch_amplitude_data(start_date: str = "20240101") -> dict:
     api_key, secret = _get_credentials()
     auth = _basic_auth_header(api_key, secret)
 
-    end_date = date.today().strftime("%Y%m%d")
+    today      = date.today()
+    end_date   = today.strftime("%Y%m%d")
+    # Split into two ~12-month windows to stay within Amplitude's range limit
+    mid_date   = (today - timedelta(days=365)).strftime("%Y%m%d")
+    start_date = (today - timedelta(days=730)).strftime("%Y%m%d")
 
     event_map = {
         "Sign Up Completed": "signups",
@@ -114,26 +121,29 @@ def fetch_amplitude_data(start_date: str = "20240101") -> dict:
         "Project Created":   "activations",
     }
 
-    # Collect raw series per event keyed by xValues date string
+    # Collect raw series per event keyed by YYYY-MM-DD date string
     raw: dict = {k: {} for k in event_map.values()}
 
-    for event_name, key in event_map.items():
-        print(f"  Fetching Amplitude '{event_name}'...")
-        body = _fetch_event(event_name, start_date, end_date, 7, auth)
-        x_values = body["data"]["xValues"]   # list of date strings from Amplitude
-        series   = body["data"]["series"][0] # list of counts
+    def _ingest(body: dict, key: str) -> None:
+        x_values = body["data"]["xValues"]
+        series   = body["data"]["series"][0]
         for x, v in zip(x_values, series):
-            # Normalise to YYYY-MM-DD (Amplitude weekly returns e.g. "2024-01-01")
             try:
                 dt = datetime.strptime(x, "%Y-%m-%d")
             except ValueError:
                 try:
                     dt = datetime.strptime(x, "%Y%m%d")
                 except ValueError:
-                    print(f"    Skipping unrecognised date format: {x!r}")
+                    print(f"    Skipping unrecognised date: {x!r}")
                     continue
             raw[key][dt.strftime("%Y-%m-%d")] = int(v or 0)
-        print(f"    {len(raw[key])} weeks returned")
+
+    for event_name, key in event_map.items():
+        print(f"  Fetching Amplitude '{event_name}' (prior year)...")
+        _ingest(_fetch_event(event_name, start_date, mid_date, 7, auth), key)
+        print(f"  Fetching Amplitude '{event_name}' (current year)...")
+        _ingest(_fetch_event(event_name, mid_date, end_date, 7, auth), key)
+        print(f"    {len(raw[key])} weeks total")
 
     # Determine complete weeks only (exclude current incomplete week)
     this_monday = date.today() - timedelta(days=date.today().weekday())
