@@ -106,17 +106,31 @@ def _fetch_retention(start_event: str, start: str, end: str,
         f"https://amplitude.com/api/2/retention"
         f"?se={se}&re={re_}&startdate={start}&enddate={end}&i=1&n=31&type=new"
     )
+    print(f"    Retention URL: {url}")
     req = urllib.request.Request(url, headers={"Authorization": auth_header})
     try:
         with urllib.request.urlopen(req, timeout=45) as resp:
-            body = json.loads(resp.read().decode())
+            raw = resp.read().decode()
+            body = json.loads(raw)
+    except urllib.error.HTTPError as exc:
+        error_body = exc.read().decode(errors="replace")
+        print(f"    WARNING: Retention API HTTP {exc.code}: {error_body[:300]}")
+        return {}
     except Exception as exc:
         print(f"    WARNING: Retention API failed ({exc}); skipping D7/D30.")
         return {}
 
+    print(f"    Retention body keys: {list(body.keys())}")
     data = body.get("data", {})
+    if not data:
+        print(f"    WARNING: Retention body has no 'data' key. Full body: {str(body)[:500]}")
+        return {}
+
+    print(f"    Retention data keys: {list(data.keys())}")
     x_vals  = data.get("xValues", [])
     series  = data.get("series", [])
+    print(f"    Retention xValues ({len(x_vals)}): {x_vals[:5]}")
+    print(f"    Retention series rows: {len(series)}, first row length: {len(series[0]) if series else 0}")
 
     result = {}
     for i, x in enumerate(x_vals):
@@ -127,6 +141,7 @@ def _fetch_retention(start_event: str, start: str, end: str,
             try:
                 dt = datetime.strptime(x, "%Y%m%d")
             except ValueError:
+                print(f"    WARNING: Unrecognised retention date format: {x!r}")
                 continue
         key = dt.strftime("%Y-%m-%d")
         row = series[i] if i < len(series) else []
@@ -136,6 +151,9 @@ def _fetch_retention(start_event: str, start: str, end: str,
             "d30": round(row[30], 2) if len(row) > 30 and row[30] is not None else None,
         }
     print(f"    Retention: {len(result)} cohort dates returned")
+    if result:
+        sample_key = next(iter(result))
+        print(f"    Retention sample ({sample_key}): {result[sample_key]}")
     return result
 
 
