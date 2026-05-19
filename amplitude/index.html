@@ -172,6 +172,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       <div class="kpi-row">
         <div class="kpi"><div class="kpi-label">New Signups</div><div class="kpi-value" id="kpi-amp-signups">—</div><div class="kpi-delta" id="kpi-amp-signups-delta"></div></div>
         <div class="kpi"><div class="kpi-label">Activated Users</div><div class="kpi-value" id="kpi-amp-activations">—</div><div class="kpi-delta" id="kpi-amp-activations-delta"></div></div>
+        <div class="kpi"><div class="kpi-label">Activation Rate</div><div class="kpi-value" id="kpi-amp-actrate">—</div><div class="kpi-delta" id="kpi-amp-actrate-delta" style="font-size:10.5px;color:var(--text-dim)">Activated ÷ New Signups</div></div>
         <div class="kpi"><div class="kpi-label">Free&#x2192;Paid Conv. Rate</div><div class="kpi-value" id="kpi-amp-cr">—</div><div class="kpi-delta" id="kpi-amp-cr-delta"></div></div>
         <div class="kpi"><div class="kpi-label">Free&#x2192;Paid Conversions</div><div class="kpi-value" id="kpi-amp-upgrades">—</div><div class="kpi-delta" id="kpi-amp-upgrades-delta"></div></div>
       </div>
@@ -374,51 +375,39 @@ function updateAmpKPIs() {
   const n = activeWeeks;
   document.getElementById('ampKpiSubtitle').textContent = `Last ${n} weeks vs. same ${n} weeks prior year`;
 
+  // hasFullHistory signals whether Amplitude has ≥54 weeks of data for valid YoY.
+  // When false, all YoY deltas show "No prior data" instead of misleading %.
+  const hasPrior = AMP.hasFullHistory === true;
+  function showNoPrior(id) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = 'No prior data'; el.style.color = 'var(--text-dim)'; el.style.fontSize = '10.5px'; }
+  }
+
   const cSu=s.curr.reduce((a,w)=>a+(AMP.signups[w]||0),0);
   const pSu=s.prev.reduce((a,w)=>a+(AMP.signups[w]||0),0);
   document.getElementById('kpi-amp-signups').textContent=fmtNum(cSu);
-  fmtDelta(cSu,pSu,'kpi-amp-signups-delta');
+  if(hasPrior){fmtDelta(cSu,pSu,'kpi-amp-signups-delta');}else{showNoPrior('kpi-amp-signups-delta');}
 
   const cAc=s.curr.reduce((a,w)=>a+(AMP.activations[w]||0),0);
   const pAc=s.prev.reduce((a,w)=>a+(AMP.activations[w]||0),0);
   document.getElementById('kpi-amp-activations').textContent=fmtNum(cAc);
-  fmtDelta(cAc,pAc,'kpi-amp-activations-delta');
+  if(hasPrior){fmtDelta(cAc,pAc,'kpi-amp-activations-delta');}else{showNoPrior('kpi-amp-activations-delta');}
+
+  // Activation Rate = Activated Users / New Signups
+  const cActRateVals=s.curr.map(w=>AMP.actRate?.[w]).filter(v=>v!=null);
+  const cActRate=cSu>0?Math.round(cAc/cSu*1000)/10:null;
+  document.getElementById('kpi-amp-actrate').textContent=cActRate!=null?cActRate.toFixed(1)+'%':'—';
+  // delta element already contains the static label set in HTML
 
   const cCR=s.curr.map(w=>AMP.cr[w]).filter(v=>v!=null);
   const pCR=s.prev.map(w=>AMP.cr[w]).filter(v=>v!=null);
   const cCRavg=cCR.length?cCR.reduce((a,v)=>a+v,0)/cCR.length:null;
   const pCRavg=pCR.length?pCR.reduce((a,v)=>a+v,0)/pCR.length:null;
   document.getElementById('kpi-amp-cr').textContent=cCRavg!=null?cCRavg.toFixed(2)+'%':'—';
-  if(cCRavg!=null&&pCRavg!=null){fmtDelta(cCRavg,pCRavg,'kpi-amp-cr-delta');}
-  else{const el=document.getElementById('kpi-amp-cr-delta');if(el){el.textContent='No prior data';el.className='kpi-delta-val neutral';}}
+  if(hasPrior&&cCRavg!=null&&pCRavg!=null){fmtDelta(cCRavg,pCRavg,'kpi-amp-cr-delta');}
+  else{const el=document.getElementById('kpi-amp-cr-delta');if(el){el.textContent='No prior data';el.style.color='var(--text-dim)';el.style.fontSize='10.5px';}}
 
   const cUp=s.curr.reduce((a,w)=>a+(AMP.upgrades[w]||0),0);
   const pUp=s.prev.reduce((a,w)=>a+(AMP.upgrades[w]||0),0);
   document.getElementById('kpi-amp-upgrades').textContent=fmtNum(cUp);
-  fmtDelta(cUp,pUp,'kpi-amp-upgrades-delta');
-}
-
-function updateAmpCharts() {
-  const s=getAmpSlice(activeWeeks);
-  if(!s.curr.length)return;
-  const n=s.curr.length;
-
-  const suC=s.curr.map(w=>AMP.signups[w]||0);
-  const suP=padPrev(s.prev.map(w=>AMP.signups[w]||0),n);
-  updateChartData('chartAmpSignups',[makeLineDS('Current',suC,'#9062F0'),makeLineDS('Prior Year',suP,'#C9B0F7',true)],s.currLabels);
-
-  const acC=s.curr.map(w=>AMP.activations[w]||0);
-  const acP=padPrev(s.prev.map(w=>AMP.activations[w]||0),n);
-  updateChartData('chartAmpActivations',[makeLineDS('Current',acC,'#3D92E7'),makeLineDS('Prior Year',acP,'#BBD0E5',true)],s.currLabels);
-
-  const crC=s.curr.map(w=>AMP.cr[w]!=null?AMP.cr[w]:null);
-  const crP=padPrev(s.prev.map(w=>AMP.cr[w]!=null?AMP.cr[w]:null),n);
-  updateChartData('chartAmpCR',[makeLineDS('Current',crC,'#FCBC41'),makeLineDS('Prior Year',crP,'#FDDA87',true)],s.currLabels);
-
-  const upC=s.curr.map(w=>AMP.upgrades[w]||0);
-  const upP=padPrev(s.prev.map(w=>AMP.upgrades[w]||0),n);
-  updateChartData('chartAmpUpgrades',[makeLineDS('Current',upC,'#6CC395'),makeLineDS('Prior Year',upP,'#B3E0CA',true)],s.currLabels);
-}
-</script>
-</body>
-</html>
+  if(hasPrior){fmtDelta(cUp

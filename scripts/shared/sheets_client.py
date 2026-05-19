@@ -468,6 +468,39 @@ def fetch_gsc_sheet_data(sheet_id=None, credentials_file=None) -> dict:
     page_windows    = read_window_tab("gsc_pages",     "url")
     country_windows = read_window_tab("gsc_countries", "country")
 
+    # Compute CTR by position bucket from the widest available query window.
+    # Queries are grouped by their average position, then weighted CTR
+    # (clicks / impressions) is calculated per bucket. Stored as a percentage
+    # number (e.g. 3.45 means 3.45%) to match the dashboard's toFixed(2)+'%'.
+    def _compute_ctr_by_pos(q_windows):
+        for win in ["52", "26", "13", "8"]:
+            if win in q_windows and q_windows[win].get("cur"):
+                queries = q_windows[win]["cur"]
+                break
+        else:
+            return {}
+        buckets = {k: {"clicks": 0, "impr": 0}
+                   for k in ("top3", "top10", "top20", "other")}
+        for q in queries:
+            pos = q.get("pos") or 0
+            if pos <= 3.5:
+                b = "top3"
+            elif pos <= 10.5:
+                b = "top10"
+            elif pos <= 20.5:
+                b = "top20"
+            else:
+                b = "other"
+            buckets[b]["clicks"] += q.get("clicks", 0)
+            buckets[b]["impr"]   += q.get("impr", 0)
+        return {
+            b: round(d["clicks"] / d["impr"] * 100, 4) if d["impr"] > 0 else 0.0
+            for b, d in buckets.items()
+        }
+
+    ctr_by_pos = _compute_ctr_by_pos(query_windows)
+    print(f"  ctrByPos computed: { {k: f'{v:.2f}%' for k, v in ctr_by_pos.items()} }")
+
     payload = {
         "generatedAt":    end_date,
         "startDate":      start_date,
@@ -478,7 +511,7 @@ def fetch_gsc_sheet_data(sheet_id=None, credentials_file=None) -> dict:
         "wCtr":           w_ctr,
         "wPosition":      w_pos,
         "positionDist":   {},
-        "ctrByPos":       {},
+        "ctrByPos":       ctr_by_pos,
         "queryWindows":   query_windows,
         "pageWindows":    page_windows,
         "countryWindows": country_windows,
@@ -700,7 +733,6 @@ def fetch_bing_weekly(sheet_id, credentials_file=None):
             if len(parts) != 2:
                 return None
             month, day = int(parts[0]), int(parts[1])
-            year = today.year
             if month > today.month + 2:
                 year -= 1
             d = date(year, month, day)
