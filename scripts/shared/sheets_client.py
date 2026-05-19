@@ -493,9 +493,8 @@ def fetch_gsc_sheet_data(sheet_id=None, credentials_file=None) -> dict:
                 b = "other"
             buckets[b]["clicks"] += q.get("clicks", 0)
             buckets[b]["impr"]   += q.get("impr", 0)
-        # Store as decimal (0–1) to match wCtr format and fmtCtr(v)=(v*100).toFixed(2)+'%'
         return {
-            b: round(d["clicks"] / d["impr"], 6) if d["impr"] > 0 else 0.0
+            b: round(d["clicks"] / d["impr"] * 100, 4) if d["impr"] > 0 else 0.0
             for b, d in buckets.items()
         }
 
