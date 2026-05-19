@@ -174,6 +174,21 @@ def fetch_amplitude_data() -> dict:
     last_monday_dt = datetime.strptime(all_dates[-1], "%Y-%m-%d").date()
     last_date = (last_monday_dt + timedelta(days=6)).strftime("%Y-%m-%d")
 
+    # hasFullHistory: True only when data spans ≥54 weeks, meaning valid YoY
+    # comparisons exist for all range pills (8W–52W). When False the dashboard
+    # suppresses YoY % changes and shows "No prior data" instead.
+    first_monday_dt = datetime.strptime(all_dates[0], "%Y-%m-%d").date()
+    has_full_history = (today - first_monday_dt).days >= 54 * 7
+    print(f"  hasFullHistory={has_full_history} "
+          f"(first week: {all_dates[0]}, span: {(today - first_monday_dt).days} days)")
+
+    # Per-week activation rate = activations / signups (stored as %, e.g. 61.3)
+    act_rate = {}
+    for d in all_dates:
+        su = raw["signups"].get(d, 0)
+        ac = raw["activations"].get(d, 0)
+        act_rate[d] = round((ac / su) * 100, 4) if su > 0 else None
+
     week_labels = [
         _fmt_label(
             (datetime.strptime(d, "%Y-%m-%d") + timedelta(days=6)).strftime("%Y-%m-%d")
@@ -182,11 +197,13 @@ def fetch_amplitude_data() -> dict:
     ]
 
     return {
-        "weeks":       all_dates,
-        "weekLabels":  week_labels,
-        "signups":     {d: raw["signups"].get(d, 0)     for d in all_dates},
-        "upgrades":    {d: raw["upgrades"].get(d, 0)    for d in all_dates},
-        "activations": {d: raw["activations"].get(d, 0) for d in all_dates},
-        "cr":          cr,
-        "lastDate":    last_date,
+        "weeks":          all_dates,
+        "weekLabels":     week_labels,
+        "signups":        {d: raw["signups"].get(d, 0)     for d in all_dates},
+        "upgrades":       {d: raw["upgrades"].get(d, 0)    for d in all_dates},
+        "activations":    {d: raw["activations"].get(d, 0) for d in all_dates},
+        "cr":             cr,
+        "actRate":        act_rate,
+        "lastDate":       last_date,
+        "hasFullHistory": has_full_history,
     }
