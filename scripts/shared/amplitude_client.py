@@ -57,7 +57,6 @@ def _fetch_event(event_name: str, start: str, end: str, interval: int,
         f"https://amplitude.com/api/2/events/segmentation"
         f"?e={e_param}&start={start}&end={end}&i={interval}"
     )
-    print(f"    GET {url}")
     req = urllib.request.Request(url, headers={"Authorization": auth_header})
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
@@ -107,7 +106,6 @@ def _fetch_retention(start_event: str, start: str, end: str,
         f"https://amplitude.com/api/2/retention"
         f"?se={se}&re={re_}&startdate={start}&enddate={end}&i=1&n=31&type=new"
     )
-    print(f"    GET {url}")
     req = urllib.request.Request(url, headers={"Authorization": auth_header})
     try:
         with urllib.request.urlopen(req, timeout=45) as resp:

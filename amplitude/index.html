@@ -66,7 +66,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .card-title{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:4px;}
 .card-desc{font-size:11.5px;color:var(--text-dim);margin-bottom:20px;line-height:1.4;}
 .chart-wrap{position:relative;height:240px;}
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:4px;}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:4px;}
 .kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;box-shadow:var(--shadow);}
 .kpi-label{font-size:11px;font-weight:600;color:var(--text-dim);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
 .kpi-value{font-size:26px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-1px;}
@@ -257,7 +257,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
         <span class="section-subtitle">% of signup cohort that returned within 7 and 30 days — last 8 weekly cohorts with D30 data</span>
       </div>
       <div class="section-divider"></div>
-      <div class="kpi-row" style="margin-bottom:20px">
+      <div class="kpi-row" style="margin-bottom:20px;grid-template-columns:repeat(2,1fr)">
         <div class="kpi"><div class="kpi-label">Latest D7 Retention</div><div class="kpi-value" id="kpi-d7">—</div><div class="kpi-delta" style="font-size:10.5px;color:var(--text-dim)">Returned within 7 days of signup</div></div>
         <div class="kpi"><div class="kpi-label">Latest D30 Retention</div><div class="kpi-value" id="kpi-d30">—</div><div class="kpi-delta" style="font-size:10.5px;color:var(--text-dim)">Returned within 30 days of signup</div></div>
       </div>
@@ -437,9 +437,6 @@ function updateAmpKPIs() {
   const n = activeWeeks;
   document.getElementById('ampKpiSubtitle').textContent = `Last ${n} weeks vs. same ${n} weeks prior year`;
 
-  // hasPrior: full history AND meaningful prior signups (>100 guards against
-  // tiny stray activations in early weeks causing millions-% YoY changes)
-  const hasPrior = AMP.hasFullHistory === true && pSu > 100;
   function showNoPrior(id) {
     const el = document.getElementById(id);
     if (el) { el.textContent = 'No prior data'; el.style.color = 'var(--text-dim)'; el.style.fontSize = '10.5px'; }
@@ -447,6 +444,10 @@ function updateAmpKPIs() {
 
   const cSu=s.curr.reduce((a,w)=>a+(AMP.signups[w]||0),0);
   const pSu=s.prev.reduce((a,w)=>a+(AMP.signups[w]||0),0);
+  // hasPrior: full history AND meaningful prior signups (>100 guards against
+  // tiny stray activations in early weeks causing millions-% YoY changes)
+  // NOTE: must be declared AFTER pSu to avoid TDZ ReferenceError
+  const hasPrior = AMP.hasFullHistory === true && pSu > 100;
   document.getElementById('kpi-amp-signups').textContent=fmtNum(cSu);
   if(hasPrior){fmtDelta(cSu,pSu,'kpi-amp-signups-delta');}else{showNoPrior('kpi-amp-signups-delta');}
 
@@ -455,8 +456,7 @@ function updateAmpKPIs() {
   document.getElementById('kpi-amp-activations').textContent=fmtNum(cAc);
   if(hasPrior){fmtDelta(cAc,pAc,'kpi-amp-activations-delta');}else{showNoPrior('kpi-amp-activations-delta');}
 
-  // Activation Rate = Activated Users / New Signups
-  const cActRateVals=s.curr.map(w=>AMP.actRate?.[w]).filter(v=>v!=null);
+  // Activation Rate = Activated Users / New Signups (computed directly, not from actRate payload)
   const cActRate=cSu>0?Math.round(cAc/cSu*1000)/10:null;
   document.getElementById('kpi-amp-actrate').textContent=cActRate!=null?cActRate.toFixed(1)+'%':'—';
   // delta element already contains the static label set in HTML
