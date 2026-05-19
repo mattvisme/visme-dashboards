@@ -101,10 +101,12 @@ def _fetch_retention(start_event: str, start: str, end: str,
     re_ = urllib.parse.quote(
         json.dumps({"event_type": "_active"}, separators=(",", ":")), safe=""
     )
-    # i=1 → daily cohorts; we request enough headroom for D30 data
+    # i=1 → daily cohorts; n=32 gives headroom for D30 data.
+    # type must be "n-day" (not "new") — Amplitude retention API values:
+    # n-day, unbounded, bracket. Omitting type defaults to n-day.
     url = (
         f"https://amplitude.com/api/2/retention"
-        f"?se={se}&re={re_}&startdate={start}&enddate={end}&i=1&n=31&type=new"
+        f"?se={se}&re={re_}&startdate={start}&enddate={end}&i=1&n=32"
     )
     print(f"    Retention URL: {url}")
     req = urllib.request.Request(url, headers={"Authorization": auth_header})
