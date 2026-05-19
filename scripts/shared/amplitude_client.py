@@ -57,9 +57,16 @@ def _fetch_event(event_name: str, start: str, end: str, interval: int,
         f"https://amplitude.com/api/2/events/segmentation"
         f"?e={e_param}&start={start}&end={end}&i={interval}"
     )
+    print(f"    GET {url}")
     req = urllib.request.Request(url, headers={"Authorization": auth_header})
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        body = json.loads(resp.read().decode())
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            body = json.loads(resp.read().decode())
+    except urllib.error.HTTPError as exc:
+        error_body = exc.read().decode(errors="replace")
+        raise RuntimeError(
+            f"Amplitude API {exc.code} for '{event_name}': {error_body}"
+        ) from exc
     if "data" not in body:
         raise RuntimeError(
             f"Amplitude API error for event '{event_name}': {body}"
