@@ -296,8 +296,8 @@ tbody tr:last-child td{border-bottom:none}
   </div>
   <div id="controls">
     <div class="window-btns">
-      <button onclick="setWindow(8)"  id="btn-8">8w</button>
-      <button onclick="setWindow(13)" id="btn-13" class="active">13w</button>
+      <button onclick="setWindow(8)"  id="btn-8" class="active">8w</button>
+      <button onclick="setWindow(13)" id="btn-13">13w</button>
       <button onclick="setWindow(26)" id="btn-26">26w</button>
       <button onclick="setWindow(52)" id="btn-52">52w</button>
     </div>
@@ -481,7 +481,7 @@ const D = {"generatedAt":"2026-05-17","startDate":"2024-12-30","endDate":"2026-0
 <script>
 
 // ── State ────────────────────────────────────────────────────────────────────
-let lookback = 13;
+let lookback = 8;
 const WINDOWS = [8, 13, 26, 52];
 
 // Sort state per table
