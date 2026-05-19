@@ -12,7 +12,8 @@ Environment variables:
     GA4_CREDENTIALS_FILE   Path to service account JSON file (local dev)
     GA4_PROPERTY_ID        GA4 property ID (default: 368188880)
     HUBSPOT_SHEET_ID       Google Sheet ID for HubSpot data
-    AMPLITUDE_SHEET_ID     Google Sheet ID for Amplitude data
+    AMPLITUDE_API_KEY      Amplitude project API key
+    AMPLITUDE_API_SECRET   Amplitude project Secret key
 """
 
 import os
@@ -21,7 +22,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from scripts.shared.ga4_client import fetch_ga4_data
-from scripts.shared.sheets_client import fetch_hubspot_data, fetch_amplitude_data
+from scripts.shared.sheets_client import fetch_hubspot_data
+from scripts.shared.amplitude_client import fetch_amplitude_data
 from scripts.shared.html_utils import inject_data
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -37,19 +39,17 @@ def main():
     property_id = os.environ.get("GA4_PROPERTY_ID", "368188880")
     hs_sheet_id = os.environ.get("HUBSPOT_SHEET_ID",
                                  "1TsDySDrmgSQEUjunQg77twgUS1fGgZIC71IbX-bAz1s")
-    amp_sheet_id = os.environ.get("AMPLITUDE_SHEET_ID",
-                                  "11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw")
 
-    print("\n[1/3] Fetching GA4 sessions data…")
+    print("\n[1/3] Fetching GA4 sessions data...")
     ga4_data = fetch_ga4_data(property_id=property_id)
 
-    print("\n[2/3] Fetching HubSpot data…")
+    print("\n[2/3] Fetching HubSpot data...")
     hs_data = fetch_hubspot_data(sheet_id=hs_sheet_id)
 
-    print("\n[3/3] Fetching Amplitude data…")
-    amp_data = fetch_amplitude_data(sheet_id=amp_sheet_id)
+    print("\n[3/3] Fetching Amplitude data...")
+    amp_data = fetch_amplitude_data()
 
-    print("\nInjecting all data into template…")
+    print("\nInjecting all data into template...")
     inject_data(
         template_path=TEMPLATE,
         data_dict={

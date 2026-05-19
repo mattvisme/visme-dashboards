@@ -37,7 +37,8 @@ jobs:
           GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
           HUBSPOT_SHEET_ID: ${{ secrets.HUBSPOT_SHEET_ID }}
-          AMPLITUDE_SHEET_ID: ${{ secrets.AMPLITUDE_SHEET_ID }}
+          AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
+          AMPLITUDE_API_SECRET: ${{ secrets.AMPLITUDE_API_SECRET }}
         run: python scripts/build_executive.py
 
       - name: Build GA4 dashboard
@@ -54,8 +55,8 @@ jobs:
 
       - name: Build Amplitude dashboard
         env:
-          GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
-          AMPLITUDE_SHEET_ID: ${{ secrets.AMPLITUDE_SHEET_ID }}
+          AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
+          AMPLITUDE_API_SECRET: ${{ secrets.AMPLITUDE_API_SECRET }}
         run: python scripts/build_amplitude.py
 
       - name: Build Paid Media (PPC) dashboard
