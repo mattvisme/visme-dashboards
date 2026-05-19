@@ -79,6 +79,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .cards-3{grid-template-columns:1fr 1fr 1fr}
 /* ── KPI ── */
 .kpi-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.kpi-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;box-shadow:var(--shadow)}
 .kpi-label{font-size:11px;font-weight:600;color:var(--text-dim);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
 .kpi-value{font-size:26px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-1px;margin-bottom:6px}
@@ -328,7 +329,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
       </div>
       <div class="section-divider"></div>
       <div class="kpi-grid-3" id="s1-kpis-top"></div>
-      <div class="kpi-grid-3" id="s1-kpis-bot" style="margin-top:0"></div>
+      <div class="kpi-grid-4" id="s1-kpis-bot" style="margin-top:0"></div>
       <div class="card" id="s1-split-card">
         <div class="card-title">Platform Spend Split</div>
         <div id="s1-split-bar-wrap"></div>
@@ -879,8 +880,13 @@ function renderS1(){
     {id:'s1-3',label:'BLENDED CPA',val:fmtCpa(blCpa),wow:wowCpa,yoy:yoyCpa,inv:true},
     {id:'s1-4',label:'AVG CTR',val:fmtCtr(avgCtr),wow:wowCtr,yoy:yoyCtr,inv:false},
     {id:'s1-5',label:'FREE SIGNUPS (PAID)',val:fmtNum(gSU),wow:wowSignups,yoy:yoySignups,inv:false},
+    {id:'s1-6',label:'COST PER FREE SIGNUP',val:gSU>0?fmtSpend(tSpend/gSU):'—',
+      wow:(()=>{if(!last||!prev)return null;const a=last.ga4_new_users>0?(last.g_spend+last.m_spend)/last.ga4_new_users:0;const b=prev.ga4_new_users>0?(prev.g_spend+prev.m_spend)/prev.ga4_new_users:0;return b>0?(a-b)/b:null;})(),
+      yoy:(()=>{if(!prior)return null;const pSU=sum(prior,'ga4_new_users'),pSp=sum(prior,'g_spend')+sum(prior,'m_spend');const pCpfs=pSU>0?pSp/pSU:0;const cCpfs=gSU>0?tSpend/gSU:0;return pCpfs>0?(cCpfs-pCpfs)/pCpfs:null;})(),
+      inv:true},
   ];
   el('s1-kpis-top',kpis.slice(0,3).map(k=>`<div class="kpi" id="kpi-${k.id}">${kpiHtml(k.label,k.val,fmtDelta(k.wow,k.inv),fmtDelta(k.yoy,k.inv))}</div>`).join(''));
+  document.getElementById('s1-kpis-bot').className='kpi-grid-4';
   el('s1-kpis-bot',kpis.slice(3).map(k=>`<div class="kpi" id="kpi-${k.id}">${kpiHtml(k.label,k.val,fmtDelta(k.wow,k.inv),fmtDelta(k.yoy,k.inv))}</div>`).join(''));
 
   // Split bar

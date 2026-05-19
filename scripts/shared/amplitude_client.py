@@ -80,6 +80,67 @@ def _fmt_label(date_str: str) -> str:
     return dt.strftime("%b %-d") if os.name != "nt" else dt.strftime("%b %#d")
 
 
+def _fetch_retention(start_event: str, start: str, end: str,
+                     auth_header: str) -> dict:
+    """
+    Call Amplitude /api/2/retention for signup cohort D7 and D30 retention.
+
+    Args:
+        start_event: The cohort-defining event, e.g. "Sign Up Completed"
+        start:       YYYYMMDD — first cohort date
+        end:         YYYYMMDD — last cohort date
+        auth_header: pre-built Basic auth string
+
+    Returns:
+        Dict mapping cohort date strings ("YYYY-MM-DD") to
+        {"d7": float|None, "d30": float|None} where values are percentages.
+        Returns {} on any API error so the build never fails.
+    """
+    se = urllib.parse.quote(
+        json.dumps({"event_type": start_event}, separators=(",", ":")), safe=""
+    )
+    re_ = urllib.parse.quote(
+        json.dumps({"event_type": "_active"}, separators=(",", ":")), safe=""
+    )
+    # i=1 → daily cohorts; we request enough headroom for D30 data
+    url = (
+        f"https://amplitude.com/api/2/retention"
+        f"?se={se}&re={re_}&startdate={start}&enddate={end}&i=1&n=31&type=new"
+    )
+    print(f"    GET {url}")
+    req = urllib.request.Request(url, headers={"Authorization": auth_header})
+    try:
+        with urllib.request.urlopen(req, timeout=45) as resp:
+            body = json.loads(resp.read().decode())
+    except Exception as exc:
+        print(f"    WARNING: Retention API failed ({exc}); skipping D7/D30.")
+        return {}
+
+    data = body.get("data", {})
+    x_vals  = data.get("xValues", [])
+    series  = data.get("series", [])
+
+    result = {}
+    for i, x in enumerate(x_vals):
+        # Parse date — Amplitude may return "YYYY-MM-DD" or "YYYYMMDD"
+        try:
+            dt = datetime.strptime(x, "%Y-%m-%d")
+        except ValueError:
+            try:
+                dt = datetime.strptime(x, "%Y%m%d")
+            except ValueError:
+                continue
+        key = dt.strftime("%Y-%m-%d")
+        row = series[i] if i < len(series) else []
+        # series[i][n] = retention % n days after cohort start (index 0 = 100%)
+        result[key] = {
+            "d7":  round(row[7],  2) if len(row) > 7  and row[7]  is not None else None,
+            "d30": round(row[30], 2) if len(row) > 30 and row[30] is not None else None,
+        }
+    print(f"    Retention: {len(result)} cohort dates returned")
+    return result
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
@@ -153,7 +214,6 @@ def fetch_amplitude_data() -> dict:
         {d for series in raw.values() for d in series}
         - {this_monday_str}
     )
-    # Keep only dates strictly before this Monday
     all_dates = [d for d in all_dates if d < this_monday_str]
 
     if not all_dates:
@@ -162,32 +222,35 @@ def fetch_amplitude_data() -> dict:
     print(f"  Amplitude: {len(all_dates)} complete weeks "
           f"({all_dates[0]} -> {all_dates[-1]})")
 
-    # Build per-week free-to-paid conversion rate, stored as percentage number
-    # (e.g. 0.83 means 0.83%) to match the dashboard's toFixed(2)+'%' display
+    # Free-to-paid conversion rate per week (stored as %, e.g. 0.83 = 0.83%)
     cr = {}
     for d in all_dates:
         su = raw["signups"].get(d, 0)
         up = raw["upgrades"].get(d, 0)
         cr[d] = round((up / su) * 100, 4) if su > 0 else None
 
-    # lastDate = Sunday of the last complete week
-    last_monday_dt = datetime.strptime(all_dates[-1], "%Y-%m-%d").date()
-    last_date = (last_monday_dt + timedelta(days=6)).strftime("%Y-%m-%d")
-
-    # hasFullHistory: True only when data spans ≥54 weeks, meaning valid YoY
-    # comparisons exist for all range pills (8W–52W). When False the dashboard
-    # suppresses YoY % changes and shows "No prior data" instead.
-    first_monday_dt = datetime.strptime(all_dates[0], "%Y-%m-%d").date()
-    has_full_history = (today - first_monday_dt).days >= 54 * 7
-    print(f"  hasFullHistory={has_full_history} "
-          f"(first week: {all_dates[0]}, span: {(today - first_monday_dt).days} days)")
-
-    # Per-week activation rate = activations / signups (stored as %, e.g. 61.3)
+    # Activation rate per week (activated / signups, stored as %)
     act_rate = {}
     for d in all_dates:
         su = raw["signups"].get(d, 0)
         ac = raw["activations"].get(d, 0)
         act_rate[d] = round((ac / su) * 100, 4) if su > 0 else None
+
+    # D7 / D30 retention for signup cohorts
+    print("  Fetching Amplitude retention (D7/D30)...")
+    ret_end   = (today - timedelta(days=35)).strftime("%Y%m%d")
+    ret_start = (today - timedelta(days=56 + 31)).strftime("%Y%m%d")
+    retention = _fetch_retention("Sign Up Completed", ret_start, ret_end, auth)
+
+    # lastDate = Sunday of the last complete week
+    last_monday_dt = datetime.strptime(all_dates[-1], "%Y-%m-%d").date()
+    last_date = (last_monday_dt + timedelta(days=6)).strftime("%Y-%m-%d")
+
+    # hasFullHistory: True when data spans ≥54 weeks (valid YoY for all pills)
+    first_monday_dt = datetime.strptime(all_dates[0], "%Y-%m-%d").date()
+    has_full_history = (today - first_monday_dt).days >= 54 * 7
+    print(f"  hasFullHistory={has_full_history} "
+          f"(first week: {all_dates[0]}, span: {(today - first_monday_dt).days} days)")
 
     week_labels = [
         _fmt_label(
@@ -204,6 +267,7 @@ def fetch_amplitude_data() -> dict:
         "activations":    {d: raw["activations"].get(d, 0) for d in all_dates},
         "cr":             cr,
         "actRate":        act_rate,
+        "retention":      retention,
         "lastDate":       last_date,
         "hasFullHistory": has_full_history,
     }

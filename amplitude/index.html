@@ -134,6 +134,10 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 13V3M4 7l4-4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Free&#x2192;Paid
       </a></li>
+      <li><a href="#section-amp-retention">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 0 6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/><path d="M2 4v4h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        D7/D30 Retention
+      </a></li>
     </ul>
   </div>
 
@@ -246,6 +250,23 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       </div>
     </div>
 
+    <!-- D7 / D30 Retention -->
+    <div class="section" id="section-amp-retention">
+      <div class="section-header">
+        <h2 class="section-title">D7 / D30 Retention</h2>
+        <span class="section-subtitle">% of signup cohort that returned within 7 and 30 days — last 8 weekly cohorts with D30 data</span>
+      </div>
+      <div class="section-divider"></div>
+      <div class="kpi-row" style="margin-bottom:20px">
+        <div class="kpi"><div class="kpi-label">Latest D7 Retention</div><div class="kpi-value" id="kpi-d7">—</div><div class="kpi-delta" style="font-size:10.5px;color:var(--text-dim)">Returned within 7 days of signup</div></div>
+        <div class="kpi"><div class="kpi-label">Latest D30 Retention</div><div class="kpi-value" id="kpi-d30">—</div><div class="kpi-delta" style="font-size:10.5px;color:var(--text-dim)">Returned within 30 days of signup</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Signup Cohort Retention Table</div>
+        <div id="retention-table-wrap"></div>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /main -->
 
@@ -299,11 +320,52 @@ function setupNavHighlight() {
   sections.forEach(s=>_navObs.observe(s));
 }
 
+function updateRetention() {
+  const ret = AMP.retention || {};
+  const dates = Object.keys(ret).sort();
+  if (!dates.length) {
+    document.getElementById('kpi-d7').textContent = '—';
+    document.getElementById('kpi-d30').textContent = '—';
+    document.getElementById('retention-table-wrap').innerHTML =
+      '<p style="color:var(--text-dim);font-size:13px;padding:12px 0">No retention data available yet — requires the weekly rebuild to run with Amplitude API credentials.</p>';
+    return;
+  }
+
+  // Latest available D7 and D30 (most recent cohort with each value)
+  const latestD7  = [...dates].reverse().find(d => ret[d]?.d7  != null);
+  const latestD30 = [...dates].reverse().find(d => ret[d]?.d30 != null);
+  document.getElementById('kpi-d7').textContent  = latestD7  ? ret[latestD7].d7.toFixed(1)  + '%' : '—';
+  document.getElementById('kpi-d30').textContent = latestD30 ? ret[latestD30].d30.toFixed(1) + '%' : '—';
+
+  // Table: show last 8 weekly-ish cohorts (Mon-boundaries closest to each date)
+  const tableDates = dates.slice(-8);
+  const rows = tableDates.map(d => {
+    const r = ret[d] || {};
+    const dt = new Date(d + 'T00:00:00');
+    const label = dt.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    const d7Cell  = r.d7  != null ? `<span style="color:${r.d7>=20?'#6CC395':r.d7>=10?'#F5A623':'#F45F50'};font-weight:600">${r.d7.toFixed(1)}%</span>`  : '<span style="color:var(--text-dim)">—</span>';
+    const d30Cell = r.d30 != null ? `<span style="color:${r.d30>=15?'#6CC395':r.d30>=7?'#F5A623':'#F45F50'};font-weight:600">${r.d30.toFixed(1)}%</span>` : '<span style="color:var(--text-dim)">pending</span>';
+    return `<tr><td style="padding:8px 14px;font-size:13px;color:var(--text)">${label}</td><td style="padding:8px 14px;text-align:center">${d7Cell}</td><td style="padding:8px 14px;text-align:center">${d30Cell}</td></tr>`;
+  }).join('');
+
+  document.getElementById('retention-table-wrap').innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-family:var(--font-ui)">
+      <thead><tr style="border-bottom:2px solid var(--border)">
+        <th style="padding:8px 14px;text-align:left;font-size:11.5px;color:var(--text-dim);font-weight:600">Cohort Week</th>
+        <th style="padding:8px 14px;text-align:center;font-size:11.5px;color:var(--text-dim);font-weight:600">D7 Retention</th>
+        <th style="padding:8px 14px;text-align:center;font-size:11.5px;color:var(--text-dim);font-weight:600">D30 Retention</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <p style="font-size:11px;color:var(--text-dim);margin-top:10px">D7 = % who returned within 7 days · D30 = % who returned within 30 days · "pending" = cohort not yet old enough for D30 data · Colour: green ≥20%/15%, amber ≥10%/7%, red below</p>`;
+}
+
 function updateAll() {
   const _lbl = AMP.weekLabels.slice(Math.max(0, AMP.weeks.length - activeWeeks));
   if (_lbl.length) document.getElementById('dateRange').textContent = _lbl[0] + ' → ' + _lbl[_lbl.length-1];
   updateAmpKPIs();
   updateAmpCharts();
+  updateRetention();
 }
 
 function fmtNum(n) {
@@ -410,4 +472,30 @@ function updateAmpKPIs() {
   const cUp=s.curr.reduce((a,w)=>a+(AMP.upgrades[w]||0),0);
   const pUp=s.prev.reduce((a,w)=>a+(AMP.upgrades[w]||0),0);
   document.getElementById('kpi-amp-upgrades').textContent=fmtNum(cUp);
-  if(hasPrior){fmtDelta(cUp
+  if(hasPrior){fmtDelta(cUp,pUp,'kpi-amp-upgrades-delta');}else{showNoPrior('kpi-amp-upgrades-delta');}
+}
+
+function updateAmpCharts() {
+  const s=getAmpSlice(activeWeeks);
+  if(!s.curr.length)return;
+  const n=s.curr.length;
+
+  const suC=s.curr.map(w=>AMP.signups[w]||0);
+  const suP=padPrev(s.prev.map(w=>AMP.signups[w]||0),n);
+  updateChartData('chartAmpSignups',[makeLineDS('Current',suC,'#9062F0'),makeLineDS('Prior Year',suP,'#C9B0F7',true)],s.currLabels);
+
+  const acC=s.curr.map(w=>AMP.activations[w]||0);
+  const acP=padPrev(s.prev.map(w=>AMP.activations[w]||0),n);
+  updateChartData('chartAmpActivations',[makeLineDS('Current',acC,'#3D92E7'),makeLineDS('Prior Year',acP,'#BBD0E5',true)],s.currLabels);
+
+  const crC=s.curr.map(w=>AMP.cr[w]!=null?AMP.cr[w]:null);
+  const crP=padPrev(s.prev.map(w=>AMP.cr[w]!=null?AMP.cr[w]:null),n);
+  updateChartData('chartAmpCR',[makeLineDS('Current',crC,'#FCBC41'),makeLineDS('Prior Year',crP,'#FDDA87',true)],s.currLabels);
+
+  const upC=s.curr.map(w=>AMP.upgrades[w]||0);
+  const upP=padPrev(s.prev.map(w=>AMP.upgrades[w]||0),n);
+  updateChartData('chartAmpUpgrades',[makeLineDS('Current',upC,'#6CC395'),makeLineDS('Prior Year',upP,'#B3E0CA',true)],s.currLabels);
+}
+</script>
+</body>
+</html>
