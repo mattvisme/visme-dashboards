@@ -50,11 +50,13 @@ def _fetch_event(event_name: str, start: str, end: str, interval: int,
     Returns:
         Parsed JSON response dict
     """
-    e_param = urllib.parse.quote(json.dumps({"event_type": event_name}))
-    url = (
-        f"https://amplitude.com/api/2/events/segmentation"
-        f"?e={e_param}&start={start}&end={end}&i={interval}"
-    )
+    params = urllib.parse.urlencode({
+        "e":     json.dumps({"event_type": event_name}),
+        "start": start,
+        "end":   end,
+        "i":     interval,
+    })
+    url = f"https://amplitude.com/api/2/events/segmentation?{params}"
     req = urllib.request.Request(url, headers={"Authorization": auth_header})
     with urllib.request.urlopen(req, timeout=30) as resp:
         body = json.loads(resp.read().decode())
@@ -143,12 +145,13 @@ def fetch_amplitude_data(start_date: str = "20240101") -> dict:
     print(f"  Amplitude: {len(all_dates)} complete weeks "
           f"({all_dates[0]} -> {all_dates[-1]})")
 
-    # Build per-week CR
+    # Build per-week free-to-paid conversion rate, stored as percentage number
+    # (e.g. 0.83 means 0.83%) to match the dashboard's toFixed(2)+'%' display
     cr = {}
     for d in all_dates:
         su = raw["signups"].get(d, 0)
         up = raw["upgrades"].get(d, 0)
-        cr[d] = round(up / su, 6) if su > 0 else None
+        cr[d] = round((up / su) * 100, 4) if su > 0 else None
 
     # lastDate = Sunday of the last complete week
     last_monday_dt = datetime.strptime(all_dates[-1], "%Y-%m-%d").date()
