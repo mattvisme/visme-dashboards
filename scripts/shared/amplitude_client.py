@@ -50,13 +50,13 @@ def _fetch_event(event_name: str, start: str, end: str, interval: int,
     Returns:
         Parsed JSON response dict
     """
-    params = urllib.parse.urlencode({
-        "e":     json.dumps({"event_type": event_name}),
-        "start": start,
-        "end":   end,
-        "i":     interval,
-    })
-    url = f"https://amplitude.com/api/2/events/segmentation?{params}"
+    # Match JS: JSON.stringify (no spaces) + encodeURIComponent (%20, not +)
+    e_json  = json.dumps({"event_type": event_name}, separators=(",", ":"))
+    e_param = urllib.parse.quote(e_json, safe="")
+    url = (
+        f"https://amplitude.com/api/2/events/segmentation"
+        f"?e={e_param}&start={start}&end={end}&i={interval}"
+    )
     req = urllib.request.Request(url, headers={"Authorization": auth_header})
     with urllib.request.urlopen(req, timeout=30) as resp:
         body = json.loads(resp.read().decode())
