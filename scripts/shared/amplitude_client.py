@@ -257,12 +257,6 @@ def fetch_amplitude_data() -> dict:
         ac = raw["activations"].get(d, 0)
         act_rate[d] = round((ac / su) * 100, 4) if su > 0 else None
 
-    # D7 / D30 retention for signup cohorts
-    print("  Fetching Amplitude retention (D7/D30)...")
-    ret_end   = (today - timedelta(days=35)).strftime("%Y%m%d")
-    ret_start = (today - timedelta(days=56 + 31)).strftime("%Y%m%d")
-    retention = _fetch_retention("Sign Up Completed", ret_start, ret_end, auth)
-
     # lastDate = Sunday of the last complete week
     last_monday_dt = datetime.strptime(all_dates[-1], "%Y-%m-%d").date()
     last_date = (last_monday_dt + timedelta(days=6)).strftime("%Y-%m-%d")
@@ -288,7 +282,6 @@ def fetch_amplitude_data() -> dict:
         "activations":    {d: raw["activations"].get(d, 0) for d in all_dates},
         "cr":             cr,
         "actRate":        act_rate,
-        "retention":      retention,
         "lastDate":       last_date,
         "hasFullHistory": has_full_history,
     }
