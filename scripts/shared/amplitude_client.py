@@ -105,9 +105,11 @@ def _fetch_retention(start_event: str, start: str, end: str,
         json.dumps({"event_type": "Project Created"}, separators=(",", ":")), safe=""
     )
     # i=1 → daily cohorts; n=32 gives headroom for D30 data.
+    # type=n-day: N-Day retention (user returned on or after day N).
+    # type is required — omitting it causes 400 "Invalid chart definition".
     url = (
         f"https://amplitude.com/api/2/retention"
-        f"?se={se}&re={re_}&startdate={start}&enddate={end}&i=1&n=32"
+        f"?se={se}&re={re_}&startdate={start}&enddate={end}&i=1&n=32&type=n-day"
     )
     print(f"    Retention URL: {url}")
     req = urllib.request.Request(url, headers={"Authorization": auth_header})
