@@ -301,7 +301,6 @@ function updateExecSummary() {
     {metric:'Website Traffic (Sessions)',source:'GA4',curr:sumGA4('sessions'),prev:sumGA4P('sessions'),fmt:fmtNum},
     {metric:'New Signups (PLG)',source:'Amplitude',curr:sumAmp('signups'),prev:sumAmpP('signups'),fmt:fmtNum},
     {metric:'New Leads',source:'HubSpot',curr:sumHS('leads'),prev:sumHSP('leads'),fmt:fmtNum},
-    {metric:'MQL',source:'HubSpot',curr:sumHS('mqls'),prev:sumHSP('mqls'),fmt:fmtNum},
     {metric:'Deals Created',source:'HubSpot',curr:sumHS('deals'),prev:sumHSP('deals'),fmt:fmtNum},
     {metric:'Pipeline Created',source:'HubSpot',curr:sumHS('pipeline'),prev:sumHSP('pipeline'),fmt:fmtUSD},
     {metric:'Closed Won Revenue',source:'HubSpot',curr:sumHS('revenue'),prev:sumHSP('revenue'),fmt:fmtUSD},
@@ -344,13 +343,11 @@ function updateFullFunnel() {
   const sessions=s.curr.reduce((a,w)=>a+(GA4.sessions[w]||0),0);
   const signups=sAmp?sAmp.curr.reduce((a,w)=>a+(AMP.signups[w]||0),0):null;
   const leads=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.leads||0),0):null;
-  const mqls=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.mqls||0),0):null;
   const deals=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.deals||0),0):null;
   const customers=sHS?sHS.curr.reduce((a,w)=>a+(HS.summary[w]?.closedWonCount||0),0):null;
   const pSessions=s.prev.reduce((a,w)=>a+(GA4.sessions[w]||0),0);
   const pSignups=sAmp?sAmp.prev.reduce((a,w)=>a+(AMP.signups[w]||0),0):null;
   const pLeads=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.leads||0),0):null;
-  const pMqls=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.mqls||0),0):null;
   const pDeals=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.deals||0),0):null;
   const pCustomers=sHS?sHS.prev.reduce((a,w)=>a+(HS.summary[w]?.closedWonCount||0),0):null;
   function rate(num,den){return(num!=null&&den>0)?num/den*100:null;}
@@ -363,8 +360,7 @@ function updateFullFunnel() {
   const steps=[
     {label:'Visitor → Signup',curr:rate(signups,sessions),prev:rate(pSignups,pSessions),volCurr:signups,volPrev:pSignups},
     {label:'Signup → Lead',curr:rate(leads,signups),prev:rate(pLeads,pSignups),volCurr:leads,volPrev:pLeads},
-    {label:'Lead → MQL',curr:rate(mqls,leads),prev:rate(pMqls,pLeads),volCurr:mqls,volPrev:pMqls},
-    {label:'MQL → Deal',curr:rate(deals,mqls),prev:rate(pDeals,pMqls),volCurr:deals,volPrev:pDeals},
+    {label:'Lead → Deal',curr:rate(deals,leads),prev:rate(pDeals,pLeads),volCurr:deals,volPrev:pDeals},
     {label:'Deal → Customer',curr:rate(customers,deals),prev:rate(pCustomers,pDeals),volCurr:customers,volPrev:pCustomers},
   ];
   let html=`<table style="width:100%;border-collapse:collapse;font-family:var(--font-ui)"><thead><tr style="border-bottom:2px solid var(--border)">
@@ -387,7 +383,7 @@ function updateFullFunnel() {
   });
   html+='</tbody></table>';
   document.getElementById('funnel-table-wrap').innerHTML=html;
-  const chartSteps=[{label:'Sessions',val:sessions},{label:'Signups',val:signups},{label:'Leads',val:leads},{label:'MQLs',val:mqls},{label:'Deals',val:deals}].filter(s=>s.val!=null&&s.val>0);
+  const chartSteps=[{label:'Sessions',val:sessions},{label:'Signups',val:signups},{label:'Leads',val:leads},{label:'Deals',val:deals}].filter(s=>s.val!=null&&s.val>0);
   const FUNNEL_COLORS=['#3CACD7','#9062F0','#FF7A59','#F5A623','#6CC395'];
   updateChartData('chartFullFunnel',[{data:chartSteps.map(s=>s.val),backgroundColor:chartSteps.map((_,i)=>FUNNEL_COLORS[i]+'CC'),borderColor:chartSteps.map((_,i)=>FUNNEL_COLORS[i]),borderWidth:1,borderRadius:4}],chartSteps.map(s=>s.label));
 }

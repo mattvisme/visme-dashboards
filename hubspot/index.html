@@ -171,7 +171,6 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       <div class="section-divider"></div>
       <div class="kpi-row">
         <div class="kpi"><div class="kpi-label">New Leads</div><div class="kpi-value" id="kpi-hs-leads">&mdash;</div><div class="kpi-delta" id="kpi-hs-leads-delta"></div></div>
-        <div class="kpi"><div class="kpi-label">MQLs</div><div class="kpi-value" id="kpi-hs-mqls">&mdash;</div><div class="kpi-delta" id="kpi-hs-mqls-delta"></div></div>
         <div class="kpi"><div class="kpi-label">Deals Created</div><div class="kpi-value" id="kpi-hs-deals">&mdash;</div><div class="kpi-delta" id="kpi-hs-deals-delta"></div></div>
         <div class="kpi"><div class="kpi-label">Pipeline Created</div><div class="kpi-value" id="kpi-hs-pipeline">&mdash;</div><div class="kpi-delta" id="kpi-hs-pipeline-delta"></div></div>
         <div class="kpi"><div class="kpi-label">Closed Won</div><div class="kpi-value" id="kpi-hs-revenue">&mdash;</div><div class="kpi-delta" id="kpi-hs-revenue-delta"></div></div>
@@ -181,11 +180,6 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
           <div class="chart-title">Weekly New Leads</div>
           <div class="chart-wrap"><canvas id="chartHSLeads"></canvas></div>
           <div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#FF7A59"></div> Current Period</div><div class="legend-item"><div class="legend-dot" style="background:#FFB8A3;opacity:.8"></div><span style="opacity:.7">Prior Year (dashed)</span></div></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">Weekly MQLs</div>
-          <div class="chart-wrap"><canvas id="chartHSMQLs"></canvas></div>
-          <div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#F5A623"></div> Current Period</div><div class="legend-item"><div class="legend-dot" style="background:#FAD58C;opacity:.8"></div><span style="opacity:.7">Prior Year (dashed)</span></div></div>
         </div>
       </div>
       <div class="chart-row">
@@ -221,20 +215,10 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
     <div class="section" id="section-hs-funnel">
       <div class="section-header">
         <h2 class="section-title">HubSpot &middot; Conversion Funnel</h2>
-        <span class="section-subtitle">Weekly conversion rates — current period vs. same period prior year</span>
+        <span class="section-subtitle">Weekly deal-to-customer conversion rate — current period vs. same period prior year</span>
       </div>
       <div class="section-divider"></div>
       <div class="chart-row">
-        <div class="chart-card">
-          <div class="chart-title">Lead &#x2192; MQL Rate</div>
-          <div class="chart-wrap"><canvas id="chartHSFunnel1"></canvas></div>
-          <div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#FF7A59"></div> Current</div><div class="legend-item"><div class="legend-dot" style="background:#FFB8A3;opacity:.8"></div><span style="opacity:.7">Prior Year</span></div></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-title">MQL &#x2192; Deal Rate</div>
-          <div class="chart-wrap"><canvas id="chartHSFunnel2"></canvas></div>
-          <div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:#F5A623"></div> Current</div><div class="legend-item"><div class="legend-dot" style="background:#FAD58C;opacity:.8"></div><span style="opacity:.7">Prior Year</span></div></div>
-        </div>
         <div class="chart-card">
           <div class="chart-title">Deal &#x2192; Customer Rate</div>
           <div class="chart-wrap"><canvas id="chartHSFunnel3"></canvas></div>
@@ -368,12 +352,9 @@ function updateChartData(id,datasets,labels){
 
 function buildAllCharts() {
   initChart('chartHSLeads','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}}});
-  initChart('chartHSMQLs','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}}});
   initChart('chartHSDeals','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}}});
   initChart('chartHSPipeline','bar',{labels:[],datasets:[]},{plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>fmtUSD(v)}}}});
   initChart('chartHSRevenue','bar',{labels:[],datasets:[]},{plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>fmtUSD(v)}}}});
-  initChart('chartHSFunnel1','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>v.toFixed(2)+'%'}}}});
-  initChart('chartHSFunnel2','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>v.toFixed(2)+'%'}}}});
   initChart('chartHSFunnel3','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>v.toFixed(2)+'%'}}}});
   updateAll();
 }
@@ -382,17 +363,14 @@ function updateHSKPIs() {
   const s = getHSSlice(activeWeeks);
   function sumField(weeks,field){return weeks.reduce((a,w)=>a+(HS.summary[w]?.[field]||0),0);}
   const cLeads=sumField(s.curr,'leads');const pLeads=sumField(s.prev,'leads');
-  const cMQLs=sumField(s.curr,'mqls');const pMQLs=sumField(s.prev,'mqls');
   const cDeals=sumField(s.curr,'deals');const pDeals=sumField(s.prev,'deals');
   const cPipe=sumField(s.curr,'pipeline');const pPipe=sumField(s.prev,'pipeline');
   const cRev=sumField(s.curr,'revenue');const pRev=sumField(s.prev,'revenue');
   document.getElementById('kpi-hs-leads').textContent=fmtNum(cLeads);
-  document.getElementById('kpi-hs-mqls').textContent=fmtNum(cMQLs);
   document.getElementById('kpi-hs-deals').textContent=fmtNum(cDeals);
   document.getElementById('kpi-hs-pipeline').textContent=fmtUSD(cPipe);
   document.getElementById('kpi-hs-revenue').textContent=fmtUSD(cRev);
   fmtDelta(cLeads,pLeads,'kpi-hs-leads-delta');
-  fmtDelta(cMQLs,pMQLs,'kpi-hs-mqls-delta');
   fmtDelta(cDeals,pDeals,'kpi-hs-deals-delta');
   fmtDelta(cPipe,pPipe,'kpi-hs-pipeline-delta');
   fmtDelta(cRev,pRev,'kpi-hs-revenue-delta');
@@ -404,19 +382,15 @@ function updateHSCharts() {
   function currArr(field){return s.curr.map(w=>HS.summary[w]?.[field]||0);}
   function prevArr(field){return padHSPrev(s.prev.map(w=>HS.summary[w]?.[field]||0),n);}
   updateChartData('chartHSLeads',[makeLineDS('Current',currArr('leads'),'#FF7A59'),makeLineDS('Prior Year',prevArr('leads'),'#FFB8A3',true)],s.currLabels);
-  updateChartData('chartHSMQLs',[makeLineDS('Current',currArr('mqls'),'#F5A623'),makeLineDS('Prior Year',prevArr('mqls'),'#FAD58C',true)],s.currLabels);
   updateChartData('chartHSDeals',[makeLineDS('Current',currArr('deals'),'#3D92E7'),makeLineDS('Prior Year',prevArr('deals'),'#BBD0E5',true)],s.currLabels);
   updateChartData('chartHSPipeline',[makeBarDS('Current',currArr('pipeline'),'#6CC395'),makeBarDS('Prior Year',prevArr('pipeline'),'#B3E0CA')],s.currLabels);
   updateChartData('chartHSRevenue',[makeBarDS('Current',currArr('revenue'),'#9062F0'),makeBarDS('Prior Year',prevArr('revenue'),'#C9B0F7')],s.currLabels);
   function rate(num,den){return num.map((v,i)=>den[i]>0?parseFloat((v/den[i]*100).toFixed(3)):null);}
-  const cL=currArr('leads');const cM=currArr('mqls');const cD=currArr('deals');
+  const cL=currArr('leads');const cD=currArr('deals');
   const pL=s.prev.map(w=>HS.summary[w]?.leads||0);
-  const pM=s.prev.map(w=>HS.summary[w]?.mqls||0);
   const pD=s.prev.map(w=>HS.summary[w]?.deals||0);
   const pR=s.prev.map(w=>HS.summary[w]?.revenue||0);
   const cR=currArr('revenue');
-  updateChartData('chartHSFunnel1',[makeLineDS('Current',rate(cM,cL),'#FF7A59'),makeLineDS('Prior Year',padHSPrev(rate(pM,pL),n),'#FFB8A3',true)],s.currLabels);
-  updateChartData('chartHSFunnel2',[makeLineDS('Current',rate(cD,cM),'#F5A623'),makeLineDS('Prior Year',padHSPrev(rate(pD,pM),n),'#FAD58C',true)],s.currLabels);
   updateChartData('chartHSFunnel3',[makeLineDS('Current',rate(cR,cD),'#6CC395'),makeLineDS('Prior Year',padHSPrev(rate(pR,pD),n),'#B3E0CA',true)],s.currLabels);
 }
 function updateHSChannelTable() {
