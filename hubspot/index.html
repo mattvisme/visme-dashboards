@@ -415,4 +415,12 @@ function updateHSChannelTable() {
   rows.forEach((r,idx)=>{
     const bg=idx%2===0?'':'background:var(--surface2)';
     html+=`<tr style="${bg}"><td style="padding:8px 12px;font-size:12.5px;font-weight:600;color:var(--text)">${r.ch}</td>`;
-    HS_COL_KEYS.forEach((k,i)=>{const cv=r.curr[k];const pv=r.prev[k];const pct=chg(cv,pv);html+=`<td style="text-align:right;padding:8px 12px;font-size:12.5px"><div style="font-weight:600;color:var(--text)">${fmt(cv,isDollar[i])}</div><div style="font-size:10.5px
+    HS_COL_KEYS.forEach((k,i)=>{const cv=r.curr[k];const pv=r.prev[k];const pct=chg(cv,pv);html+=`<td style="text-align:right;padding:8px 12px;font-size:12.5px"><div style="font-weight:600;color:var(--text)">${fmt(cv,isDollar[i])}</div><div style="font-size:10.5px;margin-top:2px">${arrow(pct)}</div></td>`;});
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  document.getElementById('hs-channel-table-wrap').innerHTML=html;
+}
+</script>
+</body>
+</html>
