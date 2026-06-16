@@ -53,8 +53,8 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .topbar-title span{color:var(--accent)}
 .topbar-sub{font-size:11px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;}
 .as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
-#content{padding:32px;display:flex;flex-direction:column;gap:40px;max-width:1400px;width:100%;}
-.section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;scroll-margin-top:calc(var(--topbar-h) + 16px);}
+#content{padding:32px;display:flex;flex-direction:column;gap:20px;max-width:1400px;width:100%;}
+.section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;scroll-margin-top:var(--topbar-h);}
 .section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}
 .section-header{display:flex;align-items:baseline;gap:12px;}
 .section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
@@ -587,7 +587,6 @@ function buildSnapshot() {
     },
   };
 
-  console.log('[snapshot] dataMax:', maxVal, 'suggestedMax:', Math.ceil(maxVal * 1.05 / 10000) * 10000);
   initChart('chartSnapshot', 'bar',
     { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 4, barThickness: 28 }] },
     {
@@ -602,7 +601,7 @@ function buildSnapshot() {
         snapshotOverlay: snapshotPlugin,
       }),
       scales: {
-        x: { suggestedMax: Math.ceil(maxVal * 1.05 / 10000) * 10000, grid:{color:'#E7EFF3'}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtN(v)}, border:{display:false} },
+        x: { max: Math.ceil(maxVal / 20000) * 20000, grid:{color:'#E7EFF3'}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtN(v)}, border:{display:false} },
         y: { grid:{display:false}, ticks:{color:'#293745',font:{family:'Lato',size:12,weight:'600'}}, border:{display:false} },
       },
     },
@@ -636,7 +635,7 @@ function toggleGroup(id) {
 // ── NAV LINK SCROLL ───────────────────────────────────────────────────────────
 function initNavScroll() {
   const topbarH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 72;
-  const OFFSET = topbarH + 16;
+  const OFFSET = topbarH + 4;
   document.querySelectorAll('.source-nav a[href^="#"]').forEach(link => {
     link.addEventListener('click', function(e) {
       const target = document.getElementById(this.getAttribute('href').slice(1));
