@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<link rel="icon" type="image/png" href="https://www.visme.co/favicon-32x32.png"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Website Traffic — Channel &amp; Country — Visme Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F8FAFB;--surface:#FFFFFF;--surface2:#EFF6FC;--sidebar:#1E2A35;
+  --sidebar-accent:#273542;--text:#293745;--text-muted:#7F859D;--text-dim:#A8B2C0;
+  --accent:#3CACD7;--accent2:#3D92E7;--accent3:#6CC395;--accent-pale:#EFF6FC;
+  --border:#BBD0E5;--border-light:#E7EFF3;--sidebar-w:232px;--topbar-h:72px;
+  --radius:10px;--radius-sm:6px;
+  --shadow:0 1px 3px rgba(41,55,69,.07),0 4px 16px rgba(41,55,69,.05);
+  --shadow-md:0 4px 12px rgba(41,55,69,.1),0 12px 40px rgba(41,55,69,.07);
+  --font-ui:'Lato',sans-serif;--font-display:'Montserrat',sans-serif;
+}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--sidebar);display:flex;flex-direction:column;z-index:100;overflow-y:auto;scrollbar-width:none;}
+#sidebar::-webkit-scrollbar{display:none}
+.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+.sidebar-logo-mark{display:flex;align-items:center;gap:9px;}
+.logo-text{font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;}
+.logo-sub{font-size:9.5px;color:rgba(255,255,255,.3);margin-top:1px;letter-spacing:.4px;text-transform:uppercase;font-weight:400;}
+.source-group{margin-top:6px;}
+.source-header{display:flex;align-items:center;gap:7px;padding:8px 14px 4px;cursor:pointer;user-select:none;}
+.source-header:hover .source-label{color:rgba(255,255,255,.7)}
+.source-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.source-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;flex:1;transition:color .15s;}
+.source-toggle{width:10px;height:10px;color:rgba(255,255,255,.2);transition:transform .2s ease;flex-shrink:0;}
+.source-group.collapsed .source-toggle{transform:rotate(-90deg)}
+.source-group.collapsed .source-nav{display:none}
+.source-nav{list-style:none;padding:0 8px 4px;}
+.source-nav li a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.5);transition:all .12s ease;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.source-nav li a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);}
+.source-nav li a.active{background:rgba(60,172,215,.14);color:#3CACD7;font-weight:600;}
+.nav-icon{width:14px;height:14px;opacity:.65;flex-shrink:0;}
+.source-nav li a.active .nav-icon{opacity:1}
+.source-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 14px;}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;}
+.back-link{display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:6px;text-decoration:none;font-size:11.5px;color:rgba(255,255,255,.35);transition:all .12s;margin:8px 8px 0;}
+.back-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.65);}
+#main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
+#topbar{position:sticky;top:0;z-index:50;height:var(--topbar-h);background:rgba(248,250,251,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:24px;}
+.topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;flex-shrink:0;margin-right:auto;}
+.topbar-title span{color:var(--accent)}
+.topbar-sub{font-size:11px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;}
+.as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+#content{padding:32px;display:flex;flex-direction:column;gap:40px;max-width:1400px;width:100%;}
+.section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;}
+.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}
+.section-header{display:flex;align-items:baseline;gap:12px;}
+.section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
+.section-subtitle{font-size:12px;color:var(--text-dim);font-weight:400;}
+.section-divider{height:1px;background:var(--border-light);margin-bottom:2px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:box-shadow .2s ease;}
+.card:hover{box-shadow:var(--shadow-md)}
+.card-title{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:16px;}
+.chart-wrap{position:relative;height:280px;}
+.chart-wrap-sm{position:relative;height:220px;}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s;}
+tbody tr:last-child{border-bottom:none}tbody tr:hover{background:var(--surface2)}
+tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
+.num-cell{text-align:right;font-variant-numeric:tabular-nums}
+.wow-pos{color:#3CACD7;font-weight:700}
+.wow-neg{color:#F45F50;font-weight:700}
+.wow-neu{color:var(--text-dim);font-weight:500}
+.country-charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+@media(max-width:900px){.country-charts-grid{grid-template-columns:1fr}}
+.callout{background:#F5F9FF;border:1px solid #BBD0E5;border-left:4px solid var(--accent);border-radius:var(--radius-sm);padding:14px 18px;font-size:13px;color:var(--text-muted);line-height:1.6;}
+.stat-chip{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;border:1px solid;}
+.stat-chip-ok{background:#F0FBF6;color:#2E8B57;border-color:#B3E0CA;}
+.stat-chip-warn{background:#FFFBF0;color:#B07020;border-color:#F5D890;}
+.error-card{background:#FFF5F5;border:1px solid #FFBBBB;border-radius:var(--radius);padding:20px 24px;color:#C0392B;font-size:13px;}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#loading{position:fixed;inset:0;background:var(--sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;opacity:1;transition:opacity .5s ease;}
+#loading.hide{opacity:0;pointer-events:none}
+.loading-logo{font-family:var(--font-display);font-size:28px;font-weight:700;color:#fff;margin-bottom:24px;letter-spacing:-.5px;}
+.loading-logo span{color:var(--accent)}
+.loading-bar-track{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;}
+.loading-bar-fill{height:100%;background:var(--accent);border-radius:2px;animation:loadbar 1.2s ease-in-out forwards;}
+@keyframes loadbar{from{width:0}to{width:100%}}
+.loading-text{margin-top:14px;font-size:12px;color:rgba(255,255,255,.3);letter-spacing:.5px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-logo">Visme <span>Analytics</span></div>
+  <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+  <div class="loading-text">Loading traffic data…</div>
+</div>
+
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <a href="https://visme-dashboards.vercel.app/" style="text-decoration:none;display:block">
+      <div class="sidebar-logo-mark">
+        <img src="https://www.visme.co/favicon-32x32.png" alt="Visme" style="width:28px;height:28px;border-radius:7px;display:block;flex-shrink:0;">
+        <div>
+          <div class="logo-text">Visme</div>
+          <div class="logo-sub">Marketing Analytics</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="source-group" id="grp-website">
+    <div class="source-header" onclick="toggleGroup('grp-website')">
+      <div class="source-dot" style="background:#3CACD7"></div>
+      <span class="source-label">Website Traffic</span>
+      <svg class="source-toggle" viewBox="0 0 10 10" fill="none"><polyline points="2,3 5,7 8,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <ul class="source-nav">
+      <li><a href="#section-channels" class="active">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><polyline points="1,12 4,7 7,10 11,4 15,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        Channel Breakdown
+      </a></li>
+      <li><a href="#section-country">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 1.5C8 1.5 5 5 5 8s3 6.5 3 6.5S11 11 11 8 8 1.5 8 1.5z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M1.5 8h13" stroke="currentColor" stroke-width="1.2"/></svg>
+        Country by Channel
+      </a></li>
+      <li><a href="#section-snapshot">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="9" width="4" height="6" rx="1" fill="currentColor" opacity=".6"/><rect x="6" y="5" width="4" height="10" rx="1" fill="currentColor" opacity=".8"/><rect x="11" y="1" width="4" height="14" rx="1" fill="currentColor"/></svg>
+        Latest Week Snapshot
+      </a></li>
+      <li><a href="#section-quality">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Quality Checks
+      </a></li>
+    </ul>
+  </div>
+
+  <div class="source-divider"></div>
+
+  <div style="padding:4px 8px;">
+    <a href="../ga4/index.html" class="back-link">
+      <svg style="width:12px;height:12px;opacity:.5" viewBox="0 0 16 16" fill="none"><polyline points="1,12 5,7 8,10 12,4 15,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+      GA4 Traffic &amp; Engagement
+    </a>
+    <a href="../index.html" class="back-link">
+      <svg style="width:12px;height:12px;opacity:.5" viewBox="0 0 16 16" fill="none"><path d="M2 8L8 2L14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      All Dashboards
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    GA4 · Property 368188880<br/>
+    Rolling 13 complete weeks
+  </div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-title">Website Traffic — <span>Channel &amp; Country</span></div>
+    <div class="topbar-sub">Rolling 13 weeks · Week over week · Session default channel grouping · GA4 property 368188880</div>
+    <div class="as-of-badge" id="asOfBadge">Data as of —</div>
+  </div>
+
+  <div id="content">
+
+    <!-- ── VIEW 1: CHANNEL BREAKDOWN ──────────────────────────── -->
+    <div class="section" id="section-channels">
+      <div class="section-header">
+        <h2 class="section-title">Channel Breakdown</h2>
+        <span class="section-subtitle">Sessions per channel — trailing 13 complete weeks</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="card-title">Weekly Sessions by Channel</div>
+        <div class="chart-wrap"><canvas id="chartChannels"></canvas></div>
+        <div class="chart-legend" id="legendChannels"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Channel Summary — Last 2 Weeks</div>
+        <div class="tbl-wrap">
+          <table id="tblChannels">
+            <thead><tr>
+              <th>Channel</th>
+              <th class="num-cell">This Week</th>
+              <th class="num-cell">Last Week</th>
+              <th class="num-cell">WoW Change</th>
+              <th class="num-cell">New Users</th>
+              <th class="num-cell">Engagement Rate</th>
+            </tr></thead>
+            <tbody id="tbodyChannels"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIEW 2: COUNTRY BY CHANNEL ─────────────────────────── -->
+    <div class="section" id="section-country">
+      <div class="section-header">
+        <h2 class="section-title">Country by Channel</h2>
+        <span class="section-subtitle">8 tracked countries within each primary channel</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="country-charts-grid" id="countryChartsGrid">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="card">
+        <div class="card-title">Country × Channel — Latest 2 Weeks</div>
+        <div class="tbl-wrap">
+          <table id="tblCountry">
+            <thead><tr>
+              <th>Country</th>
+              <th>Channel</th>
+              <th class="num-cell">This Week</th>
+              <th class="num-cell">Last Week</th>
+              <th class="num-cell">WoW Change</th>
+            </tr></thead>
+            <tbody id="tbodyCountry"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── VIEW 3: LATEST WEEK SNAPSHOT ───────────────────────── -->
+    <div class="section" id="section-snapshot">
+      <div class="section-header">
+        <h2 class="section-title">Latest Week Snapshot</h2>
+        <span class="section-subtitle">All channels — most recent complete week with WoW change</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="card-title">Sessions by Channel — Most Recent Week</div>
+        <div style="position:relative;height:360px;"><canvas id="chartSnapshot"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── VIEW 4: QUALITY CHECKS ──────────────────────────────── -->
+    <div class="section" id="section-quality">
+      <div class="section-header">
+        <h2 class="section-title">Quality Checks</h2>
+        <span class="section-subtitle">Unassigned channel trend and (not set) session count</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="card-title">Unassigned Sessions / Week</div>
+        <div class="chart-wrap-sm"><canvas id="chartUnassigned"></canvas></div>
+      </div>
+
+      <div class="callout" id="calloutQuality">
+        If Unassigned grows while named channels decline, part of the apparent decline may be a
+        tracking or tagging gap rather than lost traffic. Monitor this line alongside View 1.
+        A new affiliate or campaign link without UTM parameters will land here.
+      </div>
+
+      <div id="notSetStat"></div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- DATA_INJECTION_POINT -->
+
+<script>
+// ── DEV MOCK (sessionStorage only, ignored in production) ────────────────────
+if (typeof TRAFFIC === 'undefined') {
+  const _mock = sessionStorage.getItem('TRAFFIC_MOCK');
+  if (_mock) { try { window.TRAFFIC = JSON.parse(_mock); } catch(e) {} }
+}
+
+// ── SAFETY CHECK ──────────────────────────────────────────────────────────────
+if (typeof TRAFFIC === 'undefined') {
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('content').innerHTML =
+    '<div class="error-card">⚠️ Dashboard data is missing. Run <code>python scripts/build_website.py</code> to inject data.</div>';
+  throw new Error('TRAFFIC data not injected');
+}
+
+// ── PALETTE ───────────────────────────────────────────────────────────────────
+const PALETTE = [
+  '#3CACD7','#F4704A','#6CC395','#9062F0','#F5C842',
+  '#E05C90','#3D92E7','#A0C840','#FF8C42','#5BC8D0',
+  '#B07AE0','#7DB8E0','#E8A050','#60B880','#D0607A',
+];
+
+const COUNTRY_PALETTE = {
+  'United States':'#3CACD7','Canada':'#6CC395','United Kingdom':'#F4704A',
+  'France':'#9062F0','Mexico':'#F5C842','Spain':'#E05C90',
+  'India':'#3D92E7','Australia':'#FF8C42',
+};
+
+// ── CHART DEFAULTS ────────────────────────────────────────────────────────────
+const CHART_DEFAULTS = {
+  responsive: true, maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: '#1E2A35',
+      titleColor: 'rgba(255,255,255,.9)',
+      bodyColor: 'rgba(255,255,255,.7)',
+      padding: 12, cornerRadius: 8,
+      titleFont: { family:'Lato', size:12, weight:'700' },
+      bodyFont: { family:'Lato', size:11.5 },
+    }
+  },
+  scales: {
+    x: { grid:{display:false}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},maxRotation:45,autoSkipPadding:12}, border:{display:false} },
+    y: { grid:{color:'#E7EFF3',lineWidth:1}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtN(v)}, border:{display:false} },
+  },
+};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function fmtN(v) {
+  if (v >= 1000000) return (v/1000000).toFixed(1)+'M';
+  if (v >= 1000)    return (v/1000).toFixed(1)+'K';
+  return v.toLocaleString();
+}
+function fmtPct(curr, prev) {
+  if (!prev) return null;
+  return ((curr - prev) / prev * 100);
+}
+function wowCell(curr, prev) {
+  const pct = fmtPct(curr, prev);
+  if (pct === null) return '<td class="num-cell wow-neu">—</td>';
+  const sign = pct >= 0 ? '+' : '';
+  const abs  = Math.abs(pct);
+  const cls  = abs <= 2 ? 'wow-neu' : pct > 0 ? 'wow-pos' : 'wow-neg';
+  return `<td class="num-cell ${cls}">${sign}${pct.toFixed(1)}%</td>`;
+}
+function makeLineDS(label, data, color) {
+  return {
+    label, data,
+    borderColor: color,
+    backgroundColor: color + '18',
+    borderWidth: 2,
+    pointRadius: data.length > 20 ? 0 : 3,
+    pointHoverRadius: 5,
+    pointBackgroundColor: color,
+    fill: false,
+    tension: 0.35,
+  };
+}
+
+const charts = {};
+function initChart(id, type, data, extraOpts) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(ctx, {
+    type,
+    data,
+    options: Object.assign({}, CHART_DEFAULTS, extraOpts || {}),
+  });
+}
+
+// ── VIEW 1: CHANNEL BREAKDOWN ─────────────────────────────────────────────────
+function buildChannelChart() {
+  const labels   = TRAFFIC.weekLabels;
+  const channels = TRAFFIC.allChannels;
+  const datasets = channels.map((ch, i) =>
+    makeLineDS(ch, TRAFFIC.channelWeekly[ch] || [], PALETTE[i % PALETTE.length])
+  );
+  initChart('chartChannels', 'line', { labels, datasets }, {
+    plugins: Object.assign({}, CHART_DEFAULTS.plugins, {
+      legend: { display: true, labels: { color:'#7F859D', font:{family:'Lato',size:11}, boxWidth:10, padding:14 } },
+    }),
+  });
+  // legend swatches (custom, below chart)
+  const leg = document.getElementById('legendChannels');
+  leg.innerHTML = channels.map((ch, i) =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${PALETTE[i%PALETTE.length]}"></div>${ch}</div>`
+  ).join('');
+}
+
+function buildChannelTable() {
+  const weeks = TRAFFIC.weeks;
+  const n     = weeks.length;
+  if (n < 1) return;
+  const thisW = weeks[n - 1];
+  const prevW = n >= 2 ? weeks[n - 2] : null;
+
+  const rows = TRAFFIC.allChannels.map((ch, i) => {
+    const thisS = (TRAFFIC.channelWeekly[ch] || [])[n - 1] || 0;
+    const prevS = prevW ? ((TRAFFIC.channelWeekly[ch] || [])[n - 2] || 0) : 0;
+    const nu    = (TRAFFIC.newUsersByChannel[ch] || [])[n - 1] || 0;
+    const eng   = (TRAFFIC.engagementByChannel[ch] || [])[n - 1] || 0;
+    return { ch, thisS, prevS, nu, eng, color: PALETTE[i % PALETTE.length] };
+  }).filter(r => r.thisS > 0 || r.prevS > 0);
+
+  rows.sort((a, b) => b.thisS - a.thisS);
+
+  document.getElementById('tbodyChannels').innerHTML = rows.map(r => `
+    <tr>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${r.color};margin-right:7px;flex-shrink:0"></span>${r.ch}</td>
+      <td class="num-cell">${fmtN(r.thisS)}</td>
+      <td class="num-cell">${fmtN(r.prevS)}</td>
+      ${wowCell(r.thisS, r.prevS)}
+      <td class="num-cell">${fmtN(r.nu)}</td>
+      <td class="num-cell">${(r.eng * 100).toFixed(1)}%</td>
+    </tr>`).join('');
+}
+
+// ── VIEW 2: COUNTRY BY CHANNEL ────────────────────────────────────────────────
+function buildCountryCharts() {
+  const grid   = document.getElementById('countryChartsGrid');
+  const labels = TRAFFIC.weekLabels;
+  const primary = TRAFFIC.primaryChannels;
+
+  primary.forEach(ch => {
+    // collect countries with data for this channel
+    const countrySeries = [];
+    TRAFFIC.trackedCountries.forEach(country => {
+      const series = (TRAFFIC.countryChannelWeekly[country] || {})[ch];
+      if (series && series.some(v => v > 0)) {
+        countrySeries.push({ country, series });
+      }
+    });
+    if (countrySeries.length === 0) return;
+
+    const canvasId = 'chartCountry_' + ch.replace(/\s+/g,'_');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="card-title">${ch}</div>
+      <div class="chart-wrap-sm"><canvas id="${canvasId}"></canvas></div>
+      <div class="chart-legend" id="leg_${canvasId}"></div>`;
+    grid.appendChild(card);
+
+    const datasets = countrySeries.map(({ country, series }) =>
+      makeLineDS(country, series, COUNTRY_PALETTE[country] || '#999')
+    );
+    initChart(canvasId, 'line', { labels, datasets }, {
+      plugins: Object.assign({}, CHART_DEFAULTS.plugins, {
+        legend: { display: false },
+      }),
+    });
+    document.getElementById('leg_' + canvasId).innerHTML = countrySeries.map(({ country }) =>
+      `<div class="legend-item"><div class="legend-dot" style="background:${COUNTRY_PALETTE[country]||'#999'}"></div>${country}</div>`
+    ).join('');
+  });
+
+  if (!grid.hasChildNodes()) {
+    grid.innerHTML = '<div class="error-card">No country data available for primary channels in this period.</div>';
+  }
+}
+
+function buildCountryTable() {
+  const rows = TRAFFIC.countryTable || [];
+  if (!rows.length) {
+    document.getElementById('tbodyCountry').innerHTML =
+      '<tr><td colspan="5" style="color:var(--text-dim);text-align:center;padding:20px">No data</td></tr>';
+    return;
+  }
+  document.getElementById('tbodyCountry').innerHTML = rows.map(r => `
+    <tr>
+      <td>${r.country}</td>
+      <td>${r.channel}</td>
+      <td class="num-cell">${fmtN(r.thisWeek)}</td>
+      <td class="num-cell">${fmtN(r.lastWeek)}</td>
+      ${wowCell(r.thisWeek, r.lastWeek)}
+    </tr>`).join('');
+}
+
+// ── VIEW 3: LATEST WEEK SNAPSHOT ─────────────────────────────────────────────
+function buildSnapshot() {
+  const snap = TRAFFIC.latestWeekSnapshot || [];
+  if (!snap.length) return;
+
+  const labels   = snap.map(r => r.channel);
+  const values   = snap.map(r => r.thisWeek);
+  const colors   = snap.map((_, i) => PALETTE[i % PALETTE.length]);
+  const wowLabels = snap.map(r => {
+    const pct = fmtPct(r.thisWeek, r.lastWeek);
+    if (pct === null) return '';
+    const sign = pct >= 0 ? '+' : '';
+    return `${sign}${pct.toFixed(1)}%`;
+  });
+
+  const heightPx = Math.max(280, snap.length * 44);
+  document.querySelector('#section-snapshot .card div[style]').style.height = heightPx + 'px';
+
+  initChart('chartSnapshot', 'bar',
+    { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 4, barThickness: 28 }] },
+    {
+      indexAxis: 'y',
+      plugins: Object.assign({}, CHART_DEFAULTS.plugins, {
+        tooltip: Object.assign({}, CHART_DEFAULTS.plugins.tooltip, {
+          callbacks: {
+            label: ctx => ' ' + fmtN(ctx.raw) + '  ' + (wowLabels[ctx.dataIndex] || ''),
+          },
+        }),
+        datalabels: undefined,
+      }),
+      scales: {
+        x: { grid:{color:'#E7EFF3'}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtN(v)}, border:{display:false} },
+        y: { grid:{display:false}, ticks:{color:'#293745',font:{family:'Lato',size:12,weight:'600'}}, border:{display:false} },
+      },
+      // draw WoW labels after bars
+      animation: {
+        onComplete: function() {
+          const chart = this;
+          const ctx2  = chart.ctx;
+          ctx2.save();
+          ctx2.font = '600 11px Lato, sans-serif';
+          chart.data.datasets[0].data.forEach((val, i) => {
+            const label = wowLabels[i];
+            if (!label) return;
+            const meta = chart.getDatasetMeta(0);
+            const bar  = meta.data[i];
+            const pct  = parseFloat(label);
+            ctx2.fillStyle = Math.abs(pct) <= 2 ? '#A8B2C0' : pct > 0 ? '#3CACD7' : '#F45F50';
+            ctx2.textAlign = 'left';
+            ctx2.fillText(label, bar.x + 6, bar.y + 4);
+          });
+          ctx2.restore();
+        },
+      },
+    }
+  );
+}
+
+// ── VIEW 4: QUALITY CHECKS ────────────────────────────────────────────────────
+function buildQuality() {
+  const series = TRAFFIC.unassignedWeekly || [];
+  const labels = TRAFFIC.weekLabels;
+  initChart('chartUnassigned', 'line',
+    { labels, datasets: [makeLineDS('Unassigned', series, '#F4704A')] },
+    {}
+  );
+
+  const count = TRAFFIC.notSetCount || 0;
+  const statEl = document.getElementById('notSetStat');
+  if (count === 0) {
+    statEl.innerHTML = '<span class="stat-chip stat-chip-ok">✓ 0 (not set) sessions in trailing 13 weeks</span>';
+  } else {
+    statEl.innerHTML = `<span class="stat-chip stat-chip-warn">⚠ ${fmtN(count)} (not set) sessions detected — check UTM coverage</span>`;
+  }
+}
+
+// ── SIDEBAR TOGGLE ────────────────────────────────────────────────────────────
+function toggleGroup(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+// ── ACTIVE NAV HIGHLIGHT ──────────────────────────────────────────────────────
+function initScrollSpy() {
+  const sections = ['section-channels','section-country','section-snapshot','section-quality'];
+  const links    = document.querySelectorAll('.source-nav a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.source-nav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin:'-20% 0px -70% 0px' });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+function init() {
+  try {
+    document.getElementById('asOfBadge').textContent = 'Data as of ' + (TRAFFIC.dataAsOfDate || '—');
+    buildChannelChart();
+    buildChannelTable();
+    buildCountryCharts();
+    buildCountryTable();
+    buildSnapshot();
+    buildQuality();
+    initScrollSpy();
+  } catch(err) {
+    console.error('Dashboard init error:', err);
+    document.getElementById('content').insertAdjacentHTML('afterbegin',
+      `<div class="error-card">⚠️ Dashboard render error: ${err.message}</div>`);
+  }
+  document.getElementById('loading').classList.add('hide');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
