@@ -585,6 +585,7 @@ function buildSnapshot() {
     },
   };
 
+  console.log('[snapshot] dataMax:', maxVal, 'suggestedMax:', Math.ceil(maxVal * 1.05 / 10000) * 10000);
   initChart('chartSnapshot', 'bar',
     { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 4, barThickness: 28 }] },
     {
@@ -599,7 +600,7 @@ function buildSnapshot() {
         snapshotOverlay: snapshotPlugin,
       }),
       scales: {
-        x: { suggestedMax: Math.max(...values) * 1.05, grid:{color:'#E7EFF3'}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtN(v)}, border:{display:false} },
+        x: { suggestedMax: Math.ceil(maxVal * 1.05 / 10000) * 10000, grid:{color:'#E7EFF3'}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtN(v)}, border:{display:false} },
         y: { grid:{display:false}, ticks:{color:'#293745',font:{family:'Lato',size:12,weight:'600'}}, border:{display:false} },
       },
     },
@@ -630,6 +631,20 @@ function toggleGroup(id) {
   document.getElementById(id).classList.toggle('collapsed');
 }
 
+// ── NAV LINK SCROLL ───────────────────────────────────────────────────────────
+function initNavScroll() {
+  const topbarH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 72;
+  const OFFSET = topbarH + 16;
+  document.querySelectorAll('.source-nav a[href^="#"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const target = document.getElementById(this.getAttribute('href').slice(1));
+      if (!target) return;
+      e.preventDefault();
+      window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - OFFSET), behavior: 'smooth' });
+    });
+  });
+}
+
 // ── ACTIVE NAV HIGHLIGHT ──────────────────────────────────────────────────────
 function initScrollSpy() {
   const sections = ['section-channels','section-country','section-snapshot','section-quality'];
@@ -656,6 +671,7 @@ function init() {
     buildCountryTable();
     buildSnapshot();
     buildQuality();
+    initNavScroll();
     initScrollSpy();
   } catch(err) {
     console.error('Dashboard init error:', err);
