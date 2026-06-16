@@ -105,6 +105,10 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M4 6h8M4 9h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
         Executive Summary
       </a></li>
+      <li><a href="#section-web-traffic">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><polyline points="1,12 4,7 7,10 11,4 15,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        Website Traffic
+      </a></li>
       <li><a href="#section-full-funnel">
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M1 3h14l-4 5v5l-6-2V8z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
         Full Funnel
@@ -148,6 +152,29 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       </div>
       <div class="section-divider"></div>
       <div id="exec-summary-wrap" style="overflow-x:auto"></div>
+    </div>
+
+    <div class="section" id="section-web-traffic">
+      <div class="section-header">
+        <h2 class="section-title">Website Traffic — This Week</h2>
+        <span class="section-subtitle">Top 6 channels by sessions · most recent complete week · WoW change</span>
+      </div>
+      <div class="section-divider"></div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table style="width:100%;border-collapse:collapse;font-family:var(--font-ui)">
+            <thead><tr style="border-bottom:2px solid var(--border)">
+              <th style="text-align:left;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Channel</th>
+              <th style="text-align:right;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">Sessions</th>
+              <th style="text-align:right;padding:10px 14px;font-size:11.5px;color:var(--text-muted);font-weight:600">WoW Change</th>
+            </tr></thead>
+            <tbody id="tbodyWebTraffic"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:12px;text-align:right">
+          <a href="/website/" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:600">Full breakdown →</a>
+        </div>
+      </div>
     </div>
 
     <div class="section" id="section-full-funnel">
@@ -237,8 +264,39 @@ function updateAll() {
   const _s = getSlice(activeWeeks), _lbl = _s.currLabels;
   if (_lbl.length) document.getElementById('dateRange').textContent = _lbl[0] + ' → ' + _lbl[_lbl.length-1];
   updateExecSummary();
+  updateWebTrafficSnapshot();
   updateFullFunnel();
   if(typeof HS!=='undefined'&&HS.weeks.length) updateHSChannelTable();
+}
+
+function updateWebTrafficSnapshot() {
+  const weeks = GA4.weeks;
+  const n = weeks.length;
+  if (n < 1) return;
+  const thisW = weeks[n - 1];
+  const prevW = n >= 2 ? weeks[n - 2] : null;
+  const channels = GA4.topChannels || [];
+  const rows = channels.map(ch => ({
+    ch,
+    thisS: (GA4.channels[thisW] || {})[ch] || 0,
+    prevS: prevW ? ((GA4.channels[prevW] || {})[ch] || 0) : 0,
+  })).filter(r => r.thisS > 0).sort((a, b) => b.thisS - a.thisS).slice(0, 6);
+  document.getElementById('tbodyWebTraffic').innerHTML = rows.map(r => {
+    let wowHtml;
+    if (!r.prevS) {
+      wowHtml = '<span style="color:var(--text-muted)">—</span>';
+    } else {
+      const pct = (r.thisS - r.prevS) / r.prevS * 100;
+      const cls = Math.abs(pct) <= 2 ? 'style="color:var(--text-muted)"' : pct > 0 ? 'class="delta-up"' : 'class="delta-down"';
+      const sign = pct >= 0 ? '+' : '';
+      wowHtml = `<span ${cls}>${sign}${pct.toFixed(1)}%</span>`;
+    }
+    return `<tr style="border-bottom:1px solid var(--border-light)">
+      <td style="padding:10px 14px;font-size:13px;color:var(--text)">${r.ch}</td>
+      <td style="padding:10px 14px;font-size:13px;text-align:right;font-variant-numeric:tabular-nums">${fmtNum(r.thisS)}</td>
+      <td style="padding:10px 14px;font-size:13px;text-align:right;font-variant-numeric:tabular-nums">${wowHtml}</td>
+    </tr>`;
+  }).join('');
 }
 
 function fmtNum(n) {
