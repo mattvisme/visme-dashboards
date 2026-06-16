@@ -533,9 +533,9 @@ function buildSnapshot() {
   const wowLabels = snap.map(r => {
     const pct = fmtPct(r.thisWeek, r.lastWeek);
     if (pct === null) return '';
-    if (pct === 'new') return 'new';
-    // Suppress meaningless % for low-volume rows.
-    if (r.thisWeek < MIN_VOL || r.lastWeek < MIN_VOL) return '';
+    if (pct === 'new') return 'new · ' + fmtN(r.thisWeek);
+    // Suppress meaningless % for low-volume rows — still show the session count.
+    if (r.thisWeek < MIN_VOL || r.lastWeek < MIN_VOL) return fmtN(r.thisWeek);
     const sign = pct >= 0 ? '+' : '';
     return `${sign}${pct.toFixed(1)}%`;
   });
@@ -573,11 +573,13 @@ function buildSnapshot() {
         ctx2.font = '600 11px Lato, sans-serif';
         ctx2.textAlign = 'left';
         const barEnd = Math.max(bar.x, minBarEndPx);
-        if (label === 'new') {
+        if (label.startsWith('new')) {
           ctx2.fillStyle = '#3CACD7';
-        } else {
+        } else if (label.includes('%')) {
           const pct = parseFloat(label);
           ctx2.fillStyle = Math.abs(pct) <= 2 ? '#A8B2C0' : pct > 0 ? '#3CACD7' : '#F45F50';
+        } else {
+          ctx2.fillStyle = '#A8B2C0'; // plain session count (low-volume, no WoW %)
         }
         ctx2.fillText(label, barEnd + 6, bar.y + 4);
       });
