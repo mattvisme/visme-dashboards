@@ -54,7 +54,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .topbar-sub{font-size:11px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;}
 .as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
 #content{padding:32px;display:flex;flex-direction:column;gap:40px;max-width:1400px;width:100%;}
-.section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;}
+.section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;scroll-margin-top:calc(var(--topbar-h) + 16px);}
 .section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}
 .section-header{display:flex;align-items:baseline;gap:12px;}
 .section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
@@ -375,22 +375,49 @@ function initChart(id, type, data, extraOpts, plugins) {
 }
 
 // ── VIEW 1: CHANNEL BREAKDOWN ─────────────────────────────────────────────────
+const PRIMARY_CH_SET = new Set(['Organic Search', 'Direct', 'Referral', 'Paid Search']);
+
+function makeLineDSTiered(label, data, color) {
+  const isPrimary = PRIMARY_CH_SET.has(label);
+  return {
+    label, data,
+    borderColor: isPrimary ? color : color + '80',       // 50% opacity for tail
+    backgroundColor: 'transparent',
+    borderWidth: isPrimary ? 2 : 1,
+    pointRadius: isPrimary ? (data.length > 20 ? 0 : 3) : 0,
+    pointHoverRadius: 4,
+    pointBackgroundColor: color,
+    fill: false,
+    tension: 0.35,
+    order: isPrimary ? 0 : 1,                             // primaries draw on top
+  };
+}
+
 function buildChannelChart() {
   const labels   = TRAFFIC.weekLabels;
   const channels = TRAFFIC.allChannels;
   const datasets = channels.map((ch, i) =>
-    makeLineDS(ch, TRAFFIC.channelWeekly[ch] || [], PALETTE[i % PALETTE.length])
+    makeLineDSTiered(ch, TRAFFIC.channelWeekly[ch] || [], PALETTE[i % PALETTE.length])
   );
+  // Hide Chart.js built-in legend — we render our own below the chart
   initChart('chartChannels', 'line', { labels, datasets }, {
     plugins: Object.assign({}, CHART_DEFAULTS.plugins, {
-      legend: { display: true, labels: { color:'#7F859D', font:{family:'Lato',size:11}, boxWidth:10, padding:14 } },
+      legend: { display: false },
     }),
   });
-  // legend swatches (custom, below chart)
+  // Custom legend below the chart: primaries first, then tail channels smaller
   const leg = document.getElementById('legendChannels');
-  leg.innerHTML = channels.map((ch, i) =>
-    `<div class="legend-item"><div class="legend-dot" style="background:${PALETTE[i%PALETTE.length]}"></div>${ch}</div>`
-  ).join('');
+  const primary = channels.filter(ch => PRIMARY_CH_SET.has(ch));
+  const tail    = channels.filter(ch => !PRIMARY_CH_SET.has(ch));
+  const mkSwatch = (ch, i, muted) => {
+    const color = PALETTE[channels.indexOf(ch) % PALETTE.length];
+    return `<div class="legend-item" style="${muted ? 'opacity:.6' : ''}">` +
+      `<div class="legend-dot" style="background:${color}"></div>${ch}</div>`;
+  };
+  leg.innerHTML =
+    primary.map((ch, i) => mkSwatch(ch, i, false)).join('') +
+    (tail.length ? '<div style="width:1px;background:var(--border-light);margin:0 4px;align-self:stretch"></div>' : '') +
+    tail.map((ch, i) => mkSwatch(ch, i, true)).join('');
 }
 
 function buildChannelTable() {
@@ -450,11 +477,24 @@ function buildCountryCharts() {
     const datasets = countrySeries.map(({ country, series }) =>
       makeLineDS(country, series, COUNTRY_PALETTE[country] || '#999')
     );
+    const panelMax = Math.max(...countrySeries.flatMap(({series}) => series));
+    const maxLabelPlugin = {
+      id: 'maxLabel_' + canvasId,
+      afterDraw(chart) {
+        const ctx2 = chart.ctx;
+        ctx2.save();
+        ctx2.font = '500 10px Lato, sans-serif';
+        ctx2.fillStyle = '#A8B2C0';
+        ctx2.textAlign = 'left';
+        ctx2.fillText('Max: ' + fmtN(panelMax), chart.chartArea.left + 4, chart.chartArea.top + 12);
+        ctx2.restore();
+      },
+    };
     initChart(canvasId, 'line', { labels, datasets }, {
       plugins: Object.assign({}, CHART_DEFAULTS.plugins, {
         legend: { display: false },
       }),
-    });
+    }, [maxLabelPlugin]);
     document.getElementById('leg_' + canvasId).innerHTML = countrySeries.map(({ country }) =>
       `<div class="legend-item"><div class="legend-dot" style="background:${COUNTRY_PALETTE[country]||'#999'}"></div>${country}</div>`
     ).join('');
@@ -559,7 +599,7 @@ function buildSnapshot() {
         snapshotOverlay: snapshotPlugin,
       }),
       scales: {
-        x: { grid:{color:'#E7EFF3'}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtN(v)}, border:{display:false} },
+        x: { suggestedMax: Math.max(...values) * 1.05, grid:{color:'#E7EFF3'}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtN(v)}, border:{display:false} },
         y: { grid:{display:false}, ticks:{color:'#293745',font:{family:'Lato',size:12,weight:'600'}}, border:{display:false} },
       },
     },
