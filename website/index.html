@@ -55,7 +55,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
 #content{padding:32px;display:flex;flex-direction:column;gap:20px;max-width:1400px;width:100%;}
 .section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;scroll-margin-top:var(--topbar-h);}
-.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}
+.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}.section:nth-child(5){animation-delay:.25s}.section:nth-child(6){animation-delay:.3s}
 .section-header{display:flex;align-items:baseline;gap:12px;}
 .section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
 .section-subtitle{font-size:12px;color:var(--text-dim);font-weight:400;}
@@ -136,6 +136,14 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
       <li><a href="#section-snapshot">
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="9" width="4" height="6" rx="1" fill="currentColor" opacity=".6"/><rect x="6" y="5" width="4" height="10" rx="1" fill="currentColor" opacity=".8"/><rect x="11" y="1" width="4" height="14" rx="1" fill="currentColor"/></svg>
         Latest Week Snapshot
+      </a></li>
+      <li><a href="#section-ai">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M2 13.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        AI Assistant Breakdown
+      </a></li>
+      <li><a href="#section-affiliate">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M8 2l3 6-3 6-3-6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
+        Affiliate Breakdown
       </a></li>
       <li><a href="#section-quality">
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -244,6 +252,57 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
       <div class="card">
         <div class="card-title">Sessions by Channel — Most Recent Week</div>
         <div style="position:relative;height:360px;"><canvas id="chartSnapshot"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── VIEW 5: AI ASSISTANT BREAKDOWN ─────────────────────── -->
+    <div class="section" id="section-ai">
+      <div class="section-header">
+        <h2 class="section-title">AI Assistant Breakdown</h2>
+        <span class="section-subtitle">Sessions by AI source — trailing 13 complete weeks</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="card-title">Weekly Sessions by AI Source</div>
+        <div class="chart-wrap"><canvas id="chartAI"></canvas></div>
+        <div class="chart-legend" id="legendAI"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">AI Source Summary — Last 2 Weeks</div>
+        <div class="tbl-wrap">
+          <table id="tblAI">
+            <thead><tr>
+              <th>Source</th>
+              <th class="num-cell">This Week</th>
+              <th class="num-cell">Last Week</th>
+              <th class="num-cell">WoW Change</th>
+            </tr></thead>
+            <tbody id="tbodyAI"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="callout">
+        AI Assistant traffic reflects referrals from AI tools such as ChatGPT, Gemini, and Perplexity. This channel is new and expected to grow.
+      </div>
+    </div>
+
+    <!-- ── VIEW 6: AFFILIATE BREAKDOWN ────────────────────────── -->
+    <div class="section" id="section-affiliate">
+      <div class="section-header">
+        <h2 class="section-title">Affiliate Breakdown</h2>
+        <span class="section-subtitle">Sessions by affiliate source — trailing 13 complete weeks</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div id="affiliateBody">
+        <!-- populated by JS — chart+table or empty state -->
+      </div>
+
+      <div class="callout">
+        Affiliate traffic is attributed via UTM parameters. Volume is expected to grow as the relaunched program scales.
       </div>
     </div>
 
@@ -609,6 +668,89 @@ function buildSnapshot() {
   );
 }
 
+// ── VIEWS 5 & 6: SOURCE BREAKDOWN HELPER ─────────────────────────────────
+function buildSourceBreakdown(dataMap, chartId, legendId, tbodyId) {
+  const labels  = TRAFFIC.weekLabels;
+  const n       = labels.length;
+  const sources = Object.keys(dataMap); // sorted by total sessions desc from Python
+
+  const datasets = sources.map((s, i) =>
+    makeLineDS(s, dataMap[s] || [], PALETTE[i % PALETTE.length])
+  );
+  initChart(chartId, 'line', { labels, datasets }, {
+    plugins: Object.assign({}, CHART_DEFAULTS.plugins, { legend: { display: false } }),
+  });
+
+  const leg = document.getElementById(legendId);
+  if (leg) {
+    leg.innerHTML = sources.map((s, i) =>
+      `<div class="legend-item"><div class="legend-dot" style="background:${PALETTE[i % PALETTE.length]}"></div>${s}</div>`
+    ).join('');
+  }
+
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  if (!sources.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text-dim);text-align:center;padding:20px">No data</td></tr>';
+    return;
+  }
+  tbody.innerHTML = sources.map((s, i) => {
+    const thisS = (dataMap[s] || [])[n - 1] || 0;
+    const prevS = n >= 2 ? ((dataMap[s] || [])[n - 2] || 0) : 0;
+    const color = PALETTE[i % PALETTE.length];
+    return `<tr>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:7px;flex-shrink:0"></span>${s}</td>
+      <td class="num-cell">${fmtN(thisS)}</td>
+      <td class="num-cell">${fmtN(prevS)}</td>
+      ${wowCell(thisS, prevS)}
+    </tr>`;
+  }).join('');
+}
+
+// ── VIEW 5: AI ASSISTANT BREAKDOWN ───────────────────────────────────────────
+function buildAIAssistant() {
+  const dataMap = TRAFFIC.aiAssistantWeekly || {};
+  buildSourceBreakdown(dataMap, 'chartAI', 'legendAI', 'tbodyAI');
+}
+
+// ── VIEW 6: AFFILIATE BREAKDOWN ───────────────────────────────────────────────
+function buildAffiliate() {
+  const dataMap  = TRAFFIC.affiliateWeekly || {};
+  const hasData  = Object.values(dataMap).some(series => series.some(v => v > 0));
+  const container = document.getElementById('affiliateBody');
+  if (!container) return;
+
+  if (!hasData) {
+    container.innerHTML =
+      '<div class="card" style="text-align:center;padding:32px 24px;color:var(--text-muted);font-size:13px">' +
+      'No affiliate traffic recorded in this period. Data will appear as UTM-tagged affiliate links accumulate.' +
+      '</div>';
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="card">
+      <div class="card-title">Weekly Sessions by Affiliate Source</div>
+      <div class="chart-wrap"><canvas id="chartAffiliate"></canvas></div>
+      <div class="chart-legend" id="legendAffiliate"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Affiliate Source Summary — Last 2 Weeks</div>
+      <div class="tbl-wrap">
+        <table id="tblAffiliate">
+          <thead><tr>
+            <th>Source</th>
+            <th class="num-cell">This Week</th>
+            <th class="num-cell">Last Week</th>
+            <th class="num-cell">WoW Change</th>
+          </tr></thead>
+          <tbody id="tbodyAffiliate"></tbody>
+        </table>
+      </div>
+    </div>`;
+  buildSourceBreakdown(dataMap, 'chartAffiliate', 'legendAffiliate', 'tbodyAffiliate');
+}
+
 // ── VIEW 4: QUALITY CHECKS ────────────────────────────────────────────────────
 function buildQuality() {
   const series = TRAFFIC.unassignedWeekly || [];
@@ -648,7 +790,7 @@ function initNavScroll() {
 
 // ── ACTIVE NAV HIGHLIGHT ──────────────────────────────────────────────────────
 function initScrollSpy() {
-  const sections = ['section-channels','section-country','section-snapshot','section-quality'];
+  const sections = ['section-channels','section-country','section-snapshot','section-ai','section-affiliate','section-quality'];
   const links    = document.querySelectorAll('.source-nav a');
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
@@ -671,6 +813,8 @@ function init() {
     buildCountryCharts();
     buildCountryTable();
     buildSnapshot();
+    buildAIAssistant();
+    buildAffiliate();
     buildQuality();
     initNavScroll();
     initScrollSpy();

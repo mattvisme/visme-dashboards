@@ -56,6 +56,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
     DateRange, Dimension, Metric, RunReportRequest,
+    FilterExpression, Filter,
 )
 from google.oauth2 import service_account
 
@@ -139,15 +140,31 @@ def _compute_date_range():
 
 # ── GA4 RUNNER ────────────────────────────────────────────────────────────────
 
-def _run(client, prop, start_date, end_date, dimensions, metrics, row_limit=10_000):
+def _channel_filter(channel_name: str) -> FilterExpression:
+    """Build a GA4 FilterExpression matching sessionDefaultChannelGrouping exactly."""
+    return FilterExpression(
+        filter=Filter(
+            field_name="sessionDefaultChannelGrouping",
+            string_filter=Filter.StringFilter(
+                match_type=Filter.StringFilter.MatchType.EXACT,
+                value=channel_name,
+            ),
+        )
+    )
+
+
+def _run(client, prop, start_date, end_date, dimensions, metrics, row_limit=10_000, dimension_filter=None):
     """Execute a GA4 RunReport with 4-attempt retry (15 / 30 / 60 s backoff)."""
-    req = RunReportRequest(
+    req_kwargs = dict(
         property=prop,
         date_ranges=[DateRange(start_date=start_date, end_date=end_date)],
         dimensions=[Dimension(name=d) for d in dimensions],
         metrics=[Metric(name=m) for m in metrics],
         limit=row_limit,
     )
+    if dimension_filter is not None:
+        req_kwargs["dimension_filter"] = dimension_filter
+    req = RunReportRequest(**req_kwargs)
     for attempt in range(4):
         try:
             resp = client.run_report(req, timeout=120)
@@ -244,10 +261,39 @@ def fetch_traffic_data() -> dict:
             continue
         country_weekly[w][country][ch] += _int(sess)
 
-    # ── 4. Latest-week snapshot — two most recent complete weeks (View 3) ─────
+    # ── 4. AI Assistant source × week (View 5) ───────────────────────────────
+    print("⏳  Pulling AI Assistant sessions by source …")
+    ai_source_weekly: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    # {source -> {week_monday -> sessions}}
+    raw_ai = _run(client, prop, start_date, end_date,
+                  ["sessionSource", "date"],
+                  ["sessions"],
+                  row_limit=500,
+                  dimension_filter=_channel_filter("AI Assistant"))
+    for source, date_str, sess in raw_ai:
+        w = _week_monday(date_str)
+        if w >= this_monday_str:
+            continue
+        ai_source_weekly[source][w] += _int(sess)
+
+    # ── 5. Affiliate source × week (View 6) ──────────────────────────────────
+    print("⏳  Pulling Affiliate sessions by source …")
+    aff_source_weekly: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    raw_aff = _run(client, prop, start_date, end_date,
+                   ["sessionSource", "date"],
+                   ["sessions"],
+                   row_limit=500,
+                   dimension_filter=_channel_filter("Affiliates"))
+    for source, date_str, sess in raw_aff:
+        w = _week_monday(date_str)
+        if w >= this_monday_str:
+            continue
+        aff_source_weekly[source][w] += _int(sess)
+
+    # ── 6. Latest-week snapshot — two most recent complete weeks (View 3) ─────
     # We already have channel_weekly; derive from it after assembling week list.
 
-    # ── 5. Unassigned + (not set) over 13 weeks (View 4) ─────────────────────
+    # ── 7. Unassigned + (not set) over 13 weeks (View 4) ─────────────────────
     # Also derived from channel_weekly.
 
     # ── Assemble sorted week list ─────────────────────────────────────────────
@@ -326,6 +372,26 @@ def fetch_traffic_data() -> dict:
         })
     snapshot.sort(key=lambda r: -r["thisWeek"])
 
+    # ── Build aiAssistantWeekly ───────────────────────────────────────────────
+    ai_sources_sorted = sorted(
+        ai_source_weekly.keys(),
+        key=lambda s: -sum(ai_source_weekly[s].get(w, 0) for w in all_weeks),
+    )
+    ai_assistant_weekly_out: dict[str, list] = {
+        s: [ai_source_weekly[s].get(w, 0) for w in all_weeks]
+        for s in ai_sources_sorted
+    }
+
+    # ── Build affiliateWeekly ─────────────────────────────────────────────────
+    aff_sources_sorted = sorted(
+        aff_source_weekly.keys(),
+        key=lambda s: -sum(aff_source_weekly[s].get(w, 0) for w in all_weeks),
+    )
+    affiliate_weekly_out: dict[str, list] = {
+        s: [aff_source_weekly[s].get(w, 0) for w in all_weeks]
+        for s in aff_sources_sorted
+    }
+
     # ── Build unassignedWeekly ────────────────────────────────────────────────
     unassigned_series = [
         channel_weekly[w].get("Unassigned", {}).get("sessions", 0)
@@ -349,13 +415,16 @@ def fetch_traffic_data() -> dict:
         "countryChannelWeekly": country_channel_weekly_out,
         "countryTable":        country_table,
         "latestWeekSnapshot":  snapshot,
+        "aiAssistantWeekly":   ai_assistant_weekly_out,
+        "affiliateWeekly":     affiliate_weekly_out,
         "unassignedWeekly":    unassigned_series,
         "notSetCount":         not_set_count,
         "primaryChannels":     PRIMARY_CHANNELS,
         "trackedCountries":    TRACKED_COUNTRIES,
     }
 
-    print(f"✅  Collected — {len(all_weeks)} weeks, {len(all_channels_sorted)} channels")
+    print(f"✅  Collected — {len(all_weeks)} weeks, {len(all_channels_sorted)} channels, "
+          f"{len(ai_sources_sorted)} AI sources, {len(aff_sources_sorted)} affiliate sources")
     return payload
 
 
