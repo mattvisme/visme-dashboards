@@ -55,7 +55,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
 #content{padding:32px;display:flex;flex-direction:column;gap:20px;max-width:1400px;width:100%;}
 .section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;scroll-margin-top:var(--topbar-h);}
-.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}.section:nth-child(5){animation-delay:.25s}.section:nth-child(6){animation-delay:.3s}
+.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}.section:nth-child(5){animation-delay:.25s}.section:nth-child(6){animation-delay:.3s}.section:nth-child(7){animation-delay:.35s}
 .section-header{display:flex;align-items:baseline;gap:12px;}
 .section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
 .section-subtitle{font-size:12px;color:var(--text-dim);font-weight:400;}
@@ -144,6 +144,10 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
       <li><a href="#section-affiliate">
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M8 2l3 6-3 6-3-6z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/></svg>
         Affiliate Breakdown
+      </a></li>
+      <li><a href="#section-orgsocial">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="5" cy="8" r="2.5" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="11" cy="5" r="2.5" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="11" cy="11" r="2.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M7.5 7l1-1M7.5 9l1 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Organic Social Breakdown
       </a></li>
       <li><a href="#section-quality">
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -303,6 +307,42 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
 
       <div class="callout">
         Affiliate traffic is attributed via UTM parameters. Volume is expected to grow as the relaunched program scales.
+      </div>
+    </div>
+
+    <!-- ── VIEW 7: ORGANIC SOCIAL BREAKDOWN ─────────────────────── -->
+    <div class="section" id="section-orgsocial">
+      <div class="section-header">
+        <h2 class="section-title">Organic Social Breakdown</h2>
+        <span class="section-subtitle">Sessions by platform — trailing 13 complete weeks</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card" id="cardOrgSocialChart">
+        <div class="card-title">Weekly Sessions by Platform (Stacked)</div>
+        <div id="orgSocialChartArea">
+          <div class="chart-wrap"><canvas id="chartOrgSocial"></canvas></div>
+          <div class="chart-legend" id="legendOrgSocial"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Platform Summary — Last 2 Weeks</div>
+        <div class="tbl-wrap">
+          <table id="tblOrgSocial">
+            <thead><tr>
+              <th>Platform</th>
+              <th class="num-cell">This Week</th>
+              <th class="num-cell">Last Week</th>
+              <th class="num-cell">WoW Change</th>
+            </tr></thead>
+            <tbody id="tbodyOrgSocial"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="callout">
+        Large week-over-week swings in this channel are often driven by a single platform spike rather than a broad channel shift. Check the platform breakdown above before drawing conclusions from the channel-level WoW figure.
       </div>
     </div>
 
@@ -668,6 +708,82 @@ function buildSnapshot() {
   );
 }
 
+// ── VIEW 7: ORGANIC SOCIAL BREAKDOWN ─────────────────────────────────────────
+const SOCIAL_PALETTE = {
+  'Facebook':  '#1877F2',
+  'Pinterest': '#E60023',
+  'Reddit':    '#FF4500',
+  'LinkedIn':  '#0A66C2',
+  'Instagram': '#C13584',
+  'X/Twitter': '#607D8B',
+  'Other':     '#A8B2C0',
+};
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function buildOrgSocial() {
+  const dataMap  = TRAFFIC.organicSocialWeekly || {};
+  const platforms = Object.keys(dataMap); // order from Python: named by total desc, Other last
+  const labels   = TRAFFIC.weekLabels;
+  const n        = labels.length;
+
+  if (!platforms.length) {
+    document.getElementById('orgSocialChartArea').innerHTML =
+      '<div style="text-align:center;padding:32px;color:var(--text-muted);font-size:13px">No Organic Social data in this period.</div>';
+    document.getElementById('tbodyOrgSocial').innerHTML =
+      '<tr><td colspan="4" style="color:var(--text-dim);text-align:center;padding:20px">No data</td></tr>';
+    return;
+  }
+
+  const datasets = platforms.map(p => {
+    const color = SOCIAL_PALETTE[p] || '#A8B2C0';
+    return {
+      label: p,
+      data: dataMap[p] || [],
+      borderColor: color,
+      backgroundColor: hexToRgba(color, 0.7),
+      borderWidth: 1.5,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      fill: true,
+      tension: 0.35,
+    };
+  });
+
+  initChart('chartOrgSocial', 'line', { labels, datasets }, {
+    plugins: Object.assign({}, CHART_DEFAULTS.plugins, { legend: { display: false } }),
+    scales: {
+      x: { grid:{display:false}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},maxRotation:45,autoSkipPadding:12}, border:{display:false} },
+      y: { stacked:true, grid:{color:'#E7EFF3',lineWidth:1}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtN(v)}, border:{display:false} },
+    },
+  });
+
+  document.getElementById('legendOrgSocial').innerHTML = platforms.map(p => {
+    const color = SOCIAL_PALETTE[p] || '#A8B2C0';
+    return `<div class="legend-item"><div class="legend-dot" style="background:${color}"></div>${p}</div>`;
+  }).join('');
+
+  // Table — sort by this-week sessions desc
+  const tableRows = platforms.map(p => ({
+    name: p,
+    thisS: (dataMap[p] || [])[n - 1] || 0,
+    prevS: n >= 2 ? ((dataMap[p] || [])[n - 2] || 0) : 0,
+    color: SOCIAL_PALETTE[p] || '#A8B2C0',
+  })).sort((a, b) => b.thisS - a.thisS);
+
+  document.getElementById('tbodyOrgSocial').innerHTML = tableRows.map(r =>
+    `<tr>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${r.color};margin-right:7px;flex-shrink:0"></span>${r.name}</td>
+      <td class="num-cell">${fmtN(r.thisS)}</td>
+      <td class="num-cell">${fmtN(r.prevS)}</td>
+      ${wowCell(r.thisS, r.prevS)}
+    </tr>`
+  ).join('');
+}
+
 // ── VIEWS 5 & 6: SOURCE BREAKDOWN HELPER ─────────────────────────────────
 function buildSourceBreakdown(dataMap, chartId, legendId, tbodyId) {
   const labels  = TRAFFIC.weekLabels;
@@ -790,7 +906,7 @@ function initNavScroll() {
 
 // ── ACTIVE NAV HIGHLIGHT ──────────────────────────────────────────────────────
 function initScrollSpy() {
-  const sections = ['section-channels','section-country','section-snapshot','section-ai','section-affiliate','section-quality'];
+  const sections = ['section-channels','section-country','section-snapshot','section-ai','section-affiliate','section-orgsocial','section-quality'];
   const links    = document.querySelectorAll('.source-nav a');
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
@@ -815,6 +931,7 @@ function init() {
     buildSnapshot();
     buildAIAssistant();
     buildAffiliate();
+    buildOrgSocial();
     buildQuality();
     initNavScroll();
     initScrollSpy();

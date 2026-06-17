@@ -140,6 +140,39 @@ def _compute_date_range():
 
 # ── GA4 RUNNER ────────────────────────────────────────────────────────────────
 
+# ── ORGANIC SOCIAL PLATFORM GROUPING ─────────────────────────────────────────
+_FACEBOOK_SOURCES = frozenset({
+    "facebook.com", "m.facebook.com", "l.facebook.com", "lm.facebook.com",
+    "accountscenter.facebook.com", "oauth.facebook.com", "adsmanager.facebook.com",
+    "business.facebook.com", "l.messenger.com",
+})
+_REDDIT_SOURCES   = frozenset({"reddit.com", "old.reddit.com"})
+_LINKEDIN_SOURCES = frozenset({"linkedin.com", "linkedin", "lnkd.in"})
+_INSTAGRAM_SOURCES = frozenset({
+    "l.instagram.com", "instagram.com", "instagram", "ig",
+    "accountscenter.instagram.com",
+})
+_TWITTER_SOURCES  = frozenset({"t.co", "twitter.com", "twitter", "twitterpost"})
+_VK_SOURCES       = frozenset({"away.vk.com", "vk.com", "m.vk.com"})
+
+# Named platforms in preferred stack order (bottom → top); Other always appended last.
+SOCIAL_PLATFORM_ORDER = ["Facebook", "Pinterest", "Reddit", "LinkedIn", "Instagram", "X/Twitter"]
+
+
+def _social_platform(source: str):
+    """Map a GA4 sessionSource to a social platform name, or None to exclude (VK)."""
+    s = source.lower().strip()
+    if s in _VK_SOURCES:       return None
+    if s in _FACEBOOK_SOURCES: return "Facebook"
+    if s in ("pinterest", "pinterest.com") or s.endswith(".pinterest.com"):
+        return "Pinterest"
+    if s in _REDDIT_SOURCES:   return "Reddit"
+    if s in _LINKEDIN_SOURCES: return "LinkedIn"
+    if s in _INSTAGRAM_SOURCES: return "Instagram"
+    if s in _TWITTER_SOURCES:  return "X/Twitter"
+    return "Other"
+
+
 def _channel_filter(channel_name: str) -> FilterExpression:
     """Build a GA4 FilterExpression matching sessionDefaultChannelGrouping exactly."""
     return FilterExpression(
@@ -290,7 +323,24 @@ def fetch_traffic_data() -> dict:
             continue
         aff_source_weekly[source][w] += _int(sess)
 
-    # ── 6. Latest-week snapshot — two most recent complete weeks (View 3) ─────
+    # ── 6. Organic Social source × week (View 7) ─────────────────────────────
+    print("⏳  Pulling Organic Social sessions by source …")
+    os_platform_weekly: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    raw_os = _run(client, prop, start_date, end_date,
+                  ["sessionSource", "date"],
+                  ["sessions"],
+                  row_limit=200,
+                  dimension_filter=_channel_filter("Organic Social"))
+    for source, date_str, sess in raw_os:
+        w = _week_monday(date_str)
+        if w >= this_monday_str:
+            continue
+        platform = _social_platform(source)
+        if platform is None:
+            continue
+        os_platform_weekly[platform][w] += _int(sess)
+
+    # ── 7. Latest-week snapshot — two most recent complete weeks (View 3) ─────
     # We already have channel_weekly; derive from it after assembling week list.
 
     # ── 7. Unassigned + (not set) over 13 weeks (View 4) ─────────────────────
@@ -392,6 +442,22 @@ def fetch_traffic_data() -> dict:
         for s in aff_sources_sorted
     }
 
+    # ── Build organicSocialWeekly ─────────────────────────────────────────────
+    # Named platforms sorted by total sessions desc; Other appended last if present.
+    named_sorted = sorted(
+        [p for p in SOCIAL_PLATFORM_ORDER
+         if any(os_platform_weekly[p].get(w, 0) > 0 for w in all_weeks)],
+        key=lambda p: -sum(os_platform_weekly[p].get(w, 0) for w in all_weeks),
+    )
+    organic_social_weekly_out: dict[str, list] = {
+        p: [os_platform_weekly[p].get(w, 0) for w in all_weeks]
+        for p in named_sorted
+    }
+    if any(os_platform_weekly["Other"].get(w, 0) > 0 for w in all_weeks):
+        organic_social_weekly_out["Other"] = [
+            os_platform_weekly["Other"].get(w, 0) for w in all_weeks
+        ]
+
     # ── Build unassignedWeekly ────────────────────────────────────────────────
     unassigned_series = [
         channel_weekly[w].get("Unassigned", {}).get("sessions", 0)
@@ -417,6 +483,7 @@ def fetch_traffic_data() -> dict:
         "latestWeekSnapshot":  snapshot,
         "aiAssistantWeekly":   ai_assistant_weekly_out,
         "affiliateWeekly":     affiliate_weekly_out,
+        "organicSocialWeekly": organic_social_weekly_out,
         "unassignedWeekly":    unassigned_series,
         "notSetCount":         not_set_count,
         "primaryChannels":     PRIMARY_CHANNELS,
@@ -424,7 +491,8 @@ def fetch_traffic_data() -> dict:
     }
 
     print(f"✅  Collected — {len(all_weeks)} weeks, {len(all_channels_sorted)} channels, "
-          f"{len(ai_sources_sorted)} AI sources, {len(aff_sources_sorted)} affiliate sources")
+          f"{len(ai_sources_sorted)} AI sources, {len(aff_sources_sorted)} affiliate sources, "
+          f"{len(organic_social_weekly_out)} social platforms")
     return payload
 
 
