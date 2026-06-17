@@ -331,6 +331,14 @@ def fetch_traffic_data() -> dict:
                   ["sessions"],
                   row_limit=200,
                   dimension_filter=_channel_filter("Organic Social"))
+    # ── DEBUG: collect raw source+sessions for the most recent complete week ──
+    _debug_latest_w = (
+        (date.today() - timedelta(days=date.today().weekday()) - timedelta(weeks=1))
+        .strftime("%Y-%m-%d")
+    )
+    _debug_rows: list[tuple[str, int]] = []
+    # ── END DEBUG setup ────────────────────────────────────────────────────────
+
     for source, date_str, sess in raw_os:
         w = _week_monday(date_str)
         if w >= this_monday_str:
@@ -339,6 +347,19 @@ def fetch_traffic_data() -> dict:
         if platform is None:
             continue
         os_platform_weekly[platform][w] += _int(sess)
+
+        # ── DEBUG: capture rows from the latest complete week only ────────────
+        if w == _debug_latest_w:
+            _debug_rows.append((source, _int(sess)))
+        # ── END DEBUG ─────────────────────────────────────────────────────────
+
+    # ── DEBUG: print raw sources for the latest complete week ─────────────────
+    print(f"\n🔍  DEBUG — Organic Social raw sources for latest complete week ({_debug_latest_w}):")
+    for src, s in sorted(_debug_rows, key=lambda x: -x[1]):
+        mapped = _social_platform(src)
+        print(f"    {repr(src):45s}  sessions={s:5d}  → {mapped}")
+    print()
+    # ── END DEBUG ──────────────────────────────────────────────────────────────
 
     # ── 7. Latest-week snapshot — two most recent complete weeks (View 3) ─────
     # We already have channel_weekly; derive from it after assembling week list.

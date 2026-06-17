@@ -743,20 +743,16 @@ function buildOrgSocial() {
     return {
       label: p,
       data: dataMap[p] || [],
+      backgroundColor: color,
       borderColor: color,
-      backgroundColor: hexToRgba(color, 0.7),
-      borderWidth: 1.5,
-      pointRadius: 0,
-      pointHoverRadius: 4,
-      fill: true,
-      tension: 0.35,
+      borderWidth: 0,
     };
   });
 
-  initChart('chartOrgSocial', 'line', { labels, datasets }, {
+  initChart('chartOrgSocial', 'bar', { labels, datasets }, {
     plugins: Object.assign({}, CHART_DEFAULTS.plugins, { legend: { display: false } }),
     scales: {
-      x: { grid:{display:false}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},maxRotation:45,autoSkipPadding:12}, border:{display:false} },
+      x: { stacked:true, grid:{display:false}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},maxRotation:45,autoSkipPadding:12}, border:{display:false} },
       y: { stacked:true, grid:{color:'#E7EFF3',lineWidth:1}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtN(v)}, border:{display:false} },
     },
   });
