@@ -142,17 +142,17 @@ def _compute_date_range():
 
 # ── ORGANIC SOCIAL PLATFORM GROUPING ─────────────────────────────────────────
 _FACEBOOK_SOURCES = frozenset({
-    "facebook.com", "m.facebook.com", "l.facebook.com", "lm.facebook.com",
+    "facebook", "facebook.com", "m.facebook.com", "l.facebook.com", "lm.facebook.com",
     "accountscenter.facebook.com", "oauth.facebook.com", "adsmanager.facebook.com",
     "business.facebook.com", "l.messenger.com",
 })
 _REDDIT_SOURCES   = frozenset({"reddit.com", "old.reddit.com"})
-_LINKEDIN_SOURCES = frozenset({"linkedin.com", "linkedin", "lnkd.in"})
+_LINKEDIN_SOURCES = frozenset({"linkedin.com", "linkedin", "lnkd.in", "linkedinad"})
 _INSTAGRAM_SOURCES = frozenset({
     "l.instagram.com", "instagram.com", "instagram", "ig",
     "accountscenter.instagram.com",
 })
-_TWITTER_SOURCES  = frozenset({"t.co", "twitter.com", "twitter", "twitterpost"})
+_TWITTER_SOURCES  = frozenset({"t.co", "twitter.com", "twitter", "twitterpost", "x.com", "x"})
 _VK_SOURCES       = frozenset({"away.vk.com", "vk.com", "m.vk.com"})
 
 # Named platforms in preferred stack order (bottom → top); Other always appended last.
@@ -326,19 +326,12 @@ def fetch_traffic_data() -> dict:
     # ── 6. Organic Social source × week (View 7) ─────────────────────────────
     print("⏳  Pulling Organic Social sessions by source …")
     os_platform_weekly: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    # row_limit must be large: 13 weeks × 7 days × many sources easily exceeds 200
     raw_os = _run(client, prop, start_date, end_date,
                   ["sessionSource", "date"],
                   ["sessions"],
-                  row_limit=200,
+                  row_limit=5000,
                   dimension_filter=_channel_filter("Organic Social"))
-    # ── DEBUG: collect raw source+sessions for the most recent complete week ──
-    _debug_latest_w = (
-        (date.today() - timedelta(days=date.today().weekday()) - timedelta(weeks=1))
-        .strftime("%Y-%m-%d")
-    )
-    _debug_rows: list[tuple[str, int]] = []
-    # ── END DEBUG setup ────────────────────────────────────────────────────────
-
     for source, date_str, sess in raw_os:
         w = _week_monday(date_str)
         if w >= this_monday_str:
@@ -347,19 +340,6 @@ def fetch_traffic_data() -> dict:
         if platform is None:
             continue
         os_platform_weekly[platform][w] += _int(sess)
-
-        # ── DEBUG: capture rows from the latest complete week only ────────────
-        if w == _debug_latest_w:
-            _debug_rows.append((source, _int(sess)))
-        # ── END DEBUG ─────────────────────────────────────────────────────────
-
-    # ── DEBUG: print raw sources for the latest complete week ─────────────────
-    print(f"\n🔍  DEBUG — Organic Social raw sources for latest complete week ({_debug_latest_w}):")
-    for src, s in sorted(_debug_rows, key=lambda x: -x[1]):
-        mapped = _social_platform(src)
-        print(f"    {repr(src):45s}  sessions={s:5d}  → {mapped}")
-    print()
-    # ── END DEBUG ──────────────────────────────────────────────────────────────
 
     # ── 7. Latest-week snapshot — two most recent complete weeks (View 3) ─────
     # We already have channel_weekly; derive from it after assembling week list.
