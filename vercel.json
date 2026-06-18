@@ -1,5 +1,5 @@
 {
-  "buildCommand": "echo 'Static site - no build needed'",
+  "buildCommand": "python scripts/build_auth.py",
   "outputDirectory": ".",
   "headers": [
     {

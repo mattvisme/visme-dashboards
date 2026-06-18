@@ -100,7 +100,6 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
           git add \
-            login.html \
             executive/index.html \
             ga4/index.html \
             hubspot/index.html \
