@@ -32,6 +32,11 @@ jobs:
             google-ads \
             bingads
 
+      - name: Build auth (inject password into login.html)
+        env:
+          dashboard_pw: ${{ secrets.dashboard_pw }}
+        run: python scripts/build_auth.py
+
       - name: Build Executive dashboard
         env:
           GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
@@ -95,6 +100,7 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
           git add \
+            login.html \
             executive/index.html \
             ga4/index.html \
             hubspot/index.html \

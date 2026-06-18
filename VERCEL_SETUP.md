@@ -1,108 +1,74 @@
 # Vercel Deployment with Password Protection
 
-## Quick Start
-
-Your Visme Marketing Dashboards are now protected with password authentication.
-
-### Default Login Credentials
-
-- **URL**: `login.html` (or just `/`)
-- **Default Password**: `visme2024`
-
-## Changing the Password
-
-### Step 1: Edit the Login Page
-
-Open `login.html` and find this line (around line 152):
-
-```javascript
-const CORRECT_PASSWORD = 'visme2024'; // CHANGE THIS TO YOUR DESIRED PASSWORD
-```
-
-Replace `'visme2024'` with your desired password:
-
-```javascript
-const CORRECT_PASSWORD = 'your-new-password'; // CHANGE THIS TO YOUR DESIRED PASSWORD
-```
-
-### Step 2: Commit and Push
-
-```bash
-git add login.html
-git commit -m "Update dashboard password"
-git push
-```
-
-Vercel will automatically redeploy with the new password.
-
 ## How It Works
 
 1. **Login Page** (`login.html`): Users enter their password
-2. **Auth Script** (`auth.js`): Protects all pages and maintains session
-3. **Session Storage**: After login, users stay logged in for 24 hours
-4. **Automatic Redirect**: Unauthenticated users are redirected to login
+2. **Auth Script** (`auth.js`): Included in every dashboard page; redirects unauthenticated visitors to `login.html`
+3. **Session**: After login, users stay authenticated for 24 hours via `localStorage`
+4. **No-index**: All pages carry `<meta name="robots" content="noindex, nofollow">`, `X-Robots-Tag` response headers, and `robots.txt` to prevent search engine indexing
 
-## Deploying to Vercel
+## Password management
 
-### Option A: Using Vercel Web Interface (Easiest)
+The password is **never hardcoded in any committed file**. It lives in three places:
 
-1. Go to https://vercel.com/new
-2. Click **"Import Git Repository"**
-3. Select `visme-dashboards` from your GitHub
-4. Click **"Deploy"**
-5. Vercel will automatically build and deploy your dashboards
+| Location | Purpose |
+|----------|---------|
+| Vercel project → Settings → Environment Variables → `dashboard_pw` | Injected at deploy time on Vercel |
+| GitHub repo → Settings → Secrets and variables → Actions → `dashboard_pw` | Injected during the weekly GitHub Actions rebuild |
+| `.env.local` (local, gitignored) | Local development only — never committed |
 
-### Option B: Using Vercel CLI
+`login.html` in the repo contains the placeholder `__DASHBOARD_PASSWORD__`. The `scripts/build_auth.py` step replaces it with the real value at build time.
 
-```bash
-npm i -g vercel
-cd visme-dashboards
-vercel
+## Required secrets (one-time setup)
+
+### Vercel
+`dashboard_pw` is already set in the Vercel project dashboard under **Settings → Environment Variables**. No action needed there.
+
+### GitHub Actions
+`dashboard_pw` must be added as a GitHub Actions secret so the weekly rebuild can inject the password into `login.html` before committing it.
+
+1. Go to: **GitHub repo → Settings → Secrets and variables → Actions**
+2. Click **New repository secret**
+3. Name: `dashboard_pw`
+4. Value: same value as the Vercel environment variable
+5. Click **Add secret**
+
+### Local development
+Create `.env.local` in the repo root (it is gitignored and must never be committed):
+
+```
+dashboard_pw=Visme@2026!Dashboard
 ```
 
-## Features
+Use `.env.example` as a reference template.
 
-✅ **Free** - No cost, uses Vercel free tier  
-✅ **Secure** - Password-protected access  
-✅ **Persistent** - 24-hour session duration  
-✅ **Static** - Works with pure HTML/CSS/JS  
-✅ **Fast** - Global CDN distribution  
-✅ **Private Repo** - GitHub repo can be private  
+Then run:
 
-## Making Your Repository Private
+```bash
+python scripts/build_auth.py
+```
 
-Once deployed to Vercel, you can safely make your GitHub repo private:
+This injects the password into your local `login.html` for testing. Do not commit the result.
 
-1. Go to GitHub: https://github.com/mattvisme/visme-dashboards/settings
-2. Under "Danger Zone", click **"Change repository visibility"**
-3. Select **"Private"** and confirm
-4. Your Vercel deployment continues to work without interruption
+## Changing the password
+
+1. Update the value in **Vercel → Settings → Environment Variables**
+2. Update the value in **GitHub → Settings → Secrets and variables → Actions**
+3. Update `.env.local` locally
+4. Trigger a manual rebuild via GitHub Actions (workflow_dispatch) or wait for the next Monday rebuild
 
 ## Troubleshooting
 
 ### "Password not working"
-- Make sure you're using the password exactly as set in `login.html`
-- Try clearing browser cookies/local storage (Ctrl+Shift+Delete)
+- Make sure you're using the password exactly as configured in Vercel/GitHub secrets
+- Try clearing browser local storage: open DevTools (F12) → Console → `localStorage.clear()`
 
-### "Still see GitHub Pages instead of Vercel"
-- Clear your browser cache
-- Check that your domain points to Vercel (if using custom domain)
-- Verify deployment status at https://vercel.com (check for successful deploy)
+### "Dashboard accessible without login"
+- Verify `auth.js` is present at the repo root and deployed to Vercel
+- Verify every dashboard HTML file has `<script src="/auth.js"></script>` in `<head>`
 
-### "Logout functionality"
-Users can manually clear their session by opening browser DevTools (F12) and running:
+### "Logout"
+Open DevTools (F12) → Console:
 ```javascript
 localStorage.removeItem('dashboard_authenticated');
 ```
-
-## Next Steps
-
-1. **Change the default password** in `login.html`
-2. **Deploy to Vercel** using the steps above
-3. **Make your GitHub repo private** (optional but recommended)
-4. **Test the login** at your Vercel domain
-5. **Share the password** with your Visme team
-
-## Questions?
-
-Refer to the password in `login.html` or contact your administrator.
