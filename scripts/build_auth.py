@@ -45,7 +45,7 @@ def main():
     with open(LOGIN_HTML, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"✅  login.html updated — password injected")
+    print("login.html updated — password injected")
 
 
 if __name__ == "__main__":
