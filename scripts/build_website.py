@@ -72,7 +72,7 @@ TRACKED_COUNTRIES = [
     "United States", "Canada", "United Kingdom",
     "France", "Mexico", "Spain", "India", "Australia",
 ]
-PRIMARY_CHANNELS = ["Organic Search", "Direct", "Referral", "Paid Search"]
+PRIMARY_CHANNELS = ["Organic Search", "Direct", "Referral", "Paid Search", "Paid AI"]
 
 
 # ── AUTH ──────────────────────────────────────────────────────────────────────

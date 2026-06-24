@@ -477,7 +477,7 @@ function initChart(id, type, data, extraOpts, plugins) {
 }
 
 // ── VIEW 1: CHANNEL BREAKDOWN ─────────────────────────────────────────────────
-const PRIMARY_CH_SET = new Set(['Organic Search', 'Direct', 'Referral', 'Paid Search']);
+const PRIMARY_CH_SET = new Set(['Organic Search', 'Direct', 'Referral', 'Paid Search', 'Paid AI']);
 
 function makeLineDSTiered(label, data, color) {
   const isPrimary = PRIMARY_CH_SET.has(label);
