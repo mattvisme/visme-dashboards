@@ -186,6 +186,32 @@ def _channel_filter(channel_name: str) -> FilterExpression:
     )
 
 
+def _medium_filter(medium_value: str) -> FilterExpression:
+    """Build a GA4 FilterExpression matching sessionMedium exactly."""
+    return FilterExpression(
+        filter=Filter(
+            field_name="sessionMedium",
+            string_filter=Filter.StringFilter(
+                match_type=Filter.StringFilter.MatchType.EXACT,
+                value=medium_value,
+            ),
+        )
+    )
+
+
+def _first_user_medium_filter(medium_value: str) -> FilterExpression:
+    """Build a GA4 FilterExpression matching firstUserMedium exactly."""
+    return FilterExpression(
+        filter=Filter(
+            field_name="firstUserMedium",
+            string_filter=Filter.StringFilter(
+                match_type=Filter.StringFilter.MatchType.EXACT,
+                value=medium_value,
+            ),
+        )
+    )
+
+
 def _run(client, prop, start_date, end_date, dimensions, metrics, row_limit=10_000, dimension_filter=None):
     """Execute a GA4 RunReport with 4-attempt retry (15 / 30 / 60 s backoff)."""
     req_kwargs = dict(
@@ -294,7 +320,54 @@ def fetch_traffic_data() -> dict:
             continue
         country_weekly[w][country][ch] += _int(sess)
 
-    # ── 4. AI Assistant source × week (View 5) ───────────────────────────────
+    # ── 4. Paid AI sessions + engagement × week ──────────────────────────────
+    # "Paid AI" lives in a custom channel group (not the default), so
+    # sessionDefaultChannelGrouping never returns it.  We identify these
+    # sessions by filtering on sessionMedium = 'paid_ai' instead.
+    print("⏳  Pulling Paid AI sessions …")
+    raw_paid_ai = _run(client, prop, start_date, end_date,
+                       ["date"],
+                       ["sessions", "engagementRate"],
+                       row_limit=10_000,
+                       dimension_filter=_medium_filter("paid_ai"))
+    for date_str, sess, eng in raw_paid_ai:
+        w = _week_monday(date_str)
+        if w >= this_monday_str:
+            continue
+        prev      = channel_weekly[w].get("Paid AI", {"sessions": 0, "engagementRate": 0.0})
+        prev_sess = prev["sessions"]
+        new_sess  = _int(sess)
+        total     = prev_sess + new_sess
+        avg_eng   = (prev["engagementRate"] * prev_sess + _float(eng) * new_sess) / total if total else 0.0
+        channel_weekly[w]["Paid AI"] = {"sessions": total, "engagementRate": round(avg_eng, 4)}
+
+    # ── 4b. Paid AI new users × week ─────────────────────────────────────────
+    raw_paid_ai_nu = _run(client, prop, start_date, end_date,
+                          ["date"],
+                          ["newUsers"],
+                          row_limit=10_000,
+                          dimension_filter=_first_user_medium_filter("paid_ai"))
+    for date_str, nu in raw_paid_ai_nu:
+        w = _week_monday(date_str)
+        if w >= this_monday_str:
+            continue
+        new_users_by_channel[w]["Paid AI"] += _int(nu)
+
+    # ── 4c. Paid AI country × week (for country breakdown charts) ────────────
+    raw_paid_ai_geo = _run(client, prop, start_date, end_date,
+                           ["country", "date"],
+                           ["sessions"],
+                           row_limit=10_000,
+                           dimension_filter=_medium_filter("paid_ai"))
+    for country, date_str, sess in raw_paid_ai_geo:
+        if country not in TRACKED_COUNTRIES:
+            continue
+        w = _week_monday(date_str)
+        if w >= this_monday_str:
+            continue
+        country_weekly[w][country]["Paid AI"] += _int(sess)
+
+    # ── 5. AI Assistant source × week (View 5) ───────────────────────────────
     print("⏳  Pulling AI Assistant sessions by source …")
     ai_source_weekly: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     # {source -> {week_monday -> sessions}}
