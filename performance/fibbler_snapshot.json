@@ -1,0 +1,13 @@
+{
+  "note": "Updated by running: Ask Claude Code to refresh Fibbler data via MCP tools. Commit and push after each update.",
+  "snapshotDate": null,
+  "current": {
+    "pipelineValue": 0,
+    "pipelineDealCount": 0,
+    "closedWonValue": 0,
+    "closedWonCount": 0,
+    "veryHighCount": 0,
+    "companies": []
+  },
+  "previous": null
+}

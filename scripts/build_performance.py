@@ -1,125 +1,161 @@
 #!/usr/bin/env python3
 """
 scripts/build_performance.py
-Fetches HubSpot Fibbler (LinkedIn engagement) and contact acquisition data,
-then injects it into performance/index.html.
+Builds performance/index.html — HubSpot leads + Fibbler LinkedIn attribution.
 
-Usage:
-    python scripts/build_performance.py
+Data sources:
+    HubSpot CRM API            → new leads, lead journey, lead quality trend
+    performance/fibbler_snapshot.json  → Fibbler deal attribution + company
+                                          engagement (updated via Claude MCP)
 
-Environment variables:
-    HUBSPOT_ACCESS_TOKEN   HubSpot Private App token with scopes:
-                               crm.objects.companies.read
-                               crm.objects.contacts.read
-                           ⚠️  This secret must be added to the GitHub
-                               repository's Settings → Secrets and variables
-                               → Actions before the CI build step will work.
-                               It is NOT the same as HUBSPOT_SHEET_ID (which
-                               is a Google Sheet, not the HubSpot API).
+Environment variables required:
+    HUBSPOT_ACCESS_TOKEN    HubSpot Private App token
+                            Scopes: crm.objects.contacts.read
 
-    GA4_CREDENTIALS_JSON   Not used by this script — present for parity with
-                           other build scripts that reuse the same CI step env.
+No Fibbler or Sheets credentials needed — Fibbler data is read from
+performance/fibbler_snapshot.json, which is committed to the repo and
+refreshed on demand via Claude Code + Fibbler MCP tools.
 """
 
+import json
 import os
 import sys
 from datetime import date
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from scripts.shared.hubspot_client import fetch_fibbler_companies, fetch_new_contacts_by_source
+from scripts.shared.hubspot_client import (
+    fetch_new_leads,
+    fetch_lead_journey,
+    fetch_lead_quality_trend,
+)
 from scripts.shared.html_utils import inject_data
 
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TEMPLATE  = os.path.join(REPO_ROOT, "performance", "index.html")
-OUTPUT    = os.path.join(REPO_ROOT, "performance", "index.html")
+REPO_ROOT     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SNAPSHOT_PATH = os.path.join(REPO_ROOT, "performance", "fibbler_snapshot.json")
+TEMPLATE      = os.path.join(REPO_ROOT, "performance", "index.html")
+OUTPUT        = os.path.join(REPO_ROOT, "performance", "index.html")
 
-ENGAGEMENT_LEVELS = ["VERY_HIGH", "HIGH", "MEDIUM", "LOW", "VERY_LOW"]
-HIGH_ENGAGEMENT   = {"VERY_HIGH", "HIGH"}
-PIPELINE_STAGES_OPEN = {
-    # ⚠️  Confirm these hs_pipeline_stage values against your HubSpot portal.
-    # Typically these are numeric stage IDs or names like "appointmentscheduled".
-    # Leave empty to treat any non-empty pipelineStage as "open deal".
-}
+VERY_HIGH = "VERY_HIGH"
+
+
+def _wow_pct(this_val: float, last_val: float) -> float | None:
+    if last_val == 0:
+        return None
+    return round((this_val - last_val) / last_val * 100, 1)
+
+
+def _load_fibbler_snapshot() -> dict:
+    """Load performance/fibbler_snapshot.json."""
+    if not os.path.exists(SNAPSHOT_PATH):
+        print("  ⚠️  fibbler_snapshot.json not found — Fibbler sections will show no data.")
+        return {"current": {}, "previous": None}
+    with open(SNAPSHOT_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
 
 
 def build_payload() -> dict:
+    today = date.today()
+
     print("=" * 60)
-    print("Building performance/index.html — HubSpot + Fibbler data")
+    print("Building performance/index.html")
     print("=" * 60)
 
-    # ── 1. Fibbler company data ───────────────────────────────────────────────
-    print("\n[1/2] Fetching Fibbler company engagement data…")
-    companies = fetch_fibbler_companies()
+    # ── 1. HubSpot: new leads WoW ─────────────────────────────────────────────
+    print("\n[1/3] New leads WoW…")
+    leads = fetch_new_leads(days=7)
 
-    # Engagement level distribution
-    engagement_summary = {level: 0 for level in ENGAGEMENT_LEVELS}
-    for co in companies:
-        lvl = (co.get("engagementLevel") or "").upper()
-        if lvl in engagement_summary:
-            engagement_summary[lvl] += 1
+    # ── 2. HubSpot: lead journey ──────────────────────────────────────────────
+    print("\n[2/3] Lead journey (hs_lead_status)…")
+    lead_journey = fetch_lead_journey()
 
-    # Pipeline overlap: HIGH or VERY_HIGH engagement + open deal
-    # Assumption: hasOpenDeal is True when the `amount` field on the company
-    # record is > 0.  If deal data lives only on Deal objects and is not synced
-    # to the Company record, hasOpenDeal will always be False and pipelineOverlap
-    # counts will be 0.  In that case a separate Deals API query is needed.
-    overlap_companies = [
-        co for co in companies
-        if co["engagementLevel"].upper() in HIGH_ENGAGEMENT and co["hasOpenDeal"]
-    ]
-    overlap_companies.sort(key=lambda c: -c["dealValue"])
+    # ── 3. HubSpot: lead quality trend ────────────────────────────────────────
+    print("\n[3/3] Lead quality score trend (8 weeks)…")
+    lead_quality = fetch_lead_quality_trend(weeks=8)
 
-    pipeline_overlap = {
-        "count":          len(overlap_companies),
-        "totalDealValue": round(sum(c["dealValue"] for c in overlap_companies), 2),
-        "topCompanies":   [
+    # ── Fibbler: read from committed snapshot ─────────────────────────────────
+    print("\nLoading Fibbler snapshot…")
+    snap = _load_fibbler_snapshot()
+    cur  = snap.get("current") or {}
+    prev = snap.get("previous")
+    no_prior = prev is None
+
+    # Pipeline section
+    pipeline_this       = float(cur.get("pipelineValue",    0) or 0)
+    pipeline_last       = float((prev or {}).get("pipelineValue",    0) or 0)
+    pipeline_deals      = int(cur.get("pipelineDealCount",  0) or 0)
+    pipeline_deals_last = int((prev or {}).get("pipelineDealCount",  0) or 0)
+
+    pipeline = {
+        "thisWeek":          pipeline_this,
+        "lastWeek":          pipeline_last,
+        "wowDelta":          round(pipeline_this - pipeline_last, 2),
+        "wowPct":            _wow_pct(pipeline_this, pipeline_last),
+        "dealCount":         pipeline_deals,
+        "dealCountLastWeek": pipeline_deals_last,
+    }
+
+    # Closed Won section
+    cw_this       = float(cur.get("closedWonValue",  0) or 0)
+    cw_last       = float((prev or {}).get("closedWonValue",  0) or 0)
+    cw_deals      = int(cur.get("closedWonCount",    0) or 0)
+    cw_deals_last = int((prev or {}).get("closedWonCount",    0) or 0)
+
+    closed_won = {
+        "thisWeek":          cw_this,
+        "lastWeek":          cw_last,
+        "wowDelta":          round(cw_this - cw_last, 2),
+        "wowPct":            _wow_pct(cw_this, cw_last),
+        "dealCount":         cw_deals,
+        "dealCountLastWeek": cw_deals_last,
+    }
+
+    # VERY_HIGH engagement section
+    companies = cur.get("companies") or []
+    very_high_companies = sorted(
+        [c for c in companies if (c.get("engagementLevel") or "").upper() == VERY_HIGH],
+        key=lambda c: -int(c.get("engagements", 0) or 0),
+    )
+    very_high_count = len(very_high_companies)
+    vh_last = int((prev or {}).get("veryHighCount", 0) or 0)
+
+    very_high_engagement = {
+        "thisWeek": very_high_count,
+        "lastWeek": vh_last,
+        "wowDelta": very_high_count - vh_last,
+        "wowPct":   _wow_pct(very_high_count, vh_last),
+        "companies": [
             {
-                "name":             c["name"],
-                "domain":           c["domain"],
-                "industry":         c["industry"],
-                "engagementLevel":  c["engagementLevel"],
-                "dealValue":        c["dealValue"],
+                "name":        c.get("name", ""),
+                "industry":    c.get("industry", ""),
+                "impressions": int(c.get("impressions", 0) or 0),
+                "engagements": int(c.get("engagements", 0) or 0),
             }
-            for c in overlap_companies[:10]
+            for c in very_high_companies[:10]
         ],
     }
 
-    # Shape fibblerCompanies for the front end (drop internal fields not needed)
-    fibbler_companies_out = [
-        {
-            "name":             co["name"],
-            "domain":           co["domain"],
-            "industry":         co["industry"],
-            "employees":        co["employees"],
-            "engagementLevel":  co["engagementLevel"],
-            "impressions30":    co["impressions30"],
-            "clicks30":         co["clicks30"],
-            "engagements30":    co["engagements30"],
-            "lifecyclestage":   co["lifecyclestage"],
-            "hasOpenDeal":      co["hasOpenDeal"],
-            "dealValue":        co["dealValue"],
-        }
-        for co in companies
-    ]
-
-    # ── 2. Contact acquisition by source ─────────────────────────────────────
-    print("\n[2/2] Fetching new contacts by source (last 30 days)…")
-    contacts_by_source = fetch_new_contacts_by_source(days=30)
-
-    # ── 3. Assemble payload ───────────────────────────────────────────────────
     payload = {
-        "fibblerCompanies":  fibbler_companies_out,
-        "engagementSummary": engagement_summary,
-        "pipelineOverlap":   pipeline_overlap,
-        "contactsBySource":  contacts_by_source,
-        "lastUpdated":       date.today().isoformat(),
+        "leads":              leads,
+        "leadJourney":        lead_journey,
+        "leadQuality":        lead_quality,
+        "pipeline":           pipeline,
+        "closedWon":          closed_won,
+        "veryHighEngagement": very_high_engagement,
+        "noPriorSnapshot":    no_prior,
+        "lastUpdated":        today.isoformat(),
+        "snapshotNote": (
+            "WoW comparisons are based on the previous Fibbler snapshot. "
+            "Refresh via Claude Code + Fibbler MCP tools, then rebuild."
+        ),
     }
 
-    total_with_data = len(companies)
-    print(f"\n✅  Payload ready — {total_with_data} companies, "
-          f"{pipeline_overlap['count']} pipeline overlaps, "
-          f"{len(contacts_by_source)} contact sources")
+    print(
+        f"\n✅  Payload ready — "
+        f"leads={leads['thisWeek']}, "
+        f"pipeline=${pipeline_this:,.0f}, "
+        f"veryHigh={very_high_count}"
+    )
     return payload
 
 
@@ -127,13 +163,11 @@ def main():
     try:
         data = build_payload()
     except EnvironmentError as exc:
-        # Give a clear message if the token is missing rather than crashing CI
         print(f"\n❌  Configuration error: {exc}", file=sys.stderr)
-        print("    Add HUBSPOT_ACCESS_TOKEN to GitHub repository secrets.", file=sys.stderr)
         sys.exit(1)
     except Exception as exc:
         print(f"\n❌  Build failed: {exc}", file=sys.stderr)
-        sys.exit(1)
+        raise
 
     try:
         inject_data(

@@ -12,7 +12,8 @@ from datetime import date, datetime, timedelta
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
 
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+SCOPES    = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+SCOPES_RW = ["https://www.googleapis.com/auth/spreadsheets"]
 
 HUBSPOT_SHEET_ID   = os.environ.get("HUBSPOT_SHEET_ID",
                                      "1TsDySDrmgSQEUjunQg77twgUS1fGgZIC71IbX-bAz1s")
@@ -23,23 +24,35 @@ PPC_SHEET_ID       = os.environ.get("PPC_SHEET_ID",
 GSC_SHEET_ID       = os.environ.get("GSC_SHEET_ID", "")
 
 
-def _get_sheets_service(credentials_file=None):
-    """Build an authenticated Google Sheets service."""
+def _resolve_credentials_file(credentials_file=None) -> str:
+    """Resolve the service account credentials file path."""
     creds_json = os.environ.get("GA4_CREDENTIALS_JSON")
     if creds_json:
         tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
         tmp.write(creds_json)
         tmp.close()
-        credentials_file = tmp.name
+        return tmp.name
+    if credentials_file:
+        return credentials_file
+    return os.environ.get(
+        "GA4_CREDENTIALS_FILE",
+        os.path.join(os.path.expanduser("~"), "Downloads",
+                     "visme-marketing-491309-8316da126688.json")
+    )
 
-    if not credentials_file:
-        credentials_file = os.environ.get(
-            "GA4_CREDENTIALS_FILE",
-            os.path.join(os.path.expanduser("~"), "Downloads",
-                         "visme-marketing-491309-8316da126688.json")
-        )
 
-    creds = Credentials.from_service_account_file(credentials_file, scopes=SCOPES)
+def _get_sheets_service(credentials_file=None):
+    """Build an authenticated read-only Google Sheets service."""
+    path = _resolve_credentials_file(credentials_file)
+    creds = Credentials.from_service_account_file(path, scopes=SCOPES)
+    service = build("sheets", "v4", credentials=creds)
+    return service.spreadsheets()
+
+
+def _get_sheets_service_rw(credentials_file=None):
+    """Build an authenticated read-write Google Sheets service."""
+    path = _resolve_credentials_file(credentials_file)
+    creds = Credentials.from_service_account_file(path, scopes=SCOPES_RW)
     service = build("sheets", "v4", credentials=creds)
     return service.spreadsheets()
 
@@ -769,3 +782,168 @@ def fetch_bing_weekly(sheet_id, credentials_file=None):
         }
 
     return sorted(seen.values(), key=lambda r: r["week_start"])
+
+
+# ── FIBBLER SNAPSHOT FUNCTIONS ────────────────────────────────────────────────
+# These write/read a "Fibbler Snapshots" tab in the existing HUBSPOT_SHEET_ID
+# Google Sheet so we can compute WoW deltas for Fibbler metrics across weekly
+# builds.  The GA4_SERVICE_ACCOUNT_KEY service account already has Sheets
+# access for that spreadsheet (read); write access is granted by the same
+# service account credential — confirm the Sheet is shared with the service
+# account email with at least Editor permission.
+
+_SNAPSHOT_TAB     = "Fibbler Snapshots"
+_SNAPSHOT_HEADERS = [
+    "snapshot_date",
+    "pipeline_value",
+    "pipeline_deal_count",
+    "closed_won_value",
+    "closed_won_count",
+    "very_high_engagement_count",
+]
+
+
+def _ensure_snapshot_tab(sheets_rw, sheet_id: str) -> None:
+    """Create the Fibbler Snapshots tab with headers if it doesn't exist."""
+    from googleapiclient.errors import HttpError
+
+    # Check if tab already exists
+    meta = sheets_rw.get(spreadsheetId=sheet_id).execute()
+    existing = {s["properties"]["title"] for s in meta.get("sheets", [])}
+    if _SNAPSHOT_TAB in existing:
+        return
+
+    print(f"  Creating '{_SNAPSHOT_TAB}' tab in spreadsheet…")
+    sheets_rw.batchUpdate(
+        spreadsheetId=sheet_id,
+        body={"requests": [{"addSheet": {"properties": {"title": _SNAPSHOT_TAB}}}]},
+    ).execute()
+
+    # Write header row
+    sheets_rw.values().update(
+        spreadsheetId=sheet_id,
+        range=f"'{_SNAPSHOT_TAB}'!A1",
+        valueInputOption="RAW",
+        body={"values": [_SNAPSHOT_HEADERS]},
+    ).execute()
+    print(f"  Header row written to '{_SNAPSHOT_TAB}'.")
+
+
+def write_fibbler_snapshot(
+    sheet_id: str,
+    snapshot_date: str,
+    pipeline_value: float,
+    pipeline_deal_count: int,
+    closed_won_value: float,
+    closed_won_count: int,
+    very_high_count: int,
+    credentials_file: str | None = None,
+) -> None:
+    """
+    Append one row to the 'Fibbler Snapshots' tab, creating the tab (with
+    headers) if it doesn't already exist.
+
+    Args:
+        sheet_id:            The Google Sheet ID (use HUBSPOT_SHEET_ID).
+        snapshot_date:       Date string "YYYY-MM-DD" (the Monday build ran).
+        pipeline_value:      Fibbler-influenced pipeline value this week.
+        pipeline_deal_count: Number of influenced pipeline deals this week.
+        closed_won_value:    Fibbler-influenced closed-won revenue this week.
+        closed_won_count:    Number of influenced closed-won deals this week.
+        very_high_count:     Count of companies with VERY_HIGH engagement.
+    """
+    sheets = _get_sheets_service_rw(credentials_file)
+    _ensure_snapshot_tab(sheets, sheet_id)
+
+    row = [
+        snapshot_date,
+        round(pipeline_value, 2),
+        pipeline_deal_count,
+        round(closed_won_value, 2),
+        closed_won_count,
+        very_high_count,
+    ]
+    sheets.values().append(
+        spreadsheetId=sheet_id,
+        range=f"'{_SNAPSHOT_TAB}'!A1",
+        valueInputOption="RAW",
+        insertDataOption="INSERT_ROWS",
+        body={"values": [row]},
+    ).execute()
+    print(f"  Snapshot written: {row}")
+
+
+def read_last_fibbler_snapshot(
+    sheet_id: str,
+    credentials_file: str | None = None,
+) -> dict:
+    """
+    Read the most recent row from 'Fibbler Snapshots' and return it as a dict.
+
+    Returns all-zeros with no_prior_snapshot=True when the tab doesn't exist
+    or contains only the header row (i.e. first build after deployment).
+
+    Returns:
+        {
+          "snapshot_date":           str | None,
+          "pipeline_value":          float,
+          "pipeline_deal_count":     int,
+          "closed_won_value":        float,
+          "closed_won_count":        int,
+          "very_high_engagement_count": int,
+          "no_prior_snapshot":       bool,
+        }
+    """
+    from googleapiclient.errors import HttpError
+
+    _ZERO = {
+        "snapshot_date":              None,
+        "pipeline_value":             0.0,
+        "pipeline_deal_count":        0,
+        "closed_won_value":           0.0,
+        "closed_won_count":           0,
+        "very_high_engagement_count": 0,
+        "no_prior_snapshot":          True,
+    }
+
+    sheets = _get_sheets_service(credentials_file)
+    try:
+        result = sheets.values().get(
+            spreadsheetId=sheet_id,
+            range=f"'{_SNAPSHOT_TAB}'!A:F",
+        ).execute()
+    except HttpError as exc:
+        # Tab doesn't exist yet (400) or other access error
+        print(f"  No prior snapshot: {exc}")
+        return _ZERO
+
+    rows = result.get("values", [])
+    # rows[0] is header; data rows start at index 1
+    data_rows = [r for r in rows[1:] if r and any(str(c).strip() for c in r)]
+    if not data_rows:
+        print("  No prior snapshot rows found.")
+        return _ZERO
+
+    last = data_rows[-1]
+
+    def _f(v):
+        try: return float(str(v).replace(",", "").strip())
+        except (ValueError, TypeError): return 0.0
+
+    def _i(v):
+        try: return int(float(str(v).replace(",", "").strip()))
+        except (ValueError, TypeError): return 0
+
+    snapshot = {
+        "snapshot_date":              str(last[0]) if len(last) > 0 else None,
+        "pipeline_value":             _f(last[1])  if len(last) > 1 else 0.0,
+        "pipeline_deal_count":        _i(last[2])  if len(last) > 2 else 0,
+        "closed_won_value":           _f(last[3])  if len(last) > 3 else 0.0,
+        "closed_won_count":           _i(last[4])  if len(last) > 4 else 0,
+        "very_high_engagement_count": _i(last[5])  if len(last) > 5 else 0,
+        "no_prior_snapshot":          False,
+    }
+    print(f"  Prior snapshot: {snapshot['snapshot_date']} — "
+          f"pipeline=${snapshot['pipeline_value']:,.0f}, "
+          f"veryHigh={snapshot['very_high_engagement_count']}")
+    return snapshot
