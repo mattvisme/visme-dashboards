@@ -212,6 +212,22 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       <a href="paid-media/index.html" class="card-link live">Open Dashboard →</a>
     </div>
 
+    <!-- Performance Marketing -->
+    <div class="dash-card">
+      <div class="card-top">
+        <div class="card-icon" style="background:#EEF4FC;">🎯</div>
+        <span class="status-badge status-live">● Live</span>
+      </div>
+      <div class="card-name">Performance Marketing</div>
+      <div class="card-desc">LinkedIn ad reach and company engagement via Fibbler CRM sync. Pipeline overlap — high-engagement accounts with open deals. Contact acquisition by source channel.</div>
+      <div class="source-tags">
+        <span class="source-tag" style="background:#EEF4FC;color:#0A66C2;">HubSpot</span>
+        <span class="source-tag" style="background:#EEF4FC;color:#0A66C2;">Fibbler</span>
+      </div>
+      <div class="card-asof"><span class="card-asof-label">Data as of</span><span class="card-asof-value loading" id="asof-performance">—</span></div>
+      <a href="performance/index.html" class="card-link live">Open Dashboard →</a>
+    </div>
+
 
   </div>
 </main>
@@ -235,6 +251,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
     ['asof-gsc',        'gsc/index.html',         t => { const m = /"endDate":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
     ['asof-paid-media', 'paid-media/index.html',  t => { const m = /const generatedAt = "([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
     ['asof-website',    'website/index.html',     t => { const m = /"dataAsOfDate":"([^"]+)"/.exec(t); return m ? m[1] : null; }],
+    ['asof-performance','performance/index.html', t => { const m = /"lastUpdated":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
   ];
 
   DASHBOARDS.forEach(([id, url, extract]) => {

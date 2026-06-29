@@ -83,6 +83,11 @@ jobs:
           PPC_SHEET_ID: ${{ secrets.PPC_SHEET_ID }}
         run: python scripts/build_ppc.py
 
+      - name: Build Performance Marketing dashboard
+        env:
+          HUBSPOT_ACCESS_TOKEN: ${{ secrets.HUBSPOT_ACCESS_TOKEN }}
+        run: python scripts/build_performance.py
+
       - name: Build GSC SEO dashboard
         env:
           GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
@@ -105,6 +110,7 @@ jobs:
             hubspot/index.html \
             amplitude/index.html \
             paid-media/index.html \
+            performance/index.html \
             gsc/index.html \
             website/index.html
           git diff --staged --quiet || \

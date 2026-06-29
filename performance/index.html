@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="robots" content="noindex, nofollow">
+<script src="/auth.js"></script>
+<link rel="icon" type="image/png" href="https://www.visme.co/favicon-32x32.png"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Performance Marketing — Visme Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F8FAFB;--surface:#FFFFFF;--surface2:#EFF6FC;--sidebar:#1E2A35;
+  --text:#293745;--text-muted:#7F859D;--text-dim:#A8B2C0;
+  --accent:#0A66C2;--accent-pale:#EFF6FC;
+  --border:#BBD0E5;--border-light:#E7EFF3;--sidebar-w:232px;--topbar-h:72px;
+  --radius:10px;--radius-sm:6px;
+  --shadow:0 1px 3px rgba(41,55,69,.07),0 4px 16px rgba(41,55,69,.05);
+  --shadow-md:0 4px 12px rgba(41,55,69,.1),0 12px 40px rgba(41,55,69,.07);
+  --font-ui:'Lato',sans-serif;--font-display:'Montserrat',sans-serif;
+  --li-color:#0A66C2;
+  --vh:#3CACD7;--h:#6CC395;--m:#F5C842;--l:#F4704A;--vl:#E05C90;
+}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+/* ── Sidebar ── */
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--sidebar);display:flex;flex-direction:column;z-index:100;overflow-y:auto;scrollbar-width:none}
+#sidebar::-webkit-scrollbar{display:none}
+.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0}
+.sidebar-logo-mark{display:flex;align-items:center;gap:9px}
+.logo-text{font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px}
+.logo-sub{font-size:9.5px;color:rgba(255,255,255,.3);margin-top:1px;letter-spacing:.4px;text-transform:uppercase;font-weight:400}
+.source-group{margin-top:6px}
+.source-header{display:flex;align-items:center;gap:7px;padding:8px 14px 4px;cursor:pointer;user-select:none}
+.source-header:hover .source-label{color:rgba(255,255,255,.7)}
+.source-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.source-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;flex:1;transition:color .15s}
+.source-toggle{width:10px;height:10px;color:rgba(255,255,255,.2);transition:transform .2s ease;flex-shrink:0}
+.source-group.collapsed .source-toggle{transform:rotate(-90deg)}
+.source-group.collapsed .source-nav{display:none}
+.source-nav{list-style:none;padding:0 8px 4px}
+.source-nav li a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.5);transition:all .12s ease;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.source-nav li a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.source-nav li a.active{background:rgba(10,102,194,.2);color:#5B9BD5;font-weight:600}
+.nav-icon{width:14px;height:14px;opacity:.65;flex-shrink:0}
+.source-nav li a.active .nav-icon{opacity:1}
+.source-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 14px}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.18);line-height:1.6}
+.back-link{display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:6px;text-decoration:none;font-size:11.5px;color:rgba(255,255,255,.35);transition:all .12s;margin:8px 8px 0}
+.back-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.65)}
+/* ── Main ── */
+#main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column}
+#topbar{position:sticky;top:0;z-index:50;height:var(--topbar-h);background:rgba(248,250,251,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:24px}
+.topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;flex-shrink:0;margin-right:auto}
+.topbar-title span{color:var(--accent)}
+.topbar-sub{font-size:11px;color:var(--text-dim);white-space:nowrap;flex-shrink:0}
+.as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+/* ── Content ── */
+#content{padding:32px;display:flex;flex-direction:column;gap:24px;max-width:1400px;width:100%}
+.section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;scroll-margin-top:80px}
+.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}
+.section-header{display:flex;align-items:baseline;gap:12px}
+.section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.section-subtitle{font-size:12px;color:var(--text-dim);font-weight:400}
+.section-divider{height:1px;background:var(--border-light);margin-bottom:2px}
+/* ── Cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:box-shadow .2s ease}
+.card:hover{box-shadow:var(--shadow-md)}
+.card-title{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:16px}
+.cards-row{display:grid;gap:16px}
+.cards-2{grid-template-columns:1fr 1fr}
+/* ── KPI ── */
+.kpi-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;box-shadow:var(--shadow)}
+.kpi-label{font-size:11px;font-weight:600;color:var(--text-dim);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.kpi-value{font-size:28px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-1px;margin-bottom:4px}
+.kpi-sub{font-size:12px;color:var(--text-muted)}
+/* ── Charts ── */
+.chart-wrap{position:relative;height:280px}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted)}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* ── Tables ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+tbody td{padding:10px 14px;color:var(--text);vertical-align:middle}
+.num-cell{text-align:right;font-variant-numeric:tabular-nums}
+/* ── Engagement level badges ── */
+.eng-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.3px;text-transform:uppercase}
+.eng-VERY_HIGH{background:#EBF8F1;color:#1E7A45;border:1px solid #A8DFC0}
+.eng-HIGH{background:#EFF8FC;color:#1A7A9E;border:1px solid #A0D8EF}
+.eng-MEDIUM{background:#FFFBEE;color:#9A7010;border:1px solid #F0D880}
+.eng-LOW{background:#FFF4EE;color:#B05020;border:1px solid #F0B898}
+.eng-VERY_LOW{background:#FFF0F5;color:#A02050;border:1px solid #F0A0B8}
+/* ── Toggle ── */
+.toggle-row{display:flex;gap:8px;margin-bottom:12px}
+.toggle-btn{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;transition:all .15s}
+.toggle-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+/* ── Callout ── */
+.callout{background:#F5F9FF;border:1px solid #BBD0E5;border-left:4px solid var(--accent);border-radius:var(--radius-sm);padding:16px 20px;font-size:13px;color:var(--text-muted);line-height:1.65}
+.callout strong{color:var(--text);font-weight:600}
+/* ── Loading / error ── */
+#loading{position:fixed;inset:0;background:var(--sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;opacity:1;transition:opacity .5s ease}
+#loading.hide{opacity:0;pointer-events:none}
+.loading-logo{font-family:var(--font-display);font-size:28px;font-weight:700;color:#fff;margin-bottom:24px;letter-spacing:-.5px}
+.loading-logo span{color:#0A66C2}
+.loading-bar-track{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px}
+.loading-bar-fill{height:100%;background:#0A66C2;border-radius:2px;animation:loadbar 1.2s ease-in-out forwards}
+@keyframes loadbar{from{width:0}to{width:100%}}
+.loading-text{margin-top:14px;font-size:12px;color:rgba(255,255,255,.3);letter-spacing:.5px}
+.error-card{background:#FFF5F5;border:1px solid #FFBBBB;border-radius:var(--radius);padding:20px 24px;color:#C0392B;font-size:13px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-logo">Visme <span>Performance</span></div>
+  <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+  <div class="loading-text">Loading performance data…</div>
+</div>
+
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <a href="https://visme-dashboards.vercel.app/" style="text-decoration:none;display:block">
+      <div class="sidebar-logo-mark">
+        <img src="https://www.visme.co/favicon-32x32.png" alt="Visme" style="width:28px;height:28px;border-radius:7px;display:block;flex-shrink:0">
+        <div>
+          <div class="logo-text">Visme</div>
+          <div class="logo-sub">Marketing Analytics</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="source-group" id="grp-performance">
+    <div class="source-header" onclick="toggleGroup('grp-performance')">
+      <div class="source-dot" style="background:#0A66C2"></div>
+      <span class="source-label">Performance Marketing</span>
+      <svg class="source-toggle" viewBox="0 0 10 10" fill="none"><polyline points="2,3 5,7 8,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <ul class="source-nav">
+      <li><a href="#section-reach" class="active">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>
+        LinkedIn Ad Reach
+      </a></li>
+      <li><a href="#section-pipeline">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="9" width="4" height="6" rx="1" fill="currentColor" opacity=".6"/><rect x="6" y="5" width="4" height="10" rx="1" fill="currentColor" opacity=".8"/><rect x="11" y="1" width="4" height="14" rx="1" fill="currentColor"/></svg>
+        Pipeline Overlap
+      </a></li>
+      <li><a href="#section-contacts">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M2 13.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
+        Contact Acquisition
+      </a></li>
+      <li><a href="#section-attribution">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Attribution Notes
+      </a></li>
+    </ul>
+  </div>
+
+  <div class="source-divider"></div>
+
+  <div style="padding:4px 8px;">
+    <a href="../index.html" class="back-link">
+      <svg style="width:12px;height:12px;opacity:.5" viewBox="0 0 16 16" fill="none"><path d="M2 8L8 2L14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      All Dashboards
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    HubSpot CRM · Fibbler LinkedIn data<br/>
+    Refreshed weekly · 30-day rolling window
+  </div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-title">Performance <span>Marketing</span></div>
+    <div class="topbar-sub">HubSpot · Fibbler LinkedIn engagement · 30-day window</div>
+    <div class="as-of-badge" id="asOfBadge">Data as of —</div>
+  </div>
+
+  <div id="content">
+
+    <!-- ── SECTION 1: LinkedIn Ad Reach (Fibbler) ──────────────────── -->
+    <div class="section" id="section-reach">
+      <div class="section-header">
+        <h2 class="section-title">LinkedIn Ad Reach</h2>
+        <span class="section-subtitle">Company-level engagement from Fibbler CRM sync — trailing 30 days</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="cards-row cards-2">
+        <div class="card">
+          <div class="card-title">Companies by Engagement Level</div>
+          <div class="chart-wrap"><canvas id="chartEngagement"></canvas></div>
+          <div class="chart-legend" id="legendEngagement"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Summary</div>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
+            <div class="kpi">
+              <div class="kpi-label">Companies with LinkedIn data</div>
+              <div class="kpi-value" id="statTotalCompanies">—</div>
+              <div class="kpi-sub">from Fibbler CRM sync</div>
+            </div>
+            <div id="engLevelBreakdown" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <div class="callout" style="margin-top:16px;font-size:12px">
+            Google Ads integration coming soon. LinkedIn data is sourced via Fibbler's CRM Data Sync, which enriches HubSpot company records with paid and organic LinkedIn impression data.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: Pipeline Overlap ─────────────────────────────── -->
+    <div class="section" id="section-pipeline">
+      <div class="section-header">
+        <h2 class="section-title">Pipeline Overlap</h2>
+        <span class="section-subtitle">HIGH or VERY_HIGH engagement companies with an open deal in HubSpot</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="kpi-grid-2">
+        <div class="kpi">
+          <div class="kpi-label">Companies in overlap</div>
+          <div class="kpi-value" id="statOverlapCount">—</div>
+          <div class="kpi-sub">HIGH / VERY_HIGH engagement + open deal</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Total deal value</div>
+          <div class="kpi-value" id="statOverlapValue">—</div>
+          <div class="kpi-sub">from overlap companies</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Top Companies — Engagement × Pipeline (top 10 by deal value)</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Company</th>
+              <th>Industry</th>
+              <th>Engagement Level</th>
+              <th class="num-cell">Deal Value</th>
+            </tr></thead>
+            <tbody id="tbodyPipeline"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: Contact Acquisition ───────────────────────────── -->
+    <div class="section" id="section-contacts">
+      <div class="section-header">
+        <h2 class="section-title">Contact Acquisition</h2>
+        <span class="section-subtitle">New contacts by original source — last 30 days</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="card-title">New Contacts by Source</div>
+        <div class="toggle-row" id="sourceToggle">
+          <button class="toggle-btn active" data-filter="all" onclick="setSourceFilter('all')">All Sources</button>
+          <button class="toggle-btn" data-filter="paid" onclick="setSourceFilter('paid')">Paid Only</button>
+        </div>
+        <div class="chart-wrap"><canvas id="chartContacts"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: Attribution Caveat ────────────────────────────── -->
+    <div class="section" id="section-attribution">
+      <div class="section-header">
+        <h2 class="section-title">Attribution Notes</h2>
+        <span class="section-subtitle">Known data limitations</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="callout">
+        <strong>Attribution note:</strong> HubSpot source data for contacts who registered via
+        <code>dashboard.visme.co</code> may be incomplete due to a cross-domain tracking gap
+        currently being resolved. Paid channel contact counts may be understated.
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- DATA_INJECTION_POINT -->
+
+<script>
+if (typeof PERF === 'undefined') {
+  document.getElementById('loading').classList.add('hide');
+  document.getElementById('content').innerHTML =
+    '<div class="error-card">⚠️ Dashboard data is missing. Run <code>python scripts/build_performance.py</code> to inject data.</div>';
+  throw new Error('PERF data not injected');
+}
+
+// ── PALETTE ──────────────────────────────────────────────────────────────────
+const ENG_COLORS = {
+  VERY_HIGH: '#1E7A45',
+  HIGH:      '#0A66C2',
+  MEDIUM:    '#B09020',
+  LOW:       '#C04010',
+  VERY_LOW:  '#A02050',
+};
+const ENG_BG = {
+  VERY_HIGH: '#EBF8F1',
+  HIGH:      '#EFF6FC',
+  MEDIUM:    '#FFFBEE',
+  LOW:       '#FFF4EE',
+  VERY_LOW:  '#FFF0F5',
+};
+const PALETTE = [
+  '#0A66C2','#6CC395','#F5C842','#F4704A','#9062F0',
+  '#3CACD7','#E05C90','#A0C840','#FF8C42','#5BC8D0',
+];
+const PAID_SOURCES = new Set(['PAID_SEARCH', 'PAID_SOCIAL', 'PAID_OTHER']);
+const LEVELS = ['VERY_HIGH', 'HIGH', 'MEDIUM', 'LOW', 'VERY_LOW'];
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function fmtN(v) {
+  if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
+  if (v >= 1000)    return '$' + (v / 1000).toFixed(1) + 'K';
+  return '$' + v.toLocaleString();
+}
+function fmtPlain(v) {
+  if (v >= 1000000) return (v / 1000000).toFixed(1) + 'M';
+  if (v >= 1000)    return (v / 1000).toFixed(1) + 'K';
+  return v.toLocaleString();
+}
+
+const charts = {};
+function initChart(id, type, data, opts, plugins) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  if (charts[id]) charts[id].destroy();
+  const cfg = { type, data, options: opts || {} };
+  if (plugins && plugins.length) cfg.plugins = plugins;
+  charts[id] = new Chart(ctx, cfg);
+}
+
+// ── SECTION 1: Engagement Donut ───────────────────────────────────────────────
+function buildEngagementChart() {
+  const summary = PERF.engagementSummary || {};
+  const labels  = LEVELS.filter(l => summary[l] > 0);
+  const values  = labels.map(l => summary[l]);
+  const colors  = labels.map(l => ENG_COLORS[l]);
+
+  initChart('chartEngagement', 'doughnut',
+    { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '60%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1E2A35',
+          callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} companies` },
+        },
+      },
+    }
+  );
+
+  // Custom legend
+  document.getElementById('legendEngagement').innerHTML = labels.map(l =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${ENG_COLORS[l]}"></div>${l.replace('_', ' ')}</div>`
+  ).join('');
+}
+
+function buildEngagementSummary() {
+  const summary  = PERF.engagementSummary || {};
+  const total    = Object.values(summary).reduce((a, b) => a + b, 0);
+  document.getElementById('statTotalCompanies').textContent = fmtPlain(total);
+
+  document.getElementById('engLevelBreakdown').innerHTML = LEVELS.map(l => {
+    const count = summary[l] || 0;
+    if (count === 0) return '';
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:6px;background:${ENG_BG[l]};border:1px solid ${ENG_COLORS[l]}30">
+      <span style="font-size:12px;font-weight:600;color:${ENG_COLORS[l]}">${l.replace('_', ' ')}</span>
+      <span style="font-size:13px;font-weight:700;color:${ENG_COLORS[l]}">${count}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── SECTION 2: Pipeline Overlap ───────────────────────────────────────────────
+function buildPipelineSection() {
+  const overlap = PERF.pipelineOverlap || {};
+  document.getElementById('statOverlapCount').textContent = fmtPlain(overlap.count || 0);
+  document.getElementById('statOverlapValue').textContent =
+    overlap.totalDealValue ? fmtN(overlap.totalDealValue) : '$0';
+
+  const rows = (overlap.topCompanies || []);
+  document.getElementById('tbodyPipeline').innerHTML = rows.length
+    ? rows.map(r => `
+        <tr>
+          <td style="font-weight:600">${r.name || '—'}<br><span style="font-size:11px;color:var(--text-dim)">${r.domain || ''}</span></td>
+          <td>${r.industry || '—'}</td>
+          <td><span class="eng-badge eng-${r.engagementLevel}">${(r.engagementLevel || '').replace('_', ' ')}</span></td>
+          <td class="num-cell">${r.dealValue ? fmtN(r.dealValue) : '—'}</td>
+        </tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:24px">No companies with HIGH/VERY_HIGH engagement and an open deal found.</td></tr>';
+}
+
+// ── SECTION 3: Contacts by Source ─────────────────────────────────────────────
+let _currentFilter = 'all';
+
+function buildContactsChart(filter) {
+  _currentFilter = filter;
+  const dataMap  = PERF.contactsBySource || {};
+  let entries    = Object.entries(dataMap).sort((a, b) => b[1] - a[1]);
+  if (filter === 'paid') {
+    entries = entries.filter(([k]) => PAID_SOURCES.has(k));
+  }
+
+  const labels = entries.map(([k]) => k.replace(/_/g, ' '));
+  const values = entries.map(([, v]) => v);
+  const colors = entries.map((_, i) => PALETTE[i % PALETTE.length]);
+
+  initChart('chartContacts', 'bar',
+    { labels, datasets: [{ data: values, backgroundColor: colors, borderRadius: 4, barThickness: 32 }] },
+    {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1E2A35',
+          callbacks: { label: ctx => ` ${ctx.raw.toLocaleString()} contacts` },
+        },
+      },
+      scales: {
+        x: { grid:{display:false}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5}}, border:{display:false} },
+        y: { grid:{color:'#E7EFF3'}, ticks:{color:'#7F859D',font:{family:'Lato',size:10.5},callback:v=>fmtPlain(v)}, border:{display:false} },
+      },
+    }
+  );
+
+  document.querySelectorAll('.toggle-btn').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.filter === filter)
+  );
+}
+
+function setSourceFilter(filter) {
+  buildContactsChart(filter);
+}
+
+// ── SIDEBAR TOGGLE ─────────────────────────────────────────────────────────────
+function toggleGroup(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+// ── SCROLL SPY ─────────────────────────────────────────────────────────────────
+function initScrollSpy() {
+  const sections = ['section-reach','section-pipeline','section-contacts','section-attribution'];
+  const links    = document.querySelectorAll('.source-nav a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.source-nav a[href="#${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin:'-20% 0px -70% 0px' });
+  sections.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
+}
+
+function initNavScroll() {
+  const OFFSET = 80;
+  document.querySelectorAll('.source-nav a[href^="#"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      const target = document.getElementById(this.getAttribute('href').slice(1));
+      if (!target) return;
+      e.preventDefault();
+      window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - OFFSET), behavior: 'smooth' });
+    });
+  });
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+function init() {
+  try {
+    document.getElementById('asOfBadge').textContent = 'Data as of ' + (PERF.lastUpdated || '—');
+    buildEngagementChart();
+    buildEngagementSummary();
+    buildPipelineSection();
+    buildContactsChart('all');
+    initNavScroll();
+    initScrollSpy();
+  } catch(err) {
+    console.error('Dashboard init error:', err);
+    document.getElementById('content').insertAdjacentHTML('afterbegin',
+      `<div class="error-card">⚠️ Dashboard render error: ${err.message}</div>`);
+  }
+  document.getElementById('loading').classList.add('hide');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
