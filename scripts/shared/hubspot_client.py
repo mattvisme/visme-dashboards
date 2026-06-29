@@ -263,6 +263,12 @@ def fetch_new_contacts_by_source(days: int = 30) -> dict[str, int]:
         after = (resp.get("paging") or {}).get("next", {}).get("after")
         if not after:
             break
+        # HubSpot CRM search API hard-caps at 10,000 total results;
+        # passing after=10000 returns HTTP 400.
+        if int(after) >= 10000:
+            print(f"  ⚠️  HubSpot search cap reached (after={after}); "
+                  f"contact counts are capped at {total} records.")
+            break
 
     print(f"  → {total} contacts fetched, {len(counts)} sources: {sorted(counts.keys())}")
     return counts
