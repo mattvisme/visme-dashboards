@@ -244,23 +244,17 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
         <span class="section-subtitle" id="journeyScopeNote">Paid + form leads · last 28 days</span>
       </div>
       <div class="section-divider"></div>
-      <div class="cards-row cards-2">
-        <div class="card">
-          <div class="card-title">Contacts by Stage</div>
-          <div class="chart-wrap"><canvas id="chartJourney"></canvas></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Stage Breakdown</div>
-          <div class="tbl-wrap">
-            <table>
-              <thead><tr>
-                <th>Stage</th>
-                <th class="num-cell">Count</th>
-                <th class="num-cell">% of Total</th>
-              </tr></thead>
-              <tbody id="tbodyJourney"></tbody>
-            </table>
-          </div>
+      <div class="card">
+        <div class="card-title">Lead Stage Breakdown</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Stage</th>
+              <th class="num-cell">Count</th>
+              <th class="num-cell">% of Total</th>
+            </tr></thead>
+            <tbody id="tbodyJourney"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -478,39 +472,17 @@ function buildJourney() {
   if (noteEl && d.scopeNote) noteEl.textContent = d.scopeNote;
 
   if (!d.total || d.total === 0) {
-    document.getElementById('chartJourney').closest('.card').innerHTML =
-      '<div class="callout">No paid or form leads found in this period.</div>';
     document.getElementById('tbodyJourney').innerHTML =
-      '<tr><td colspan="3" style="text-align:center;color:#7F859D;padding:16px;">No data</td></tr>';
+      '<tr><td colspan="3" style="text-align:center;color:#7F859D;padding:16px;">No paid or form leads found in this period.</td></tr>';
     return;
   }
 
   const counts = JOURNEY_STAGES.map(s => stages[s] || 0);
   const total  = d.total;
 
-  initChart('chartJourney', 'bar', {
-    labels: JOURNEY_STAGES,
-    datasets: [{
-      data: counts,
-      backgroundColor: JOURNEY_PALETTE,
-      borderRadius: 4,
-      barThickness: 24,
-    }],
-  }, {
-    indexAxis: 'y',
-    plugins: Object.assign({}, CHART_DEFAULTS.plugins, {
-      tooltip: Object.assign({}, CHART_DEFAULTS.plugins.tooltip, {
-        callbacks: { label: ctx => ' ' + fmtInt(ctx.raw) },
-      }),
-    }),
-    scales: {
-      x: { grid: { color: '#E7EFF3' }, ticks: { color: '#7F859D', font: { family: 'Lato', size: 10.5 }, callback: v => fmtInt(v) }, border: { display: false } },
-      y: { grid: { display: false }, ticks: { color: '#293745', font: { family: 'Lato', size: 12, weight: '600' } }, border: { display: false } },
-    },
-  });
-
   const sorted = JOURNEY_STAGES
     .map((s, i) => ({ stage: s, count: counts[i], color: JOURNEY_PALETTE[i] }))
+    .filter(r => r.count > 0)
     .sort((a, b) => b.count - a.count);
 
   document.getElementById('tbodyJourney').innerHTML = sorted.map(r => {
