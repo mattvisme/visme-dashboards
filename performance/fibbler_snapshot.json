@@ -1,6 +1,80 @@
 {
   "note": "Updated by running: Ask Claude Code to refresh Fibbler data via MCP tools. Commit and push after each update.",
   "snapshotDate": "2026-06-30",
+  "campaigns": [
+    {
+      "channel": "LinkedIn",
+      "name": "Document Ads - Function x Skills",
+      "format": "Document Ad",
+      "impressions": 47995,
+      "clicks": 3,
+      "engagements": 2439,
+      "ctr": 0.01,
+      "engagementRate": 5.08,
+      "spend": 4220.0,
+      "influencedDeals": 1
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Document Ads - Wealth Managers",
+      "format": "Document Ad",
+      "impressions": 11677,
+      "clicks": 0,
+      "engagements": 225,
+      "ctr": 0.0,
+      "engagementRate": 1.93,
+      "spend": 980.0,
+      "influencedDeals": 0
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Lead Gen Forms - Sponsorship Personas",
+      "format": "Image Ad",
+      "impressions": 7335,
+      "clicks": 0,
+      "engagements": 42,
+      "ctr": 0.0,
+      "engagementRate": 0.57,
+      "spend": 816.0,
+      "influencedDeals": 0
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Spotlight Ads - Sales Leadership - Sales Blogs",
+      "format": "Spotlight",
+      "impressions": 255807,
+      "clicks": 0,
+      "engagements": 0,
+      "ctr": 0.0,
+      "engagementRate": 0.0,
+      "spend": 532.0,
+      "influencedDeals": 0
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Spotlight Ads - Customer Success & Support",
+      "format": "Spotlight",
+      "impressions": 118037,
+      "clicks": 0,
+      "engagements": 0,
+      "ctr": 0.0,
+      "engagementRate": 0.0,
+      "spend": 263.0,
+      "influencedDeals": 0
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Spotlight Ads - Sales Leadership - Sales Content System",
+      "format": "Spotlight",
+      "impressions": 85181,
+      "clicks": 0,
+      "engagements": 0,
+      "ctr": 0.0,
+      "engagementRate": 0.0,
+      "spend": 125.0,
+      "influencedDeals": 0
+    }
+  ],
   "current": {
     "pipelineValue": 0,
     "pipelineDealCount": 0,

@@ -50,17 +50,24 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .back-link{display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:6px;text-decoration:none;font-size:11.5px;color:rgba(255,255,255,.35);transition:all .12s;margin:8px 8px 0;}
 .back-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.65);}
 #main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
-#topbar{position:sticky;top:0;z-index:50;height:var(--topbar-h);background:rgba(248,250,251,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:24px;}
+#topbar{position:sticky;top:0;z-index:50;height:var(--topbar-h);background:rgba(248,250,251,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:20px;}
 .topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;flex-shrink:0;margin-right:auto;}
 .topbar-title span{color:var(--accent)}
+.range-control{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.range-label{font-size:11.5px;color:var(--text-muted);font-weight:500;white-space:nowrap;}
+.range-pills{display:flex;gap:3px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px;}
+.pill{padding:4px 13px;border-radius:16px;font-size:11.5px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .15s ease;white-space:nowrap;user-select:none;}
+.pill.active{background:var(--accent);color:#fff;font-weight:600;}
+.pill:not(.active):hover{background:rgba(0,0,0,.04);color:var(--text);}
 .as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
 #content{padding:32px;display:flex;flex-direction:column;gap:32px;max-width:1400px;width:100%;}
 .section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;scroll-margin-top:var(--topbar-h);}
-.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}.section:nth-child(5){animation-delay:.25s}.section:nth-child(6){animation-delay:.3s}
+.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}
 .section-header{display:flex;align-items:baseline;gap:12px;}
 .section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
 .section-subtitle{font-size:12px;color:var(--text-dim);font-weight:400;}
 .section-divider{height:1px;background:var(--border-light);margin-bottom:2px;}
+.fixed-window-note{font-size:11.5px;color:var(--text-dim);font-style:italic;margin:-8px 0 2px;padding-left:2px;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:box-shadow .2s ease;}
 .card:hover{box-shadow:var(--shadow-md)}
 .card-title{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:16px;}
@@ -100,6 +107,27 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
 .loading-text{margin-top:14px;font-size:12px;color:rgba(255,255,255,.3);letter-spacing:.5px;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* ── Campaign cards ───────────────────────────────────────────────────────── */
+.campaign-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+.campaign-card{display:flex;flex-direction:column;gap:14px;}
+.campaign-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.campaign-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.4;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.format-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;letter-spacing:.2px;}
+.badge-doc{background:#EFF6FC;color:#3CACD7;}
+.badge-img{background:#EFF9F3;color:#27AE60;}
+.badge-spot{background:#F4EEFF;color:#9062F0;}
+.badge-vid{background:#FFF5EB;color:#E07B20;}
+.badge-other{background:var(--surface2);color:var(--text-muted);}
+.campaign-funnel{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;}
+.funnel-step{display:flex;flex-direction:column;align-items:center;min-width:64px;}
+.funnel-value{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.5px;line-height:1;}
+.funnel-label{font-size:10px;color:var(--text-muted);margin-top:3px;text-transform:uppercase;letter-spacing:.3px;font-weight:600;}
+.funnel-rate{font-size:11px;color:var(--text-dim);margin-top:2px;}
+.funnel-arrow{font-size:14px;color:var(--border);flex-shrink:0;margin-top:3px;}
+.funnel-awareness{font-size:11px;color:var(--text-dim);font-style:italic;padding:4px 0;align-self:center;}
+.campaign-stats{display:flex;gap:24px;padding-top:12px;border-top:1px solid var(--border-light);}
+.campaign-stat-value{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.5px;}
+.campaign-stat-label{font-size:10px;color:var(--text-muted);margin-top:2px;text-transform:uppercase;letter-spacing:.3px;font-weight:600;}
 </style>
 </head>
 <body>
@@ -142,17 +170,9 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
         <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><polyline points="1,12 4,7 7,10 11,4 15,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
         Lead Quality Trend
       </a></li>
-      <li><a href="#section-pipeline">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="9" width="4" height="6" rx="1" fill="currentColor" opacity=".6"/><rect x="6" y="5" width="4" height="10" rx="1" fill="currentColor" opacity=".8"/><rect x="11" y="1" width="4" height="14" rx="1" fill="currentColor"/></svg>
-        Pipeline Influence
-      </a></li>
-      <li><a href="#section-closed-won">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><polyline points="5,8 7,10.5 11,5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Closed Won
-      </a></li>
-      <li><a href="#section-very-high">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3H13l-2.8 2 1 3.3L8 8.5l-3.2 1.8 1-3.3L3 5h3.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/></svg>
-        VERY_HIGH Accounts
+      <li><a href="#section-campaigns">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 12V4l5 2 2-4 2 4 3-2v8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Campaign Performance
       </a></li>
     </ul>
   </div>
@@ -168,13 +188,20 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
 
   <div class="sidebar-footer">
     HubSpot CRM · Fibbler LinkedIn<br/>
-    WoW via Monday build snapshots
+    Campaign snapshot updated weekly
   </div>
 </nav>
 
 <div id="main">
   <div id="topbar">
     <div class="topbar-title">Performance <span>Marketing</span></div>
+    <div class="range-control">
+      <span class="range-label">Compare</span>
+      <div class="range-pills" id="wowPills">
+        <span class="pill active" data-window="current_vs_last">This wk vs last</span>
+        <span class="pill" data-window="last_vs_prev">Last wk vs prev</span>
+      </div>
+    </div>
     <div class="as-of-badge" id="asOfBadge">Data as of —</div>
   </div>
 
@@ -184,7 +211,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
     <div class="section" id="section-leads">
       <div class="section-header">
         <h2 class="section-title">New Leads — Week over Week</h2>
-        <span class="section-subtitle">Contacts from forms or paid channels · this 7 days vs prior 7 days</span>
+        <span class="section-subtitle" id="leads-section-subtitle">Contacts from forms or paid channels</span>
       </div>
       <div class="section-divider"></div>
       <div class="cards-row cards-2">
@@ -192,19 +219,20 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
           <div class="card-title">New Leads</div>
           <div class="kpi-row kpi-2">
             <div class="kpi">
-              <div class="kpi-label">This Week</div>
+              <div class="kpi-label" id="label-leads-selected">This Week</div>
               <div class="kpi-value" id="leads-this">—</div>
               <div class="kpi-delta" id="leads-delta"></div>
             </div>
             <div class="kpi">
-              <div class="kpi-label">Last Week</div>
+              <div class="kpi-label" id="label-leads-comparison">Last Week</div>
               <div class="kpi-value" id="leads-last">—</div>
             </div>
           </div>
         </div>
         <div class="card">
-          <div class="card-title">Daily Volume — Last 14 Days</div>
+          <div class="card-title" id="daily-vol-title">Daily Volume</div>
           <div class="chart-wrap-sm"><canvas id="chartLeadsSparkline"></canvas></div>
+          <div class="chart-legend" id="daily-vol-legend"></div>
         </div>
       </div>
     </div>
@@ -213,9 +241,10 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
     <div class="section" id="section-journey">
       <div class="section-header">
         <h2 class="section-title">Lead Journey</h2>
-        <span class="section-subtitle" id="journeyScopeNote">Paid + form leads · last 30 days</span>
+        <span class="section-subtitle" id="journeyScopeNote">Paid + form leads · last 28 days</span>
       </div>
       <div class="section-divider"></div>
+      <p class="fixed-window-note">Fixed 28-day window · not affected by the comparison selector above</p>
       <div class="cards-row cards-2">
         <div class="card">
           <div class="card-title">Contacts by Stage</div>
@@ -244,6 +273,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
         <span class="section-subtitle">Average HubSpot lead score per week · last 8 complete weeks</span>
       </div>
       <div class="section-divider"></div>
+      <p class="fixed-window-note">Fixed 8-week trailing window · not affected by the comparison selector above</p>
       <div class="card">
         <div class="card-title">Avg Lead Score by Week of Creation</div>
         <div id="qualityStartNote" style="font-size:11px;color:#7F859D;margin:-4px 0 10px;font-style:italic;"></div>
@@ -254,96 +284,17 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
       </div>
     </div>
 
-    <!-- ── SECTION 4: PIPELINE INFLUENCE WoW ─────────────────────────────── -->
-    <div class="section" id="section-pipeline">
+    <!-- ── SECTION 4: CAMPAIGN PERFORMANCE ───────────────────────────────── -->
+    <div class="section" id="section-campaigns">
       <div class="section-header">
-        <h2 class="section-title">Influence on Pipeline — Week over Week</h2>
-        <span class="section-subtitle">Fibbler · LinkedIn-influenced pipeline · this 7 days vs prior Monday snapshot</span>
+        <h2 class="section-title">Campaign Performance — LinkedIn</h2>
+        <span class="section-subtitle">Active campaigns · last 30 days</span>
       </div>
       <div class="section-divider"></div>
-      <div class="kpi-row kpi-4">
-        <div class="kpi">
-          <div class="kpi-label">Pipeline Value — This Week</div>
-          <div class="kpi-value" id="pipe-this">—</div>
-          <div class="kpi-delta" id="pipe-value-delta"></div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Pipeline Value — Last Week</div>
-          <div class="kpi-value" id="pipe-last">—</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Deals Influenced — This Week</div>
-          <div class="kpi-value" id="pipe-deals-this">—</div>
-          <div class="kpi-delta" id="pipe-deals-delta"></div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Deals Influenced — Last Week</div>
-          <div class="kpi-value" id="pipe-deals-last">—</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── SECTION 5: CLOSED WON WoW ─────────────────────────────────────── -->
-    <div class="section" id="section-closed-won">
-      <div class="section-header">
-        <h2 class="section-title">Influence on Closed Won — Week over Week</h2>
-        <span class="section-subtitle">Fibbler · LinkedIn-influenced closed-won revenue · this 7 days vs prior Monday snapshot</span>
-      </div>
-      <div class="section-divider"></div>
-      <div class="kpi-row kpi-4">
-        <div class="kpi">
-          <div class="kpi-label">Closed Won Value — This Week</div>
-          <div class="kpi-value" id="cw-this">—</div>
-          <div class="kpi-delta" id="cw-value-delta"></div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Closed Won Value — Last Week</div>
-          <div class="kpi-value" id="cw-last">—</div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Deals Won — This Week</div>
-          <div class="kpi-value" id="cw-deals-this">—</div>
-          <div class="kpi-delta" id="cw-deals-delta"></div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">Deals Won — Last Week</div>
-          <div class="kpi-value" id="cw-deals-last">—</div>
-        </div>
-      </div>
-      <div class="callout" id="snapshot-note"></div>
-    </div>
-
-    <!-- ── SECTION 6: VERY_HIGH ENGAGEMENT WoW ───────────────────────────── -->
-    <div class="section" id="section-very-high">
-      <div class="section-header">
-        <h2 class="section-title">Target Accounts — VERY_HIGH Engagement</h2>
-        <span class="section-subtitle">Fibbler · companies with highest LinkedIn ad engagement · this 7 days vs prior Monday snapshot</span>
-      </div>
-      <div class="section-divider"></div>
-      <div class="kpi-row kpi-2" style="max-width:480px">
-        <div class="kpi">
-          <div class="kpi-label">VERY_HIGH Companies — This Week</div>
-          <div class="kpi-value" id="vh-this">—</div>
-          <div class="kpi-delta" id="vh-delta"></div>
-        </div>
-        <div class="kpi">
-          <div class="kpi-label">VERY_HIGH Companies — Last Week</div>
-          <div class="kpi-value" id="vh-last">—</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Top 10 VERY_HIGH Engaged Companies</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>Company</th>
-              <th>Industry</th>
-              <th class="num-cell">Impressions</th>
-              <th class="num-cell">Engagements</th>
-            </tr></thead>
-            <tbody id="tbodyVeryHigh"></tbody>
-          </table>
-        </div>
+      <p class="fixed-window-note">Fixed 30-day window · not affected by the comparison selector above</p>
+      <div class="campaign-grid" id="campaignGrid"></div>
+      <div class="callout">
+        Spend and engagement data from Fibbler; refreshed with the weekly Monday snapshot. Contact-level attribution (form fills, UTM tracking) not yet confirmed on LinkedIn ad URLs — influenced deal count is Fibbler's pipeline attribution model.
       </div>
     </div>
 
@@ -351,7 +302,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
 </div><!-- /main -->
 
 <script>
-const PERF = {"leads":{"thisWeek":45,"lastWeek":18,"wowDelta":27,"wowPct":150.0,"dailyVolume":[{"date":"2026-06-17","count":4},{"date":"2026-06-18","count":3},{"date":"2026-06-19","count":0},{"date":"2026-06-20","count":1},{"date":"2026-06-21","count":0},{"date":"2026-06-22","count":5},{"date":"2026-06-23","count":13},{"date":"2026-06-24","count":8},{"date":"2026-06-25","count":3},{"date":"2026-06-26","count":12},{"date":"2026-06-27","count":2},{"date":"2026-06-28","count":1},{"date":"2026-06-29","count":6},{"date":"2026-06-30","count":3}]},"leadJourney":{"scopeNote":"Paid + form leads, last 30 days (97 total)","total":97,"stages":{"New":20,"Open":0,"In Progress":0,"Open Deal":0,"Unqualified":0,"LinkedIn Outreach":40,"Attempted to Contact":14,"Never Replied":0,"Connected":0,"Disqualified":0}},"leadQuality":{"weeks":["2026-05-04","2026-05-11","2026-05-18","2026-05-25","2026-06-01","2026-06-08","2026-06-15","2026-06-22"],"avgScores":[null,null,null,null,null,8.43,7.81,8.07]},"pipeline":{"thisWeek":0.0,"lastWeek":0.0,"wowDelta":0.0,"wowPct":null,"dealCount":0,"dealCountLastWeek":0},"closedWon":{"thisWeek":0.0,"lastWeek":0.0,"wowDelta":0.0,"wowPct":null,"dealCount":0,"dealCountLastWeek":0},"veryHighEngagement":{"thisWeek":0,"lastWeek":0,"wowDelta":0,"wowPct":null,"companies":[]},"noPriorSnapshot":false,"lastUpdated":"2026-06-30","snapshotNote":"WoW comparisons are based on the previous Fibbler snapshot. Refresh via Claude Code + Fibbler MCP tools, then rebuild."};
+const PERF = {"windows":{"current_vs_last":{"label":"This week vs. last week","selectedLabel":"This week","comparisonLabel":"Last week","leads":{"selected":45,"comparison":18,"wowDelta":27,"wowPct":150.0,"dailyVolume":[{"date":"2026-06-23","compDate":"2026-06-16","weekday":"Tue","selected":13,"comparison":5},{"date":"2026-06-24","compDate":"2026-06-17","weekday":"Wed","selected":8,"comparison":4},{"date":"2026-06-25","compDate":"2026-06-18","weekday":"Thu","selected":3,"comparison":3},{"date":"2026-06-26","compDate":"2026-06-19","weekday":"Fri","selected":12,"comparison":0},{"date":"2026-06-27","compDate":"2026-06-20","weekday":"Sat","selected":2,"comparison":1},{"date":"2026-06-28","compDate":"2026-06-21","weekday":"Sun","selected":1,"comparison":0},{"date":"2026-06-29","compDate":"2026-06-22","weekday":"Mon","selected":6,"comparison":5}]}},"last_vs_prev":{"label":"Last week vs. two weeks ago","selectedLabel":"Last week","comparisonLabel":"Two weeks ago","leads":{"selected":18,"comparison":20,"wowDelta":-2,"wowPct":-10.0,"dailyVolume":[{"date":"2026-06-16","compDate":"2026-06-09","weekday":"Tue","selected":5,"comparison":6},{"date":"2026-06-17","compDate":"2026-06-10","weekday":"Wed","selected":4,"comparison":3},{"date":"2026-06-18","compDate":"2026-06-11","weekday":"Thu","selected":3,"comparison":2},{"date":"2026-06-19","compDate":"2026-06-12","weekday":"Fri","selected":0,"comparison":4},{"date":"2026-06-20","compDate":"2026-06-13","weekday":"Sat","selected":1,"comparison":1},{"date":"2026-06-21","compDate":"2026-06-14","weekday":"Sun","selected":0,"comparison":2},{"date":"2026-06-22","compDate":"2026-06-15","weekday":"Mon","selected":5,"comparison":2}]}}},"leadJourney":{"scopeNote":"Paid + form leads, last 28 days (97 total)","total":97,"stages":{"New":7,"Open":0,"In Progress":0,"Open Deal":0,"Unqualified":0,"LinkedIn Outreach":40,"Attempted to Contact":14,"Never Replied":0,"Connected":0,"Disqualified":0}},"leadQuality":{"weeks":["2026-05-04","2026-05-11","2026-05-18","2026-05-25","2026-06-01","2026-06-08","2026-06-15","2026-06-22"],"avgScores":[null,null,null,null,null,8.43,7.81,8.07]},"campaigns":[{"channel":"LinkedIn","name":"Document Ads - Function x Skills","format":"Document Ad","impressions":47995,"clicks":3,"engagements":2439,"ctr":0.01,"engagementRate":5.08,"spend":4220.0,"influencedDeals":1},{"channel":"LinkedIn","name":"Document Ads - Wealth Managers","format":"Document Ad","impressions":11677,"clicks":0,"engagements":225,"ctr":0.0,"engagementRate":1.93,"spend":980.0,"influencedDeals":0},{"channel":"LinkedIn","name":"Lead Gen Forms - Sponsorship Personas","format":"Image Ad","impressions":7335,"clicks":0,"engagements":42,"ctr":0.0,"engagementRate":0.57,"spend":816.0,"influencedDeals":0},{"channel":"LinkedIn","name":"Spotlight Ads - Sales Leadership - Sales Blogs","format":"Spotlight","impressions":255807,"clicks":0,"engagements":0,"ctr":0.0,"engagementRate":0.0,"spend":532.0,"influencedDeals":0},{"channel":"LinkedIn","name":"Spotlight Ads - Customer Success & Support","format":"Spotlight","impressions":118037,"clicks":0,"engagements":0,"ctr":0.0,"engagementRate":0.0,"spend":263.0,"influencedDeals":0},{"channel":"LinkedIn","name":"Spotlight Ads - Sales Leadership - Sales Content System","format":"Spotlight","impressions":85181,"clicks":0,"engagements":0,"ctr":0.0,"engagementRate":0.0,"spend":125.0,"influencedDeals":0}],"lastUpdated":"2026-06-30"};
 </script>
 
 <script>
@@ -363,7 +314,7 @@ if (typeof PERF === 'undefined') {
   throw new Error('PERF data not injected');
 }
 
-// ── PALETTE & CHART DEFAULTS (matches website/index.html and hubspot/index.html) ──
+// ── PALETTE & CHART DEFAULTS ──────────────────────────────────────────────────
 const PALETTE = [
   '#FF7A59','#3CACD7','#6CC395','#9062F0','#F5C842',
   '#E05C90','#3D92E7','#A0C840','#FF8C42','#5BC8D0',
@@ -416,22 +367,9 @@ function fmtMoney(v) {
   return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-function renderDelta(elId, deltaVal, pctVal, noSnap) {
+function renderCountDelta(elId, delta, pct) {
   const el = document.getElementById(elId);
   if (!el) return;
-  if (noSnap) { el.innerHTML = '<span class="delta-first">— (first run)</span>'; return; }
-  if (pctVal === null || pctVal === undefined) { el.innerHTML = '<span class="delta-neu">—</span>'; return; }
-  const sign  = deltaVal >= 0 ? '+' : '';
-  const abs   = Math.abs(pctVal);
-  const cls   = abs <= 2 ? 'delta-neu' : deltaVal >= 0 ? 'delta-up' : 'delta-down';
-  const arrow = deltaVal >= 0 ? '▲' : '▼';
-  el.innerHTML = `<span class="${cls}">${arrow} ${sign}${Number(pctVal).toFixed(1)}%</span>`;
-}
-
-function renderCountDelta(elId, delta, pct, noSnap) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  if (noSnap) { el.innerHTML = '<span class="delta-first">— (first run)</span>'; return; }
   if (pct === null || pct === undefined) { el.innerHTML = '<span class="delta-neu">—</span>'; return; }
   const sign  = delta >= 0 ? '+' : '';
   const abs   = Math.abs(pct);
@@ -440,36 +378,92 @@ function renderCountDelta(elId, delta, pct, noSnap) {
   el.innerHTML = `<span class="${cls}">${arrow} ${sign}${delta} (${sign}${Number(pct).toFixed(1)}%)</span>`;
 }
 
+// ── SELECTOR STATE ─────────────────────────────────────────────────────────────
+let activeWindow = 'current_vs_last';
+
+function setupWoWSelector() {
+  document.querySelectorAll('#wowPills .pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('#wowPills .pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      activeWindow = p.dataset.window;
+      buildLeads();
+    });
+  });
+}
+
 // ── SECTION 1: NEW LEADS WoW ──────────────────────────────────────────────────
 function buildLeads() {
-  const d = PERF.leads || {};
-  document.getElementById('leads-this').textContent = fmtInt(d.thisWeek);
-  document.getElementById('leads-last').textContent = fmtInt(d.lastWeek);
-  renderCountDelta('leads-delta', d.wowDelta, d.wowPct, false);
+  const w   = (PERF.windows || {})[activeWindow] || {};
+  const d   = w.leads || {};
+  const sel = w.selectedLabel   || 'Selected week';
+  const cmp = w.comparisonLabel || 'Comparison week';
 
-  const daily  = d.dailyVolume || [];
-  const labels = daily.map(r => {
+  const labelSelEl = document.getElementById('label-leads-selected');
+  const labelCmpEl = document.getElementById('label-leads-comparison');
+  if (labelSelEl) labelSelEl.textContent = sel;
+  if (labelCmpEl) labelCmpEl.textContent = cmp;
+
+  const subtitleEl = document.getElementById('leads-section-subtitle');
+  if (subtitleEl) subtitleEl.textContent = 'Contacts from forms or paid channels · ' + (w.label || '');
+
+  const titleEl = document.getElementById('daily-vol-title');
+  if (titleEl) titleEl.textContent = 'Daily Volume — ' + (w.label || '');
+
+  document.getElementById('leads-this').textContent = fmtInt(d.selected);
+  document.getElementById('leads-last').textContent = fmtInt(d.comparison);
+  renderCountDelta('leads-delta', d.wowDelta, d.wowPct);
+
+  // Grouped bar chart — one cluster per day, two bars per cluster
+  const daily   = d.dailyVolume || [];
+  const labels  = daily.map(r => {
     const dt = new Date(r.date + 'T12:00:00');
-    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return r.weekday + ' ' + dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   });
-  const values = daily.map(r => r.count);
+  const selData = daily.map(r => r.selected);
+  const cmpData = daily.map(r => r.comparison);
 
   initChart('chartLeadsSparkline', 'bar', {
     labels,
-    datasets: [{
-      data: values,
-      backgroundColor: '#FF7A59',
-      borderRadius: 3,
-      barPercentage: 0.7,
-      categoryPercentage: 0.8,
-    }],
+    datasets: [
+      {
+        label: sel,
+        data: selData,
+        backgroundColor: '#FF7A59',
+        borderRadius: 3,
+        barPercentage: 0.7,
+        categoryPercentage: 0.75,
+      },
+      {
+        label: cmp,
+        data: cmpData,
+        backgroundColor: 'rgba(255,122,89,0.28)',
+        borderRadius: 3,
+        barPercentage: 0.7,
+        categoryPercentage: 0.75,
+      },
+    ],
   }, {
-    plugins: CHART_DEFAULTS.plugins,
+    plugins: Object.assign({}, CHART_DEFAULTS.plugins, {
+      legend: { display: false },
+      tooltip: Object.assign({}, CHART_DEFAULTS.plugins.tooltip, {
+        callbacks: {
+          label: ctx => ' ' + ctx.dataset.label + ': ' + fmtInt(ctx.raw),
+        },
+      }),
+    }),
     scales: {
       x: { grid: { display: false }, ticks: { color: '#7F859D', font: { family: 'Lato', size: 9.5 }, maxRotation: 45, autoSkipPadding: 8 }, border: { display: false } },
       y: { grid: { color: '#E7EFF3', lineWidth: 1 }, ticks: { color: '#7F859D', font: { family: 'Lato', size: 9.5 }, callback: v => fmtInt(v) }, border: { display: false } },
     },
   });
+
+  const legendEl = document.getElementById('daily-vol-legend');
+  if (legendEl) {
+    legendEl.innerHTML =
+      `<div class="legend-item"><div class="legend-dot" style="background:#FF7A59"></div>${sel}</div>` +
+      `<div class="legend-item"><div class="legend-dot" style="background:rgba(255,122,89,0.5)"></div>${cmp}</div>`;
+  }
 }
 
 // ── SECTION 2: LEAD JOURNEY ───────────────────────────────────────────────────
@@ -484,7 +478,7 @@ function buildJourney() {
 
   if (!d.total || d.total === 0) {
     document.getElementById('chartJourney').closest('.card').innerHTML =
-      '<div class="empty-state">No paid or form leads found in the last 30 days.</div>';
+      '<div class="callout">No paid or form leads found in this period.</div>';
     document.getElementById('tbodyJourney').innerHTML =
       '<tr><td colspan="3" style="text-align:center;color:#7F859D;padding:16px;">No data</td></tr>';
     return;
@@ -534,10 +528,6 @@ function buildQualityTrend() {
   const weeks  = d.weeks  || [];
   const scores = d.avgScores || [];
 
-  // Find first week with real data. Null weeks at the start mean the
-  // lead_quality_score property didn't exist yet — not a query bug.
-  // We slice from the first non-null week so the chart doesn't open with
-  // a misleading flat gap implying zero scores.
   const firstReal = scores.findIndex(v => v !== null && v !== undefined);
   const sliceFrom = firstReal === -1 ? 0 : firstReal;
   const trimmedWeeks  = weeks.slice(sliceFrom);
@@ -588,66 +578,85 @@ function buildQualityTrend() {
   });
 }
 
-// ── SECTIONS 4 & 5: PIPELINE + CLOSED WON ────────────────────────────────────
-function buildPipelineAndClosedWon() {
-  const noSnap = !!PERF.noPriorSnapshot;
+// ── SECTION 4: CAMPAIGN PERFORMANCE ──────────────────────────────────────────
+const FORMAT_BADGE = {
+  'Document Ad': 'badge-doc',
+  'Image Ad':    'badge-img',
+  'Spotlight':   'badge-spot',
+  'Video Ad':    'badge-vid',
+};
 
-  // Pipeline
-  const p = PERF.pipeline || {};
-  document.getElementById('pipe-this').textContent       = fmtMoney(p.thisWeek);
-  document.getElementById('pipe-last').textContent       = fmtMoney(p.lastWeek);
-  document.getElementById('pipe-deals-this').textContent = fmtInt(p.dealCount);
-  document.getElementById('pipe-deals-last').textContent = fmtInt(p.dealCountLastWeek);
-  renderDelta('pipe-value-delta', p.wowDelta, p.wowPct, noSnap);
-  const pDeals = p.dealCount || 0;
-  const pDealsLast = p.dealCountLastWeek || 0;
-  renderCountDelta('pipe-deals-delta',
-    pDeals - pDealsLast,
-    pDealsLast > 0 ? (pDeals - pDealsLast) / pDealsLast * 100 : null,
-    noSnap
-  );
+function campaignCard(c) {
+  const badgeClass = FORMAT_BADGE[c.format] || 'badge-other';
+  const isSpotlight = c.format === 'Spotlight';
 
-  // Closed Won
-  const cw = PERF.closedWon || {};
-  document.getElementById('cw-this').textContent       = fmtMoney(cw.thisWeek);
-  document.getElementById('cw-last').textContent       = fmtMoney(cw.lastWeek);
-  document.getElementById('cw-deals-this').textContent = fmtInt(cw.dealCount);
-  document.getElementById('cw-deals-last').textContent = fmtInt(cw.dealCountLastWeek);
-  renderDelta('cw-value-delta', cw.wowDelta, cw.wowPct, noSnap);
-  const cwDeals = cw.dealCount || 0;
-  const cwDealsLast = cw.dealCountLastWeek || 0;
-  renderCountDelta('cw-deals-delta',
-    cwDeals - cwDealsLast,
-    cwDealsLast > 0 ? (cwDeals - cwDealsLast) / cwDealsLast * 100 : null,
-    noSnap
-  );
+  let funnelHtml;
+  if (isSpotlight) {
+    funnelHtml = `
+      <div class="campaign-funnel">
+        <div class="funnel-step">
+          <div class="funnel-value">${fmtInt(c.impressions)}</div>
+          <div class="funnel-label">Impressions</div>
+        </div>
+        <div class="funnel-awareness">Awareness format — click &amp; engagement metrics not tracked</div>
+      </div>`;
+  } else {
+    const ctrStr  = (c.ctr != null && c.ctr > 0) ? c.ctr.toFixed(2) + '%' : '0%';
+    const engStr  = (c.engagementRate != null) ? c.engagementRate.toFixed(2) + '%' : '—';
+    funnelHtml = `
+      <div class="campaign-funnel">
+        <div class="funnel-step">
+          <div class="funnel-value">${fmtInt(c.impressions)}</div>
+          <div class="funnel-label">Impressions</div>
+        </div>
+        <div class="funnel-arrow">→</div>
+        <div class="funnel-step">
+          <div class="funnel-value">${fmtInt(c.clicks)}</div>
+          <div class="funnel-label">Clicks</div>
+          <div class="funnel-rate">${ctrStr} CTR</div>
+        </div>
+        <div class="funnel-arrow">→</div>
+        <div class="funnel-step">
+          <div class="funnel-value">${fmtInt(c.engagements)}</div>
+          <div class="funnel-label">Engagements</div>
+          <div class="funnel-rate">${engStr}</div>
+        </div>
+      </div>`;
+  }
 
-  // Snapshot note callout
-  const noteEl = document.getElementById('snapshot-note');
-  if (noteEl) noteEl.textContent = PERF.snapshotNote || '';
+  const dealsVal = (c.influencedDeals != null) ? c.influencedDeals : '—';
+  const dealsCls = c.influencedDeals > 0 ? 'style="color:#3CACD7"' : '';
+
+  return `<div class="card campaign-card">
+    <div class="campaign-header">
+      <div class="campaign-name" title="${c.name}">${c.name}</div>
+      <span class="format-badge ${badgeClass}">${c.format}</span>
+    </div>
+    ${funnelHtml}
+    <div class="campaign-stats">
+      <div>
+        <div class="campaign-stat-value">${fmtMoney(c.spend)}</div>
+        <div class="campaign-stat-label">Spend</div>
+      </div>
+      <div>
+        <div class="campaign-stat-value" ${dealsCls}>${dealsVal}</div>
+        <div class="campaign-stat-label">Influenced Deals</div>
+      </div>
+    </div>
+  </div>`;
 }
 
-// ── SECTION 6: VERY_HIGH ENGAGEMENT WoW ──────────────────────────────────────
-function buildVeryHigh() {
-  const noSnap = !!PERF.noPriorSnapshot;
-  const vh = PERF.veryHighEngagement || {};
+function buildCampaigns() {
+  const campaigns = PERF.campaigns || [];
+  const grid = document.getElementById('campaignGrid');
+  if (!grid) return;
 
-  document.getElementById('vh-this').textContent = fmtInt(vh.thisWeek);
-  document.getElementById('vh-last').textContent = fmtInt(vh.lastWeek);
-  renderCountDelta('vh-delta', vh.wowDelta, vh.wowPct, noSnap);
-
-  const tbody     = document.getElementById('tbodyVeryHigh');
-  const companies = vh.companies || [];
-  if (!companies.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="color:var(--text-dim);text-align:center;padding:20px">No VERY_HIGH engagement companies this period.</td></tr>';
+  if (!campaigns.length) {
+    grid.innerHTML = '<div class="callout">No campaign data in snapshot. Will populate on next Monday rebuild.</div>';
     return;
   }
-  tbody.innerHTML = companies.map((c, i) => `<tr>
-    <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${PALETTE[i % PALETTE.length]};margin-right:7px;vertical-align:middle;flex-shrink:0"></span>${c.name || '—'}</td>
-    <td>${c.industry || '—'}</td>
-    <td class="num-cell">${fmtInt(c.impressions)}</td>
-    <td class="num-cell">${fmtInt(c.engagements)}</td>
-  </tr>`).join('');
+
+  grid.innerHTML = campaigns.map(c => campaignCard(c)).join('');
 }
 
 // ── SIDEBAR + SCROLL SPY ──────────────────────────────────────────────────────
@@ -668,7 +677,7 @@ function initNavScroll() {
 }
 
 function initScrollSpy() {
-  const sections = ['section-leads','section-journey','section-quality-trend','section-pipeline','section-closed-won','section-very-high'];
+  const sections = ['section-leads','section-journey','section-quality-trend','section-campaigns'];
   const links    = document.querySelectorAll('.source-nav a');
   const obs = new IntersectionObserver(entries => {
     entries.forEach(e => {
@@ -686,11 +695,11 @@ function initScrollSpy() {
 function init() {
   try {
     document.getElementById('asOfBadge').textContent = 'Data as of ' + (PERF.lastUpdated || '—');
+    setupWoWSelector();
     buildLeads();
     buildJourney();
     buildQualityTrend();
-    buildPipelineAndClosedWon();
-    buildVeryHigh();
+    buildCampaigns();
     initNavScroll();
     initScrollSpy();
   } catch (err) {

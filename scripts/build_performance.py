@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 """
 scripts/build_performance.py
-Builds performance/index.html — HubSpot leads + Fibbler LinkedIn attribution.
+Builds performance/index.html — HubSpot leads + Fibbler LinkedIn campaign data.
 
 Data sources:
-    HubSpot CRM API            → new leads, lead journey, lead quality trend
-    performance/fibbler_snapshot.json  → Fibbler deal attribution + company
-                                          engagement (updated via Claude MCP)
+    HubSpot CRM API                   → new leads (two windows), lead journey, lead quality trend
+    performance/fibbler_snapshot.json → Fibbler campaign performance (updated via Claude MCP)
 
 Environment variables required:
     HUBSPOT_ACCESS_TOKEN    HubSpot Private App token
                             Scopes: crm.objects.contacts.read
 
-No Fibbler or Sheets credentials needed — Fibbler data is read from
+No Fibbler credentials needed — campaign data is read from
 performance/fibbler_snapshot.json, which is committed to the repo and
 refreshed on demand via Claude Code + Fibbler MCP tools.
 """
@@ -20,7 +19,7 @@ refreshed on demand via Claude Code + Fibbler MCP tools.
 import json
 import os
 import sys
-from datetime import date
+from datetime import date, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -36,20 +35,11 @@ SNAPSHOT_PATH = os.path.join(REPO_ROOT, "performance", "fibbler_snapshot.json")
 TEMPLATE      = os.path.join(REPO_ROOT, "performance", "index.html")
 OUTPUT        = os.path.join(REPO_ROOT, "performance", "index.html")
 
-VERY_HIGH = "VERY_HIGH"
-
-
-def _wow_pct(this_val: float, last_val: float) -> float | None:
-    if last_val == 0:
-        return None
-    return round((this_val - last_val) / last_val * 100, 1)
-
 
 def _load_fibbler_snapshot() -> dict:
-    """Load performance/fibbler_snapshot.json."""
     if not os.path.exists(SNAPSHOT_PATH):
-        print("  ⚠️  fibbler_snapshot.json not found — Fibbler sections will show no data.")
-        return {"current": {}, "previous": None}
+        print("  ⚠️  fibbler_snapshot.json not found — campaign section will show no data.")
+        return {}
     with open(SNAPSHOT_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -61,100 +51,66 @@ def build_payload() -> dict:
     print("Building performance/index.html")
     print("=" * 60)
 
-    # ── 1. HubSpot: new leads WoW ─────────────────────────────────────────────
-    print("\n[1/3] New leads WoW…")
-    leads = fetch_new_leads(days=7)
+    # ── Window date math ──────────────────────────────────────────────────────
+    # Window 1 — this week (last 7 days) vs last week (7–14 days ago)
+    w1_sel_start = today - timedelta(days=7)
+    w1_sel_end   = today
+    w1_cmp_start = today - timedelta(days=14)
+    w1_cmp_end   = today - timedelta(days=7)
 
-    # ── 2. HubSpot: lead journey ──────────────────────────────────────────────
-    print("\n[2/3] Lead journey (hs_lead_status, scoped to paid+form leads, last 30 days)…")
-    lead_journey = fetch_lead_journey(days=30)
+    # Window 2 — last week (7–14 days ago) vs two weeks ago (14–21 days ago)
+    w2_sel_start = today - timedelta(days=14)
+    w2_sel_end   = today - timedelta(days=7)
+    w2_cmp_start = today - timedelta(days=21)
+    w2_cmp_end   = today - timedelta(days=14)
 
-    # ── 3. HubSpot: lead quality trend ────────────────────────────────────────
-    print("\n[3/3] Lead quality score trend (8 weeks)…")
+    # ── 1. New Leads — window 1 ───────────────────────────────────────────────
+    print("\n[1/4] New leads — this week vs last week…")
+    leads_w1 = fetch_new_leads(w1_sel_start, w1_sel_end, w1_cmp_start, w1_cmp_end)
+
+    # ── 2. New Leads — window 2 ───────────────────────────────────────────────
+    print("\n[2/4] New leads — last week vs two weeks ago…")
+    leads_w2 = fetch_new_leads(w2_sel_start, w2_sel_end, w2_cmp_start, w2_cmp_end)
+
+    # ── 3. Lead Journey (fixed 28-day rolling window) ─────────────────────────
+    print("\n[3/4] Lead journey (paid + form leads, rolling 28 days)…")
+    lead_journey = fetch_lead_journey(today - timedelta(days=28), today)
+
+    # ── 4. Lead Quality Trend (fixed 8-week trailing window) ──────────────────
+    print("\n[4/4] Lead quality score trend (8 weeks)…")
     lead_quality = fetch_lead_quality_trend(weeks=8)
 
-    # ── Fibbler: read from committed snapshot ─────────────────────────────────
+    # ── Fibbler: campaign data from committed snapshot ─────────────────────────
     print("\nLoading Fibbler snapshot…")
-    snap = _load_fibbler_snapshot()
-    cur  = snap.get("current") or {}
-    prev = snap.get("previous")
-    no_prior = prev is None
-
-    # Pipeline section
-    pipeline_this       = float(cur.get("pipelineValue",    0) or 0)
-    pipeline_last       = float((prev or {}).get("pipelineValue",    0) or 0)
-    pipeline_deals      = int(cur.get("pipelineDealCount",  0) or 0)
-    pipeline_deals_last = int((prev or {}).get("pipelineDealCount",  0) or 0)
-
-    pipeline = {
-        "thisWeek":          pipeline_this,
-        "lastWeek":          pipeline_last,
-        "wowDelta":          round(pipeline_this - pipeline_last, 2),
-        "wowPct":            _wow_pct(pipeline_this, pipeline_last),
-        "dealCount":         pipeline_deals,
-        "dealCountLastWeek": pipeline_deals_last,
-    }
-
-    # Closed Won section
-    cw_this       = float(cur.get("closedWonValue",  0) or 0)
-    cw_last       = float((prev or {}).get("closedWonValue",  0) or 0)
-    cw_deals      = int(cur.get("closedWonCount",    0) or 0)
-    cw_deals_last = int((prev or {}).get("closedWonCount",    0) or 0)
-
-    closed_won = {
-        "thisWeek":          cw_this,
-        "lastWeek":          cw_last,
-        "wowDelta":          round(cw_this - cw_last, 2),
-        "wowPct":            _wow_pct(cw_this, cw_last),
-        "dealCount":         cw_deals,
-        "dealCountLastWeek": cw_deals_last,
-    }
-
-    # VERY_HIGH engagement section
-    companies = cur.get("companies") or []
-    very_high_companies = sorted(
-        [c for c in companies if (c.get("engagementLevel") or "").upper() == VERY_HIGH],
-        key=lambda c: -int(c.get("engagements", 0) or 0),
-    )
-    very_high_count = len(very_high_companies)
-    vh_last = int((prev or {}).get("veryHighCount", 0) or 0)
-
-    very_high_engagement = {
-        "thisWeek": very_high_count,
-        "lastWeek": vh_last,
-        "wowDelta": very_high_count - vh_last,
-        "wowPct":   _wow_pct(very_high_count, vh_last),
-        "companies": [
-            {
-                "name":        c.get("name", ""),
-                "industry":    c.get("industry", ""),
-                "impressions": int(c.get("impressions", 0) or 0),
-                "engagements": int(c.get("engagements", 0) or 0),
-            }
-            for c in very_high_companies[:10]
-        ],
-    }
+    snap      = _load_fibbler_snapshot()
+    campaigns = snap.get("campaigns") or []
 
     payload = {
-        "leads":              leads,
-        "leadJourney":        lead_journey,
-        "leadQuality":        lead_quality,
-        "pipeline":           pipeline,
-        "closedWon":          closed_won,
-        "veryHighEngagement": very_high_engagement,
-        "noPriorSnapshot":    no_prior,
-        "lastUpdated":        today.isoformat(),
-        "snapshotNote": (
-            "WoW comparisons are based on the previous Fibbler snapshot. "
-            "Refresh via Claude Code + Fibbler MCP tools, then rebuild."
-        ),
+        "windows": {
+            "current_vs_last": {
+                "label":           "This week vs. last week",
+                "selectedLabel":   "This week",
+                "comparisonLabel": "Last week",
+                "leads":           leads_w1,
+            },
+            "last_vs_prev": {
+                "label":           "Last week vs. two weeks ago",
+                "selectedLabel":   "Last week",
+                "comparisonLabel": "Two weeks ago",
+                "leads":           leads_w2,
+            },
+        },
+        "leadJourney": lead_journey,
+        "leadQuality": lead_quality,
+        "campaigns":   campaigns,
+        "lastUpdated": today.isoformat(),
     }
 
     print(
         f"\n✅  Payload ready — "
-        f"leads={leads['thisWeek']}, "
-        f"pipeline=${pipeline_this:,.0f}, "
-        f"veryHigh={very_high_count}"
+        f"leads(w1)={leads_w1['selected']}, "
+        f"leads(w2)={leads_w2['selected']}, "
+        f"campaigns={len(campaigns)}"
     )
     return payload
 

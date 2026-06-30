@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8765", "--directory", "website"],
       "port": 8765
+    },
+    {
+      "name": "performance",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8766", "--directory", "."],
+      "port": 8766
     }
   ]
 }

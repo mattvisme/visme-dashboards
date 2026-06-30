@@ -3,9 +3,12 @@ scripts/shared/hubspot_client.py
 HubSpot CRM API client for the Performance Marketing dashboard.
 
 Functions:
-    fetch_new_leads(days=7)           → new leads this week vs last week + daily volume
-    fetch_lead_journey()              → contacts grouped by hs_lead_status
-    fetch_lead_quality_trend(weeks=8) → avg lead score per week for last N weeks
+    fetch_new_leads(selected_start, selected_end, comparison_start, comparison_end)
+        → new leads for two explicit date windows + paired daily volume
+    fetch_lead_journey(from_date, to_date)
+        → contacts grouped by hs_lead_status within the given window
+    fetch_lead_quality_trend(weeks=8)
+        → avg lead score per week for last N weeks
 
 Auth: HUBSPOT_ACCESS_TOKEN env var (HubSpot Private App token).
 Required scopes: crm.objects.contacts.read
@@ -129,70 +132,82 @@ def _lead_source_groups(from_date: date, to_date: date) -> list:
 
 # ── PUBLIC FUNCTIONS ──────────────────────────────────────────────────────────
 
-def fetch_new_leads(days: int = 7) -> dict:
+def fetch_new_leads(selected_start: date, selected_end: date,
+                    comparison_start: date, comparison_end: date) -> dict:
     """
-    Return new lead counts for this week, last week, WoW delta, and daily
-    volume for the last 14 days.
+    Return new lead counts and paired day-by-day volume for two date windows.
 
     "New lead" = contact where hs_object_source = FORM
-                 OR hs_analytics_source IN (PAID_SOCIAL, PAID_SEARCH),
-                 created within the requested window.
+                 OR hs_analytics_source IN (PAID_SOCIAL, PAID_SEARCH).
 
     All counts use the `total` field from a limit=1 search — no pagination.
 
+    The two windows must span the same number of days.  The paired daily
+    volume aligns selected day i to comparison day i so the grouped bar chart
+    can show matching weekdays side by side.
+
     Returns:
         {
-          "thisWeek":    int,
-          "lastWeek":    int,
+          "selected":    int,
+          "comparison":  int,
           "wowDelta":    int,
-          "wowPct":      float | None,   # None when lastWeek == 0
-          "dailyVolume": [{"date": "YYYY-MM-DD", "count": int}]  # 14 entries
+          "wowPct":      float | None,   # None when comparison == 0
+          "dailyVolume": [
+            {
+              "date":       "YYYY-MM-DD",  # date in selected window
+              "compDate":   "YYYY-MM-DD",  # same-offset date in comparison window
+              "weekday":    "Mon",
+              "selected":   int,
+              "comparison": int,
+            },
+            ...  # one entry per day in the selected window
+          ]
         }
     """
-    today = date.today()
-    day7  = today - timedelta(days=7)
-    day14 = today - timedelta(days=14)
+    print(f"  Selected  ({selected_start} – {selected_end}) …")
+    selected = _count_search(_lead_source_groups(selected_start, selected_end))
 
-    print("  Counting new leads — this week…")
-    this_week = _count_search(_lead_source_groups(day7, today))
+    print(f"  Comparison ({comparison_start} – {comparison_end}) …")
+    comparison = _count_search(_lead_source_groups(comparison_start, comparison_end))
 
-    print("  Counting new leads — last week…")
-    last_week = _count_search(_lead_source_groups(day14, day7))
-
-    print("  Counting new leads — daily (14 days)…")
+    span = (selected_end - selected_start).days
     daily_volume = []
-    for i in range(14):
-        day_start = today - timedelta(days=13 - i)
-        day_end   = day_start + timedelta(days=1)
-        count = _count_search(_lead_source_groups(day_start, day_end))
-        daily_volume.append({"date": day_start.isoformat(), "count": count})
-        print(f"    {day_start}: {count}")
+    for i in range(span):
+        sel_day = selected_start + timedelta(days=i)
+        cmp_day = comparison_start + timedelta(days=i)
+        s_count = _count_search(_lead_source_groups(sel_day, sel_day + timedelta(days=1)))
+        c_count = _count_search(_lead_source_groups(cmp_day, cmp_day + timedelta(days=1)))
+        daily_volume.append({
+            "date":       sel_day.isoformat(),
+            "compDate":   cmp_day.isoformat(),
+            "weekday":    sel_day.strftime("%a"),
+            "selected":   s_count,
+            "comparison": c_count,
+        })
+        print(f"    {sel_day.strftime('%a')} {sel_day}: sel={s_count}  cmp={c_count}")
 
-    wow_delta = this_week - last_week
-    wow_pct   = round(wow_delta / last_week * 100, 1) if last_week > 0 else None
+    delta = selected - comparison
+    pct   = round(delta / comparison * 100, 1) if comparison > 0 else None
 
     return {
-        "thisWeek":    this_week,
-        "lastWeek":    last_week,
-        "wowDelta":    wow_delta,
-        "wowPct":      wow_pct,
+        "selected":    selected,
+        "comparison":  comparison,
+        "wowDelta":    delta,
+        "wowPct":      pct,
         "dailyVolume": daily_volume,
     }
 
 
-def fetch_lead_journey(days: int = 30) -> dict:
+def fetch_lead_journey(from_date: date, to_date: date) -> dict:
     """
     Return contact counts per hs_lead_status, scoped to the same lead
     population as fetch_new_leads(): paid-social, paid-search, or form-sourced
-    contacts created within the last `days` days.
-
-    Uses the identical _lead_source_groups filter so the two sections can
-    never diverge due to a differing lead definition.
+    contacts created within [from_date, to_date).
 
     Returns:
         {
-          "scopeNote": "Paid + form leads, last 30 days (N total)",
-          "total":     int,     # all in-scope leads, regardless of status
+          "scopeNote": "Paid + form leads, last N days (X total)",
+          "total":     int,
           "stages": {
             "New":                  int,
             "Open":                 int,
@@ -207,11 +222,10 @@ def fetch_lead_journey(days: int = 30) -> dict:
           }
         }
     """
-    today     = date.today()
-    from_date = today - timedelta(days=days)
+    days = (to_date - from_date).days
 
     print(f"  Counting total leads in scope (last {days} days)…")
-    total = _count_search(_lead_source_groups(from_date, today))
+    total = _count_search(_lead_source_groups(from_date, to_date))
 
     stages = {}
     for api_value, label in LEAD_STATUSES:
@@ -220,7 +234,7 @@ def fetch_lead_journey(days: int = 30) -> dict:
         # condition inside each filterGroup (preserving the OR-across-groups logic).
         groups = [
             {"filters": grp["filters"] + [status_f]}
-            for grp in _lead_source_groups(from_date, today)
+            for grp in _lead_source_groups(from_date, to_date)
         ]
         count = _count_search(groups)
         stages[label] = count
