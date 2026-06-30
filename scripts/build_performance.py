@@ -72,13 +72,21 @@ def build_payload() -> dict:
     print("\n[2/4] New leads — last week vs two weeks ago…")
     leads_w2 = fetch_new_leads(w2_sel_start, w2_sel_end, w2_cmp_start, w2_cmp_end)
 
-    # ── 3. Lead Journey (fixed 28-day rolling window) ─────────────────────────
-    print("\n[3/4] Lead journey (paid + form leads, rolling 28 days)…")
-    lead_journey = fetch_lead_journey(today - timedelta(days=28), today)
+    # ── 3. Lead Journey — window 1 (selected: this week) ─────────────────────
+    print("\n[3/6] Lead journey — this week…")
+    journey_w1 = fetch_lead_journey(w1_sel_start, w1_sel_end)
 
-    # ── 4. Lead Quality Trend (fixed 8-week trailing window) ──────────────────
-    print("\n[4/4] Lead quality score trend (8 weeks)…")
-    lead_quality = fetch_lead_quality_trend(weeks=8)
+    # ── 4. Lead Journey — window 2 (selected: last week) ─────────────────────
+    print("\n[4/6] Lead journey — last week…")
+    journey_w2 = fetch_lead_journey(w2_sel_start, w2_sel_end)
+
+    # ── 5. Lead Quality Trend — window 1 (8 weeks ending today) ──────────────
+    print("\n[5/6] Lead quality score trend — window 1…")
+    quality_w1 = fetch_lead_quality_trend(weeks=8, reference_date=w1_sel_end)
+
+    # ── 6. Lead Quality Trend — window 2 (8 weeks ending last week) ──────────
+    print("\n[6/6] Lead quality score trend — window 2…")
+    quality_w2 = fetch_lead_quality_trend(weeks=8, reference_date=w2_sel_end)
 
     # ── Fibbler: campaign data from committed snapshot ─────────────────────────
     print("\nLoading Fibbler snapshot…")
@@ -92,16 +100,18 @@ def build_payload() -> dict:
                 "selectedLabel":   "This week",
                 "comparisonLabel": "Last week",
                 "leads":           leads_w1,
+                "leadJourney":     journey_w1,
+                "leadQuality":     quality_w1,
             },
             "last_vs_prev": {
                 "label":           "Last week vs. two weeks ago",
                 "selectedLabel":   "Last week",
                 "comparisonLabel": "Two weeks ago",
                 "leads":           leads_w2,
+                "leadJourney":     journey_w2,
+                "leadQuality":     quality_w2,
             },
         },
-        "leadJourney": lead_journey,
-        "leadQuality": lead_quality,
         "campaigns":   campaigns,
         "lastUpdated": today.isoformat(),
     }

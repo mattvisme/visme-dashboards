@@ -247,16 +247,20 @@ def fetch_lead_journey(from_date: date, to_date: date) -> dict:
     }
 
 
-def fetch_lead_quality_trend(weeks: int = 8) -> dict:
+def fetch_lead_quality_trend(weeks: int = 8,
+                             reference_date: date | None = None) -> dict:
     """
     Return average Lead Quality Score per week for the last N complete weeks.
+
+    reference_date controls the trailing-window anchor (defaults to today).
+    Pass a past date to compute the same 8-week window relative to that date
+    so both WoW selector windows can show their own quality trend.
 
     Fetches up to 100 scored contacts per week (single page) and averages
     their scores.  This is a sample-based average — sufficient for trend
     visualisation.  Weeks with no scored contacts return avgScore=None.
 
     ⚠️  Property name is '{LEAD_SCORE_PROP}' — confirm before deploying.
-    See module-level comment for candidates.
 
     Returns:
         {{
@@ -264,7 +268,7 @@ def fetch_lead_quality_trend(weeks: int = 8) -> dict:
           "avgScores": [float | None, ...]    # one entry per week
         }}
     """
-    today       = date.today()
+    today       = reference_date or date.today()
     this_monday = today - timedelta(days=today.weekday())
 
     week_starts = [
