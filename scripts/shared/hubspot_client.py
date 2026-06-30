@@ -180,43 +180,57 @@ def fetch_new_leads(days: int = 7) -> dict:
     }
 
 
-def fetch_lead_journey() -> dict:
+def fetch_lead_journey(days: int = 30) -> dict:
     """
-    Return contact counts for each hs_lead_status value.
+    Return contact counts per hs_lead_status, scoped to the same lead
+    population as fetch_new_leads(): paid-social, paid-search, or form-sourced
+    contacts created within the last `days` days.
 
-    Uses a limit=1 search per status and reads the `total` field —
-    no pagination, no risk of hitting the 10k cap.
-
-    ⚠️  hs_lead_status enum values are defined in LEAD_STATUSES above.
-    Confirm these match your portal before relying on the counts.
+    Uses the identical _lead_source_groups filter so the two sections can
+    never diverge due to a differing lead definition.
 
     Returns:
         {
-          "New":                  int,
-          "Open":                 int,
-          "In Progress":          int,
-          "Open Deal":            int,
-          "Unqualified":          int,
-          "LinkedIn Outreach":    int,
-          "Attempted to Contact": int,
-          "Never Replied":        int,
-          "Connected":            int,
-          "Disqualified":         int,
+          "scopeNote": "Paid + form leads, last 30 days (N total)",
+          "total":     int,     # all in-scope leads, regardless of status
+          "stages": {
+            "New":                  int,
+            "Open":                 int,
+            "In Progress":          int,
+            "Open Deal":            int,
+            "Unqualified":          int,
+            "LinkedIn Outreach":    int,
+            "Attempted to Contact": int,
+            "Never Replied":        int,
+            "Connected":            int,
+            "Disqualified":         int,
+          }
         }
     """
-    result = {}
+    today     = date.today()
+    from_date = today - timedelta(days=days)
+
+    print(f"  Counting total leads in scope (last {days} days)…")
+    total = _count_search(_lead_source_groups(from_date, today))
+
+    stages = {}
     for api_value, label in LEAD_STATUSES:
-        resp = _request("POST", "/crm/v3/objects/contacts/search", body={
-            "filterGroups": [{"filters": [
-                {"propertyName": "hs_lead_status", "operator": "EQ", "value": api_value}
-            ]}],
-            "properties": ["hs_lead_status"],
-            "limit": 1,
-        })
-        count = resp.get("total", 0)
-        result[label] = count
+        status_f = {"propertyName": "hs_lead_status", "operator": "EQ", "value": api_value}
+        # Mirror _lead_source_groups exactly, adding hs_lead_status as an AND
+        # condition inside each filterGroup (preserving the OR-across-groups logic).
+        groups = [
+            {"filters": grp["filters"] + [status_f]}
+            for grp in _lead_source_groups(from_date, today)
+        ]
+        count = _count_search(groups)
+        stages[label] = count
         print(f"  hs_lead_status={api_value}: {count}")
-    return result
+
+    return {
+        "scopeNote": f"Paid + form leads, last {days} days ({total:,} total)",
+        "total":     total,
+        "stages":    stages,
+    }
 
 
 def fetch_lead_quality_trend(weeks: int = 8) -> dict:

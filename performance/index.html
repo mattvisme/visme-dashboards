@@ -213,7 +213,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
     <div class="section" id="section-journey">
       <div class="section-header">
         <h2 class="section-title">Lead Journey</h2>
-        <span class="section-subtitle">All contacts grouped by current hs_lead_status</span>
+        <span class="section-subtitle" id="journeyScopeNote">Paid + form leads · last 30 days</span>
       </div>
       <div class="section-divider"></div>
       <div class="cards-row cards-2">
@@ -246,6 +246,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
       <div class="section-divider"></div>
       <div class="card">
         <div class="card-title">Avg Lead Score by Week of Creation</div>
+        <div id="qualityStartNote" style="font-size:11px;color:#7F859D;margin:-4px 0 10px;font-style:italic;"></div>
         <div class="chart-wrap"><canvas id="chartQualityTrend"></canvas></div>
       </div>
       <div class="callout">
@@ -476,8 +477,21 @@ const JOURNEY_STAGES = ['New','Open','In Progress','Open Deal','Unqualified','Li
 
 function buildJourney() {
   const d      = PERF.leadJourney || {};
-  const counts = JOURNEY_STAGES.map(s => d[s] || 0);
-  const total  = counts.reduce((a, b) => a + b, 0);
+  const stages = d.stages || {};
+
+  const noteEl = document.getElementById('journeyScopeNote');
+  if (noteEl && d.scopeNote) noteEl.textContent = d.scopeNote;
+
+  if (!d.total || d.total === 0) {
+    document.getElementById('chartJourney').closest('.card').innerHTML =
+      '<div class="empty-state">No paid or form leads found in the last 30 days.</div>';
+    document.getElementById('tbodyJourney').innerHTML =
+      '<tr><td colspan="3" style="text-align:center;color:#7F859D;padding:16px;">No data</td></tr>';
+    return;
+  }
+
+  const counts = JOURNEY_STAGES.map(s => stages[s] || 0);
+  const total  = d.total;
 
   initChart('chartJourney', 'bar', {
     labels: JOURNEY_STAGES,
@@ -520,11 +534,31 @@ function buildQualityTrend() {
   const weeks  = d.weeks  || [];
   const scores = d.avgScores || [];
 
-  const labels = weeks.map(w => {
+  // Find first week with real data. Null weeks at the start mean the
+  // lead_quality_score property didn't exist yet — not a query bug.
+  // We slice from the first non-null week so the chart doesn't open with
+  // a misleading flat gap implying zero scores.
+  const firstReal = scores.findIndex(v => v !== null && v !== undefined);
+  const sliceFrom = firstReal === -1 ? 0 : firstReal;
+  const trimmedWeeks  = weeks.slice(sliceFrom);
+  const trimmedScores = scores.slice(sliceFrom);
+
+  const noteEl = document.getElementById('qualityStartNote');
+  if (noteEl) {
+    if (firstReal > 0) {
+      const startDt = new Date(weeks[firstReal] + 'T12:00:00');
+      const startLabel = startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      noteEl.textContent = `Scoring data available from ${startLabel} · earlier weeks had no scored leads`;
+    } else {
+      noteEl.textContent = '';
+    }
+  }
+
+  const labels = trimmedWeeks.map(w => {
     const dt = new Date(w + 'T12:00:00');
     return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   });
-  const data = scores.map(v => (v === null || v === undefined) ? NaN : v);
+  const data = trimmedScores.map(v => (v === null || v === undefined) ? NaN : v);
 
   initChart('chartQualityTrend', 'line', {
     labels,

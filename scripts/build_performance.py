@@ -66,8 +66,8 @@ def build_payload() -> dict:
     leads = fetch_new_leads(days=7)
 
     # ── 2. HubSpot: lead journey ──────────────────────────────────────────────
-    print("\n[2/3] Lead journey (hs_lead_status)…")
-    lead_journey = fetch_lead_journey()
+    print("\n[2/3] Lead journey (hs_lead_status, scoped to paid+form leads, last 30 days)…")
+    lead_journey = fetch_lead_journey(days=30)
 
     # ── 3. HubSpot: lead quality trend ────────────────────────────────────────
     print("\n[3/3] Lead quality score trend (8 weeks)…")
