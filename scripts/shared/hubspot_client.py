@@ -7,6 +7,8 @@ Functions:
         → new leads for two explicit date windows + paired daily volume
     fetch_lead_journey(from_date, to_date)
         → contacts grouped by hs_lead_status within the given window
+    fetch_notable_leads(from_date, to_date, top_n=10)
+        → top-N scored leads (company + title) sorted by lead quality score desc
     fetch_lead_quality_trend(weeks=8)
         → avg lead score per week for last N weeks
 
@@ -245,6 +247,45 @@ def fetch_lead_journey(from_date: date, to_date: date) -> dict:
         "total":     total,
         "stages":    stages,
     }
+
+
+def fetch_notable_leads(from_date: date, to_date: date, top_n: int = 10) -> list:
+    """
+    Return the top-N highest-scored leads created in [from_date, to_date).
+
+    Uses the same lead-source filter as fetch_new_leads() and requires the
+    LEAD_SCORE_PROP property to be set.  Results are sorted by score descending.
+
+    Returns:
+        [{"company": str, "title": str, "score": float | None}, ...]
+    """
+    score_f = {"propertyName": LEAD_SCORE_PROP, "operator": "HAS_PROPERTY"}
+    groups = [
+        {"filters": grp["filters"] + [score_f]}
+        for grp in _lead_source_groups(from_date, to_date)
+    ]
+
+    resp = _request("POST", "/crm/v3/objects/contacts/search", body={
+        "filterGroups": groups,
+        "sorts":        [{"propertyName": LEAD_SCORE_PROP, "direction": "DESCENDING"}],
+        "properties":   ["company", "jobtitle", LEAD_SCORE_PROP],
+        "limit":        min(top_n, 100),
+    })
+
+    results = []
+    for r in resp.get("results", []):
+        props   = r.get("properties") or {}
+        company = (props.get("company")  or "").strip()
+        title   = (props.get("jobtitle") or "").strip()
+        raw     = props.get(LEAD_SCORE_PROP)
+        try:
+            score = round(float(raw), 1) if raw is not None else None
+        except (TypeError, ValueError):
+            score = None
+        results.append({"company": company or "—", "title": title or "—", "score": score})
+
+    print(f"  Notable leads ({from_date} – {to_date}): {len(results)} returned")
+    return results[:top_n]
 
 
 def fetch_lead_quality_trend(weeks: int = 8,

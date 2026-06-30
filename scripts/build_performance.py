@@ -26,6 +26,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.shared.hubspot_client import (
     fetch_new_leads,
     fetch_lead_journey,
+    fetch_notable_leads,
     fetch_lead_quality_trend,
 )
 from scripts.shared.html_utils import inject_data
@@ -85,8 +86,16 @@ def build_payload() -> dict:
     quality_w1 = fetch_lead_quality_trend(weeks=8, reference_date=w1_sel_end)
 
     # ── 6. Lead Quality Trend — window 2 (8 weeks ending last week) ──────────
-    print("\n[6/6] Lead quality score trend — window 2…")
+    print("\n[6/8] Lead quality score trend — window 2…")
     quality_w2 = fetch_lead_quality_trend(weeks=8, reference_date=w2_sel_end)
+
+    # ── 7. Notable Leads — window 1 ───────────────────────────────────────────
+    print("\n[7/8] Notable leads — this week…")
+    notable_w1 = fetch_notable_leads(w1_sel_start, w1_sel_end)
+
+    # ── 8. Notable Leads — window 2 ───────────────────────────────────────────
+    print("\n[8/8] Notable leads — last week…")
+    notable_w2 = fetch_notable_leads(w2_sel_start, w2_sel_end)
 
     # ── Fibbler: campaign data from committed snapshot ─────────────────────────
     print("\nLoading Fibbler snapshot…")
@@ -102,6 +111,7 @@ def build_payload() -> dict:
                 "leads":           leads_w1,
                 "leadJourney":     journey_w1,
                 "leadQuality":     quality_w1,
+                "notableLeads":    notable_w1,
             },
             "last_vs_prev": {
                 "label":           "Last week vs. two weeks ago",
@@ -110,6 +120,7 @@ def build_payload() -> dict:
                 "leads":           leads_w2,
                 "leadJourney":     journey_w2,
                 "leadQuality":     quality_w2,
+                "notableLeads":    notable_w2,
             },
         },
         "campaigns":   campaigns,
@@ -120,6 +131,7 @@ def build_payload() -> dict:
         f"\n✅  Payload ready — "
         f"leads(w1)={leads_w1['selected']}, "
         f"leads(w2)={leads_w2['selected']}, "
+        f"notable(w1)={len(notable_w1)}, "
         f"campaigns={len(campaigns)}"
     )
     return payload
