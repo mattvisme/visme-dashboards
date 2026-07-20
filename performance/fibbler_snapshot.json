@@ -1,77 +1,65 @@
 {
   "note": "Updated by running: Ask Claude Code to refresh Fibbler data via MCP tools. Commit and push after each update.",
-  "snapshotDate": "2026-07-06",
+  "snapshotDate": "2026-07-20",
   "campaigns": [
     {
       "channel": "LinkedIn",
-      "name": "Document Ads - Function x Skills",
+      "name": "Document Ads - Sponsorships/Partnership Skills",
       "format": "Document Ad",
-      "impressions": 84318,
-      "clicks": 8,
-      "engagements": 4128,
-      "ctr": 0.01,
-      "engagementRate": 4.90,
-      "spend": 3935.0,
+      "impressions": 124646,
+      "clicks": 26,
+      "engagements": 5913,
+      "ctr": 0.02,
+      "engagementRate": 4.74,
+      "spend": 5182.0,
+      "influencedDeals": 1
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Document Ad - Sales Enablement",
+      "format": "Document Ad",
+      "impressions": 17830,
+      "clicks": 0,
+      "engagements": 1303,
+      "ctr": 0.0,
+      "engagementRate": 7.31,
+      "spend": 2352.0,
+      "influencedDeals": 0
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Retargeting - Sports Presentation Examples",
+      "format": "Document Ad",
+      "impressions": 7357,
+      "clicks": 0,
+      "engagements": 2043,
+      "ctr": 0.0,
+      "engagementRate": 27.77,
+      "spend": 784.0,
       "influencedDeals": 1
     },
     {
       "channel": "LinkedIn",
       "name": "Document Ads - Marketing x Wealth Management",
       "format": "Document Ad",
-      "impressions": 11677,
+      "impressions": 2489,
       "clicks": 0,
-      "engagements": 225,
+      "engagements": 65,
       "ctr": 0.0,
-      "engagementRate": 1.93,
-      "spend": 816.0,
+      "engagementRate": 2.61,
+      "spend": 359.0,
       "influencedDeals": 0
     },
     {
       "channel": "LinkedIn",
       "name": "Lead Gen Forms - Sponsorship Personas",
       "format": "Image Ad",
-      "impressions": 7335,
+      "impressions": 4611,
       "clicks": 0,
-      "engagements": 42,
+      "engagements": 36,
       "ctr": 0.0,
-      "engagementRate": 0.57,
-      "spend": 680.0,
-      "influencedDeals": 0
-    },
-    {
-      "channel": "LinkedIn",
-      "name": "Spotlight Ads - Sales Leadership - Sales Blogs",
-      "format": "Spotlight",
-      "impressions": 255745,
-      "clicks": 0,
-      "engagements": 0,
-      "ctr": 0.0,
-      "engagementRate": 0.0,
-      "spend": 444.0,
-      "influencedDeals": 0
-    },
-    {
-      "channel": "LinkedIn",
-      "name": "Spotlight Ads - Customer Success & Support",
-      "format": "Spotlight",
-      "impressions": 118015,
-      "clicks": 0,
-      "engagements": 0,
-      "ctr": 0.0,
-      "engagementRate": 0.0,
-      "spend": 219.0,
-      "influencedDeals": 0
-    },
-    {
-      "channel": "LinkedIn",
-      "name": "Spotlight Ads - Sales Leadership - Sales Content System",
-      "format": "Spotlight",
-      "impressions": 85168,
-      "clicks": 0,
-      "engagements": 0,
-      "ctr": 0.0,
-      "engagementRate": 0.0,
-      "spend": 104.0,
+      "engagementRate": 0.78,
+      "spend": 299.0,
       "influencedDeals": 0
     },
     {
@@ -83,16 +71,40 @@
       "engagements": 184,
       "ctr": 0.0,
       "engagementRate": 3.54,
-      "spend": 85.0,
+      "spend": 282.0,
+      "influencedDeals": 0
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Spotlight Ads - Sales Leadership - Sales Blogs",
+      "format": "Spotlight",
+      "impressions": 155196,
+      "clicks": 0,
+      "engagements": 0,
+      "ctr": 0.0,
+      "engagementRate": 0.0,
+      "spend": 195.0,
+      "influencedDeals": 0
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Spotlight Ads - Customer Success & Support",
+      "format": "Spotlight",
+      "impressions": 59208,
+      "clicks": 0,
+      "engagements": 0,
+      "ctr": 0.0,
+      "engagementRate": 0.0,
+      "spend": 96.0,
       "influencedDeals": 0
     }
   ],
   "current": {
-    "pipelineValue": 0,
-    "pipelineDealCount": 0,
-    "closedWonValue": 0,
-    "closedWonCount": 0,
-    "veryHighCount": 200,
+    "pipelineValue": 864,
+    "pipelineDealCount": 1,
+    "closedWonValue": 1530,
+    "closedWonCount": 1,
+    "veryHighCount": 327,
     "companies": []
   },
   "previous": {
@@ -100,7 +112,7 @@
     "pipelineDealCount": 0,
     "closedWonValue": 0,
     "closedWonCount": 0,
-    "veryHighCount": 68,
+    "veryHighCount": 200,
     "companies": []
   }
 }
