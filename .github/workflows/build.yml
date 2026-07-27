@@ -115,5 +115,5 @@ jobs:
             website/index.html
           git diff --staged --quiet || \
             git commit -m "Weekly rebuild $(date +%Y-%m-%d)"
-          git pull --rebase origin main
+          git pull --rebase --autostash origin main
           git push
