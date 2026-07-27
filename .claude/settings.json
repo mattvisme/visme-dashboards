@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add performance/fibbler_snapshot.json)",
+      "Bash(git commit *)",
+      "Bash(git push origin main)",
+      "Bash(git fetch origin main)",
+      "Bash(git rebase origin/main)",
+      "mcp__aeee6e44-d74f-4393-9831-0656575392f3__get_deal_attribution_summary",
+      "mcp__aeee6e44-d74f-4393-9831-0656575392f3__get_campaign_performance",
+      "mcp__a484f757-9136-4245-9248-77d41022b69c__search_crm_objects"
+    ]
+  }
+}
