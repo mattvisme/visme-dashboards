@@ -13,6 +13,7 @@ Usage (local dev):
     python scripts/build_ppc.py
 """
 
+import json
 import os
 import sys
 import tempfile
@@ -43,22 +44,29 @@ TEMPLATE  = os.path.join(REPO_ROOT, "paid-media", "index.html")
 OUTPUT    = os.path.join(REPO_ROOT, "paid-media", "index.html")
 
 # ─── MONTHLY BUDGET CONFIG ────────────────────────────────────────────────────
-# Update manually at the start of each month.
+# Budgets are stored in config/ppc_budgets.json — edit that file, not this one.
 
-MONTHLY_BUDGETS = {
-    "2026-01": 10000,
-    "2026-02": 10000,
-    "2026-03": 11111,
-    "2026-04": 11111,
-    "2026-05": 11111,
-    "2026-06": 11111,
-    "2026-07": 11111,
-    "2026-08": 11111,
-    "2026-09": 11111,
-    "2026-10": 11111,
-    "2026-11": 11111,
-    "2026-12": 11111,
-}
+_BUDGETS_FILE = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "config", "ppc_budgets.json"
+)
+
+def _load_budgets() -> dict:
+    try:
+        with open(_BUDGETS_FILE) as f:
+            raw = json.load(f)
+        # Strip the _comment key if present
+        budgets = {k: v for k, v in raw.items() if not k.startswith("_")}
+    except FileNotFoundError:
+        print(f"WARNING: budget config not found at {_BUDGETS_FILE} — budgets will show as 0")
+        budgets = {}
+    # Warn if the current month is missing
+    current_month = date.today().strftime("%Y-%m")
+    if current_month not in budgets:
+        print(f"WARNING: no budget entry for current month {current_month} in {_BUDGETS_FILE}")
+    return budgets
+
+MONTHLY_BUDGETS = _load_budgets()
 
 # ─── ENV VARS ─────────────────────────────────────────────────────────────────
 

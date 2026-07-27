@@ -178,7 +178,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       <div class="kpi-row">
         <div class="kpi"><div class="kpi-label">New Signups</div><div class="kpi-value" id="kpi-amp-signups">—</div><div class="kpi-delta" id="kpi-amp-signups-delta"></div></div>
         <div class="kpi"><div class="kpi-label">Activated Users</div><div class="kpi-value" id="kpi-amp-activations">—</div><div class="kpi-delta" id="kpi-amp-activations-delta"></div></div>
-        <div class="kpi"><div class="kpi-label">Activation Rate</div><div class="kpi-value" id="kpi-amp-actrate">—</div><div class="kpi-delta" id="kpi-amp-actrate-delta" style="font-size:10.5px;color:var(--text-dim)">Activated ÷ New Signups</div></div>
+        <div class="kpi"><div class="kpi-label">Project Creation Rate</div><div class="kpi-value" id="kpi-amp-actrate">—</div><div class="kpi-delta" id="kpi-amp-actrate-delta" style="font-size:10.5px;color:var(--text-dim)">Project Created ÷ New Signups (same week)</div></div>
         <div class="kpi"><div class="kpi-label">Free&#x2192;Paid Conv. Rate</div><div class="kpi-value" id="kpi-amp-cr">—</div><div class="kpi-delta" id="kpi-amp-cr-delta"></div></div>
         <div class="kpi"><div class="kpi-label">Free&#x2192;Paid Conversions</div><div class="kpi-value" id="kpi-amp-upgrades">—</div><div class="kpi-delta" id="kpi-amp-upgrades-delta"></div></div>
       </div>
@@ -252,15 +252,15 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       </div>
     </div>
 
-    <!-- Activation Rate Trend -->
+    <!-- Project Creation Rate Trend -->
     <div class="section" id="section-amp-retention">
       <div class="section-header">
-        <h2 class="section-title">Activation Rate Trend</h2>
-        <span class="section-subtitle">Weekly % of new signups who created a project — tracks PLG health over time</span>
+        <h2 class="section-title">Project Creation Rate Trend</h2>
+        <span class="section-subtitle">Same-week ratio: Project Created events ÷ Sign Up Completed events. Not cohort-based — users who sign up Friday may activate the following week.</span>
       </div>
       <div class="section-divider"></div>
       <div class="card" style="height:300px">
-        <div class="card-title">Weekly Activation Rate (%)</div>
+        <div class="card-title">Weekly Project Creation Rate (%)</div>
         <canvas id="chartActRate"></canvas>
       </div>
     </div>
@@ -403,7 +403,7 @@ function buildAllCharts() {
   initChart('chartAmpActivations','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}}});
   initChart('chartAmpCR','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}},scales:{y:{ticks:{callback:v=>v!=null?v.toFixed(2)+'%':v}}}});
   initChart('chartAmpUpgrades','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}}});
-  initChart('chartActRate','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'},title:{display:true,text:'Activation Rate %',color:'#7F859D',font:{size:10.5}}}}});
+  initChart('chartActRate','line',{labels:[],datasets:[]},{plugins:{legend:{display:true}},scales:{y:{min:0,max:100,ticks:{callback:v=>v+'%'},title:{display:true,text:'Project Creation Rate %',color:'#7F859D',font:{size:10.5}}}}});
   updateAll();
 }
 
