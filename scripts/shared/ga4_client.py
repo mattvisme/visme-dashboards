@@ -81,10 +81,14 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
     client = BetaAnalyticsDataClient(credentials=creds)
     prop = f"properties/{property_id}"
 
-    today        = date.today()
-    this_monday  = today - timedelta(days=today.weekday())   # Mon of current week
-    last_sunday  = this_monday - timedelta(days=1)           # Sun of last complete week
-    start_dt     = this_monday - timedelta(weeks=WEEKS_HISTORY)
+    today = date.today()
+    if today.weekday() == 6:          # Sunday — today IS the end of a complete week
+        last_sunday  = today
+        this_monday  = today + timedelta(days=1)   # next Mon (exclusion boundary only)
+    else:
+        this_monday  = today - timedelta(days=today.weekday())   # Mon of current week
+        last_sunday  = this_monday - timedelta(days=1)           # Sun of last complete week
+    start_dt = this_monday - timedelta(weeks=WEEKS_HISTORY)
 
     end_date         = last_sunday.strftime("%Y-%m-%d")
     start_date       = start_dt.strftime("%Y-%m-%d")
