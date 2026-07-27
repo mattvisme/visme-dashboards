@@ -20,6 +20,7 @@ from google.analytics.data_v1beta.types import (
 from google.oauth2 import service_account
 
 InListFilter = Filter.InListFilter
+StringFilter = Filter.StringFilter
 
 WEEKS_HISTORY = 156   # 3 years: 104 current + 52 prior-year buffer
 TARGET_EVENTS = ["register", "purchase"]
@@ -163,6 +164,9 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
         for ch, v in w_data.items():
             channel_totals[ch] += v
     top_channels = [c for c, _ in sorted(channel_totals.items(), key=lambda x: -x[1])[:15]]
+    # Always include Affiliates if it has any sessions, even outside the top 15
+    if "Affiliates" in all_channels and "Affiliates" not in top_channels:
+        top_channels.append("Affiliates")
 
     # 4. US vs Non-US by week
     print("⏳  Pulling geo sessions …")
@@ -175,12 +179,23 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
         else:
             weekly_geo[w]["nonUs"] += int_(sess)
 
-    # 5. Top Landing Pages (aggregate over full date range — no weekly grouping needed)
+    # 5. Top Landing Pages — www.visme.co only, exclude (not set)
     print("⏳  Pulling landing pages …")
+    hostname_filter = FilterExpression(
+        filter=Filter(
+            field_name="hostName",
+            string_filter=StringFilter(
+                value="www.visme.co",
+                match_type=StringFilter.MatchType.EXACT
+            )
+        )
+    )
     landing_pages_raw = []
     for row in run(["landingPagePlusQueryString"], ["sessions", "newUsers", "bounceRate"],
-                   row_limit=500):
+                   row_limit=500, dim_filter=hostname_filter):
         page, sess, nu, br = row
+        if page == "(not set)":
+            continue
         landing_pages_raw.append({
             "page": page[:80],
             "sessions": int_(sess),

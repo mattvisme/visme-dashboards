@@ -106,8 +106,8 @@ def _week_monday(date_str: str) -> str:
 
 
 def _fmt_label(monday_str: str) -> str:
-    """Format a Monday date string as 'MMM D' label (e.g. 'Jun 9')."""
-    d = datetime.strptime(monday_str, "%Y-%m-%d").date()
+    """Format the Sunday end-date of a week as 'MMM D' label (e.g. 'Jun 15')."""
+    d = datetime.strptime(monday_str, "%Y-%m-%d").date() + timedelta(days=6)
     if sys.platform == "win32":
         return d.strftime(f"%b {d.day}")
     return d.strftime("%b %-d")
