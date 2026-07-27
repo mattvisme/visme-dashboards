@@ -277,7 +277,8 @@ tbody tr:last-child td{border-bottom:none}
       <li><a href="#sec-queries">Top Queries</a></li>
       <li><a href="#sec-opportunities">CTR Opportunities</a></li>
       <li><a href="#sec-pages">Top Pages</a></li>
-<li><a href="#sec-ctrpos">CTR by Position</a></li>
+      <li><a href="#sec-posdist">Position Distribution</a></li>
+      <li><a href="#sec-ctrpos">CTR by Position</a></li>
       <li><a href="#sec-countries">Country Breakdown</a></li>
     </ul>
   </div>
@@ -425,7 +426,15 @@ tbody tr:last-child td{border-bottom:none}
       </div>
     </section>
 
-    <!-- Section 5: CTR by Position -->
+    <!-- Section 5: Position Distribution -->
+    <section id="sec-posdist" class="section">
+      <div class="section-title">Position Distribution Over Time</div>
+      <div class="chart-card">
+        <div class="chart-wrap-lg"><canvas id="ch-posdist"></canvas></div>
+      </div>
+    </section>
+
+    <!-- Section 6: CTR by Position -->
     <section id="sec-ctrpos" class="section">
       <div class="section-title">CTR by Position Bucket</div>
       <div class="tbl-wrap">
@@ -485,7 +494,7 @@ const sortState = {
 };
 
 // Chart instances
-let chClicks, chImpr, chCtr, chPos, chDual;
+let chClicks, chImpr, chCtr, chPos, chDual, chPosDist;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function fmtNum(n) {
@@ -720,8 +729,53 @@ function initCharts() {
     }
   });
 
+  // Position distribution stacked bar
+  initPosDistChart(cur);
 }
 
+function initPosDistChart(weeks) {
+  const ctx = document.getElementById('ch-posdist').getContext('2d');
+  const labels = weeks;
+  const top3  = weeks.map(w => D.positionDist[w]?.top3  ?? 0);
+  const top10 = weeks.map(w => D.positionDist[w]?.top10 ?? 0);
+  const top20 = weeks.map(w => D.positionDist[w]?.top20 ?? 0);
+  const other = weeks.map(w => D.positionDist[w]?.other ?? 0);
+
+  chPosDist = new Chart(ctx, {
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'Pos 1–3',   data:top3,  backgroundColor:'#1a7f3788',borderWidth:0},
+        {label:'Pos 4–10',  data:top10, backgroundColor:'#0969da88',borderWidth:0},
+        {label:'Pos 11–20', data:top20, backgroundColor:'#9a670088',borderWidth:0},
+        {label:'Pos 21+',   data:other, backgroundColor:'#65707688',borderWidth:0},
+      ]
+    },
+    options:{
+      animation:false,
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{display:true,position:'top',labels:{boxWidth:12,font:{size:12}}}
+      },
+      scales:{
+        x:{stacked:true,ticks:{maxTicksLimit:12,callback:function(v,i){return formatDate(labels[i]);}},grid:{color:'#eaeef2'}},
+        y:{stacked:true,grid:{color:'#eaeef2'},ticks:{callback:v=>v>=1e3?(v/1e3).toFixed(0)+'K':v}}
+      }
+    }
+  });
+}
+
+function updatePosDistChart(weeks) {
+  chPosDist.data.labels = weeks;
+  chPosDist.data.datasets[0].data = weeks.map(w => D.positionDist[w]?.top3  ?? 0);
+  chPosDist.data.datasets[1].data = weeks.map(w => D.positionDist[w]?.top10 ?? 0);
+  chPosDist.data.datasets[2].data = weeks.map(w => D.positionDist[w]?.top20 ?? 0);
+  chPosDist.data.datasets[3].data = weeks.map(w => D.positionDist[w]?.other ?? 0);
+  chPosDist.options.scales.x.ticks.callback = function(v,i){return formatDate(weeks[i]);};
+  chPosDist.update('none');
+}
 
 // ── CTR by position table ─────────────────────────────────────────────────────
 const CTR_BENCHMARKS = {top3:0.13, top10:0.03, top20:0.005, other:0.001};
@@ -1020,6 +1074,9 @@ function updateAll() {
   chDual.data.datasets[1].data = cImpr;
   chDual.options.scales.x.ticks.callback = function(v,i){return formatDate(cur[i]);};
   chDual.update('none');
+
+  // Position dist
+  updatePosDistChart(cur);
 
   // Tables
   renderQueries();
