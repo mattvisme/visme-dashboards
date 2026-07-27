@@ -84,11 +84,11 @@
     "companies": []
   },
   "previous": {
-    "pipelineValue": 864,
+    "pipelineValue": 648,
     "pipelineDealCount": 1,
-    "closedWonValue": 1530,
-    "closedWonCount": 1,
-    "veryHighCount": 327,
+    "closedWonValue": 0,
+    "closedWonCount": 0,
+    "veryHighCount": 442,
     "companies": []
   }
 }
