@@ -36,7 +36,7 @@ def _basic_auth_header(api_key: str, secret: str) -> str:
 
 
 def _fetch_event(event_name: str, start: str, end: str, interval: int,
-                 auth_header: str) -> dict:
+                 auth_header: str, filters: list = None) -> dict:
     """
     Call Amplitude /api/2/events/segmentation for a single event.
 
@@ -46,6 +46,9 @@ def _fetch_event(event_name: str, start: str, end: str, interval: int,
         end:        YYYYMMDD string
         interval:   7 for weekly
         auth_header: pre-built Basic auth string
+        filters:    Optional list of Amplitude user/event property filters, e.g.
+                    [{"subprop_type":"user","subprop_key":"platform",
+                      "subprop_op":"is","subprop_value":["Web"]}]
 
     Returns:
         Parsed JSON response dict
@@ -57,6 +60,9 @@ def _fetch_event(event_name: str, start: str, end: str, interval: int,
         f"https://amplitude.com/api/2/events/segmentation"
         f"?e={e_param}&start={start}&end={end}&i={interval}"
     )
+    if filters:
+        f_param = urllib.parse.quote(json.dumps(filters, separators=(",", ":")), safe="")
+        url += f"&filters={f_param}"
     import time as _time
     req = urllib.request.Request(url, headers={"Authorization": auth_header})
     for attempt in range(4):
@@ -238,6 +244,18 @@ def fetch_amplitude_data() -> dict:
         _ingest(_fetch_event(event_name, mid_date, end_date, 7, auth), key)
         print(f"    {len(raw[key])} weeks total")
 
+    # Web-only signups — Sign Up Completed filtered to platform=Web.
+    # App signups are derived as total - web (no app-session denominator exists,
+    # so only volumes are surfaced; no conversion rate is computed for app).
+    _WEB_FILTER = [{"subprop_type": "user", "subprop_key": "platform",
+                    "subprop_op": "is", "subprop_value": ["Web"]}]
+    raw["webSignups"] = {}
+    print("  Fetching Amplitude 'Sign Up Completed' (web-only, prior year)...")
+    _ingest(_fetch_event("Sign Up Completed", start_date, mid_date, 7, auth, _WEB_FILTER), "webSignups")
+    print("  Fetching Amplitude 'Sign Up Completed' (web-only, current year)...")
+    _ingest(_fetch_event("Sign Up Completed", mid_date, end_date, 7, auth, _WEB_FILTER), "webSignups")
+    print(f"    {len(raw['webSignups'])} weeks total")
+
     # Determine complete weeks only (exclude current incomplete week)
     this_monday = date.today() - timedelta(days=date.today().weekday())
     this_monday_str = this_monday.strftime("%Y-%m-%d")
@@ -285,12 +303,20 @@ def fetch_amplitude_data() -> dict:
         for d in all_dates
     ]
 
+    # App signups = total signups minus web-only signups (clamped to 0)
+    app_signups = {
+        d: max(0, raw["signups"].get(d, 0) - raw["webSignups"].get(d, 0))
+        for d in all_dates
+    }
+
     return {
         "weeks":          all_dates,
         "weekLabels":     week_labels,
-        "signups":        {d: raw["signups"].get(d, 0)     for d in all_dates},
-        "upgrades":       {d: raw["upgrades"].get(d, 0)    for d in all_dates},
-        "activations":    {d: raw["activations"].get(d, 0) for d in all_dates},
+        "signups":        {d: raw["signups"].get(d, 0)       for d in all_dates},
+        "webSignups":     {d: raw["webSignups"].get(d, 0)    for d in all_dates},
+        "appSignups":     app_signups,
+        "upgrades":       {d: raw["upgrades"].get(d, 0)      for d in all_dates},
+        "activations":    {d: raw["activations"].get(d, 0)   for d in all_dates},
         "cr":             cr,
         "actRate":        act_rate,
         "lastDate":       last_date,
