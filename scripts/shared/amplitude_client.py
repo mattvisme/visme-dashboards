@@ -244,17 +244,6 @@ def fetch_amplitude_data() -> dict:
         _ingest(_fetch_event(event_name, mid_date, end_date, 7, auth), key)
         print(f"    {len(raw[key])} weeks total")
 
-    # Web-only signups — Sign Up Completed filtered to platform=Web.
-    # App signups are derived as total - web (no app-session denominator exists,
-    # so only volumes are surfaced; no conversion rate is computed for app).
-    _WEB_FILTER = [{"subprop_type": "user", "subprop_key": "platform",
-                    "subprop_op": "is", "subprop_value": ["Web"]}]
-    raw["webSignups"] = {}
-    print("  Fetching Amplitude 'Sign Up Completed' (web-only, prior year)...")
-    _ingest(_fetch_event("Sign Up Completed", start_date, mid_date, 7, auth, _WEB_FILTER), "webSignups")
-    print("  Fetching Amplitude 'Sign Up Completed' (web-only, current year)...")
-    _ingest(_fetch_event("Sign Up Completed", mid_date, end_date, 7, auth, _WEB_FILTER), "webSignups")
-    print(f"    {len(raw['webSignups'])} weeks total")
 
     # Determine complete weeks only (exclude current incomplete week)
     this_monday = date.today() - timedelta(days=date.today().weekday())
@@ -303,20 +292,12 @@ def fetch_amplitude_data() -> dict:
         for d in all_dates
     ]
 
-    # App signups = total signups minus web-only signups (clamped to 0)
-    app_signups = {
-        d: max(0, raw["signups"].get(d, 0) - raw["webSignups"].get(d, 0))
-        for d in all_dates
-    }
-
     return {
         "weeks":          all_dates,
         "weekLabels":     week_labels,
-        "signups":        {d: raw["signups"].get(d, 0)       for d in all_dates},
-        "webSignups":     {d: raw["webSignups"].get(d, 0)    for d in all_dates},
-        "appSignups":     app_signups,
-        "upgrades":       {d: raw["upgrades"].get(d, 0)      for d in all_dates},
-        "activations":    {d: raw["activations"].get(d, 0)   for d in all_dates},
+        "signups":        {d: raw["signups"].get(d, 0)     for d in all_dates},
+        "upgrades":       {d: raw["upgrades"].get(d, 0)    for d in all_dates},
+        "activations":    {d: raw["activations"].get(d, 0) for d in all_dates},
         "cr":             cr,
         "actRate":        act_rate,
         "lastDate":       last_date,

@@ -155,7 +155,6 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       </div>
       <div class="section-divider"></div>
       <div id="exec-summary-wrap" style="overflow-x:auto"></div>
-      <p class="data-note">⚠ <strong>New Signups</strong> comes from Amplitude (all surfaces: web + app + mobile). GA4 tracks web-only registrations and typically runs ~20–30% lower. The gap is expected and does not indicate a data error.</p>
     </div>
 
     <div class="section" id="section-web-traffic">
@@ -188,7 +187,6 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       </div>
       <div class="section-divider"></div>
       <div id="funnel-table-wrap" style="margin-bottom:24px;overflow-x:auto"></div>
-      <div id="signup-sources-wrap" style="margin-bottom:24px"></div>
       <div class="card">
         <div class="chart-wrap"><canvas id="chartFullFunnel"></canvas></div>
       </div>
@@ -454,45 +452,6 @@ function updateFullFunnel() {
   html+='</tbody></table>';
   document.getElementById('funnel-table-wrap').innerHTML=html;
 
-  // ── Signup Sources breakdown card ────────────────────────────────────────────────
-  const ampAvail=sAmp&&typeof AMP.webSignups!=='undefined';
-  const ampWebSu=ampAvail?sAmp.curr.reduce((a,w)=>a+(AMP.webSignups[w]||0),0):null;
-  const ampAppSu=ampAvail?sAmp.curr.reduce((a,w)=>a+(AMP.appSignups[w]||0),0):null;
-  const ampTotalSu=sAmp?sAmp.curr.reduce((a,w)=>a+(AMP.signups[w]||0),0):null;
-  const pAmpWebSu=ampAvail?sAmp.prev.reduce((a,w)=>a+(AMP.webSignups[w]||0),0):null;
-  const pAmpAppSu=ampAvail?sAmp.prev.reduce((a,w)=>a+(AMP.appSignups[w]||0),0):null;
-  const pAmpTotalSu=sAmp?sAmp.prev.reduce((a,w)=>a+(AMP.signups[w]||0),0):null;
-  function pctChip(curr,prev){
-    if(curr==null||prev==null||prev===0)return'';
-    const pct=(curr-prev)/prev*100;const cls=pct>=0?'delta-up':'delta-down';
-    return`<div style="font-size:11px;margin-top:3px"><span class="${cls}">${pct>=0?'↑':'↓'} ${Math.abs(pct).toFixed(1)}%</span> <span style="color:var(--text-dim)">vs prior</span></div>`;
-  }
-  const appPct=(ampTotalSu>0&&ampAppSu!=null)?Math.round(ampAppSu/ampTotalSu*100):null;
-  const webPct=(ampTotalSu>0&&ampWebSu!=null)?Math.round(ampWebSu/ampTotalSu*100):null;
-  const sourcesHtml=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
-    <div style="background:var(--surface2);border:1px solid var(--border);border-top:3px solid #3CACD7;border-radius:8px;padding:16px">
-      <div style="font-size:11px;font-weight:700;color:#3CACD7;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Web Signups</div>
-      <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:2px">${signups!=null?fmtNum(signups):'—'}</div>
-      <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:4px">GA4 register events</div>
-      ${pctChip(signups,pSignups)}
-      ${ampWebSu!=null?`<div style="font-size:11px;color:var(--text-dim);margin-top:6px">Amplitude web: ${fmtNum(ampWebSu)}${webPct!=null?' ('+webPct+'% of total)':''}</div>`:''}
-    </div>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-top:3px solid #9062F0;border-radius:8px;padding:16px">
-      <div style="font-size:11px;font-weight:700;color:#9062F0;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">App Signups</div>
-      <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:2px">${ampAppSu!=null?fmtNum(ampAppSu):'—'}</div>
-      <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:4px">Amplitude (iOS + Android)</div>
-      ${pctChip(ampAppSu,pAmpAppSu)}
-      ${appPct!=null?`<div style="font-size:11px;color:var(--text-dim);margin-top:6px">${appPct}% of total Amplitude signups</div>`:''}
-    </div>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-top:3px solid #F5A623;border-radius:8px;padding:16px">
-      <div style="font-size:11px;font-weight:700;color:#F5A623;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Total Signups</div>
-      <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:2px">${ampTotalSu!=null?fmtNum(ampTotalSu):'—'}</div>
-      <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:4px">Amplitude (all platforms)</div>
-      ${pctChip(ampTotalSu,pAmpTotalSu)}
-      <div style="font-size:11px;color:var(--text-dim);margin-top:6px">Includes web, iOS &amp; Android</div>
-    </div>
-  </div>`;
-  document.getElementById('signup-sources-wrap').innerHTML=sourcesHtml;
 
   const chartSteps=[{label:'Sessions',val:sessions},{label:'Web Signups',val:signups},{label:'Leads',val:leads},{label:'Deals',val:deals}].filter(s=>s.val!=null&&s.val>0);
   const FUNNEL_COLORS=['#3CACD7','#9062F0','#FF7A59','#F5A623','#6CC395'];
