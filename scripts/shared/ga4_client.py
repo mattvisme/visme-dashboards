@@ -22,7 +22,7 @@ from google.oauth2 import service_account
 InListFilter = Filter.InListFilter
 
 WEEKS_HISTORY = 156   # 3 years: 104 current + 52 prior-year buffer
-TARGET_EVENTS = ["create_an_account", "visit_payment_page", "purchase"]
+TARGET_EVENTS = ["register", "purchase"]
 
 
 def _get_credentials(credentials_file=None):
@@ -133,10 +133,16 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
 
     # 2. New vs Returning by week
     print("⏳  Pulling new vs returning …")
-    weekly_nvr = defaultdict(lambda: {"new": 0, "returning": 0})
+    weekly_nvr = defaultdict(lambda: {"new": 0, "returning": 0, "notSet": 0})
     for date_str, nvr, sess in run(["date", "newVsReturning"], ["sessions"]):
-        w   = _get_monday_str(date_str)
-        key = "new" if nvr.lower() == "new" else "returning"
+        w = _get_monday_str(date_str)
+        val = nvr.lower()
+        if val == "new":
+            key = "new"
+        elif val == "returning":
+            key = "returning"
+        else:
+            key = "notSet"
         weekly_nvr[w][key] += int_(sess)
 
     # 3. Channel by week
@@ -214,7 +220,7 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
         "weekLabels":  [week_labels.get(w, w) for w in all_weeks],
         "sessions":    {w: int(weekly_sessions.get(w, 0))  for w in all_weeks},
         "newUsers":    {w: int(weekly_new_users.get(w, 0)) for w in all_weeks},
-        "nvr":         {w: dict(weekly_nvr.get(w, {"new": 0, "returning": 0})) for w in all_weeks},
+        "nvr":         {w: dict(weekly_nvr.get(w, {"new": 0, "returning": 0, "notSet": 0})) for w in all_weeks},
         "channels":    {w: {ch: weekly_channels[w].get(ch, 0) for ch in top_channels} for w in all_weeks},
         "topChannels": top_channels,
         "geo":         {w: dict(weekly_geo.get(w, {"us": 0, "nonUs": 0})) for w in all_weeks},

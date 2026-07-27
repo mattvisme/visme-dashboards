@@ -97,7 +97,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
 .mini-bar{height:6px;border-radius:3px;background:linear-gradient(90deg,#3CACD7,#BBD0E5);transition:width .4s ease;}
 .change-pos{color:#3CACD7;font-weight:700}.change-neg{color:#F45F50;font-weight:700}
 .rank-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--surface2);font-size:10px;font-weight:700;color:var(--text-muted);}
-.funnel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.funnel-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
 .funnel-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;box-shadow:var(--shadow);}
 .funnel-event-name{font-size:10.5px;font-weight:700;color:var(--accent);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
 .funnel-event-name::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;}
@@ -317,12 +317,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
           <div class="chart-wrap-sm"><canvas id="chartFunnel1"></canvas></div>
         </div>
         <div class="funnel-card">
-          <div class="funnel-event-name" style="color:#FCBC41">Step 2</div>
-          <div class="funnel-title">Payment Page Visits / Session</div>
-          <div class="chart-wrap-sm"><canvas id="chartFunnel2"></canvas></div>
-        </div>
-        <div class="funnel-card">
-          <div class="funnel-event-name" style="color:#6CC395">Step 3</div>
+          <div class="funnel-event-name" style="color:#6CC395">Step 2</div>
           <div class="funnel-title">Purchases / Session</div>
           <div class="chart-wrap-sm"><canvas id="chartFunnel3"></canvas></div>
         </div>
@@ -439,8 +434,8 @@ function updateKPIs() {
   document.getElementById('kpi-sessions').textContent = fmtNum(cSess); fmtDelta(cSess, pSess, 'kpi-sessions-delta');
   const cNU = sumMetric(s.curr, GA4.newUsers); const pNU = sumMetric(s.prev, GA4.newUsers);
   document.getElementById('kpi-newusers').textContent = fmtNum(cNU); fmtDelta(cNU, pNU, 'kpi-newusers-delta');
-  const cReg = s.curr.reduce((a,w)=>a+(GA4.events[w]?.create_an_account||0),0);
-  const pReg = s.prev.reduce((a,w)=>a+(GA4.events[w]?.create_an_account||0),0);
+  const cReg = s.curr.reduce((a,w)=>a+(GA4.events[w]?.register||0),0);
+  const pReg = s.prev.reduce((a,w)=>a+(GA4.events[w]?.register||0),0);
   document.getElementById('kpi-reg').textContent = fmtNum(cReg); fmtDelta(cReg, pReg, 'kpi-reg-delta');
   const cPur = s.curr.reduce((a,w)=>a+(GA4.events[w]?.purchase||0),0);
   const pPur = s.prev.reduce((a,w)=>a+(GA4.events[w]?.purchase||0),0);
@@ -477,7 +472,6 @@ function buildAllCharts() {
   initChart('chartUS','line',{labels:[],datasets:[]},{});
   initChart('chartNonUS','line',{labels:[],datasets:[]},{});
   initChart('chartFunnel1','line',{labels:[],datasets:[]},{scales:{y:{ticks:{callback:v=>v.toFixed(3)}}}});
-  initChart('chartFunnel2','line',{labels:[],datasets:[]},{scales:{y:{ticks:{callback:v=>v.toFixed(3)}}}});
   initChart('chartFunnel3','line',{labels:[],datasets:[]},{scales:{y:{ticks:{callback:v=>v.toFixed(4)}}}});
   updateAll();
 }
@@ -492,7 +486,7 @@ function updateChart_NewUsers() {
 }
 function updateChart_NvR() {
   const s = getSlice(activeWeeks);
-  updateChartData('chartNvR', [makeLineDS('New',s.curr.map(w=>GA4.nvr[w]?.new||0),'#3CACD7'), makeLineDS('Returning',s.curr.map(w=>GA4.nvr[w]?.returning||0),'#9062F0')], s.currLabels);
+  updateChartData('chartNvR', [makeLineDS('New',s.curr.map(w=>GA4.nvr[w]?.new||0),'#3CACD7'), makeLineDS('Returning',s.curr.map(w=>GA4.nvr[w]?.returning||0),'#9062F0'), makeLineDS('Not Set',s.curr.map(w=>GA4.nvr[w]?.notSet||0),'#A8B2C0')], s.currLabels);
 }
 function updateTable_Channels() {
   const s = getSlice(activeWeeks);
@@ -550,8 +544,7 @@ function updateTable_Landing() {
 function updateChart_Funnels() {
   const s = getSlice(activeWeeks);
   const rate = (weeks, evt) => weeks.map(w => { const sess=GA4.sessions[w]||0; const ev=GA4.events[w]?.[evt]||0; return sess>0?parseFloat((ev/sess).toFixed(4)):0; });
-  updateChartData('chartFunnel1',[makeLineDS('Current',rate(s.curr,'create_an_account'),'#3CACD7'),makeLineDS('Prior Year',rate(s.prev,'create_an_account'),'#BBD0E5',true)],s.currLabels);
-  updateChartData('chartFunnel2',[makeLineDS('Current',rate(s.curr,'visit_payment_page'),'#FCBC41'),makeLineDS('Prior Year',rate(s.prev,'visit_payment_page'),'#FDDA87',true)],s.currLabels);
+  updateChartData('chartFunnel1',[makeLineDS('Current',rate(s.curr,'register'),'#3CACD7'),makeLineDS('Prior Year',rate(s.prev,'register'),'#BBD0E5',true)],s.currLabels);
   updateChartData('chartFunnel3',[makeLineDS('Current',rate(s.curr,'purchase'),'#6CC395'),makeLineDS('Prior Year',rate(s.prev,'purchase'),'#B3E0CA',true)],s.currLabels);
 }
 function sortTable(which, col) {
