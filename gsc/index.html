@@ -719,22 +719,6 @@ function initCharts() {
       }
     }
   });
-
-  // Position distribution stacked bar
-},
-    options:{
-      animation:false,
-      responsive:true,
-      maintainAspectRatio:false,
-      plugins:{
-        legend:{display:true,position:'top',labels:{boxWidth:12,font:{size:12}}}
-      },
-      scales:{
-        x:{stacked:true,ticks:{maxTicksLimit:12,callback:function(v,i){return formatDate(labels[i]);}},grid:{color:'#eaeef2'}},
-        y:{stacked:true,grid:{color:'#eaeef2'},ticks:{callback:v=>v>=1e3?(v/1e3).toFixed(0)+'K':v}}
-      }
-    }
-  });
 }
 
 // ── CTR by position table ─────────────────────────────────────────────────────
