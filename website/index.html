@@ -352,7 +352,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
     <div class="section" id="section-quality">
       <div class="section-header">
         <h2 class="section-title">Quality Checks</h2>
-        <span class="section-subtitle">Unassigned channel trend and (not set) session count</span>
+        <span class="section-subtitle">Unassigned channel trend, unattributed sessions, and (not set) count</span>
       </div>
       <div class="section-divider"></div>
 
@@ -367,6 +367,7 @@ tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
         A new affiliate or campaign link without UTM parameters will land here.
       </div>
 
+      <div id="unattributedStat"></div>
       <div id="notSetStat"></div>
     </div>
 
@@ -871,6 +872,19 @@ function buildQuality() {
     { labels, datasets: [makeLineDS('Unassigned', series, '#F4704A')] },
     {}
   );
+
+  // Unattributed sessions: GA4 sessions with no channel assignment (~3% of total)
+  const unattr = TRAFFIC.unattributedWeekly || [];
+  const unattrTotal = unattr.reduce((a, b) => a + b, 0);
+  const unattrEl = document.getElementById('unattributedStat');
+  if (unattrEl) {
+    if (unattrTotal === 0) {
+      unattrEl.innerHTML = '<span class="stat-chip stat-chip-ok">✓ No unattributed sessions (channel totals match GA4 total)</span>';
+    } else {
+      const avgPerWeek = Math.round(unattrTotal / Math.max(1, unattr.length));
+      unattrEl.innerHTML = `<span class="stat-chip stat-chip-warn">ℹ ~${fmtN(avgPerWeek)} sessions/week have no channel assignment in GA4 and are excluded from channel charts above. This is normal (~3% of total sessions).</span>`;
+    }
+  }
 
   const count = TRAFFIC.notSetCount || 0;
   const statEl = document.getElementById('notSetStat');

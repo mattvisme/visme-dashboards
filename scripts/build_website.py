@@ -374,7 +374,7 @@ def fetch_traffic_data() -> dict:
     raw_ai = _run(client, prop, start_date, end_date,
                   ["sessionSource", "date"],
                   ["sessions"],
-                  row_limit=500,
+                  row_limit=2000,
                   dimension_filter=_channel_filter("AI Assistant"))
     for source, date_str, sess in raw_ai:
         w = _week_monday(date_str)
@@ -388,7 +388,7 @@ def fetch_traffic_data() -> dict:
     raw_aff = _run(client, prop, start_date, end_date,
                    ["sessionSource", "date"],
                    ["sessions"],
-                   row_limit=500,
+                   row_limit=2000,
                    dimension_filter=_channel_filter("Affiliates"))
     for source, date_str, sess in raw_aff:
         w = _week_monday(date_str)
@@ -414,10 +414,24 @@ def fetch_traffic_data() -> dict:
             continue
         os_platform_weekly[platform][w] += _int(sess)
 
-    # ── 7. Latest-week snapshot — two most recent complete weeks (View 3) ─────
+    # ── 7. Total sessions per week (for unattributed gap calculation) ───────────
+    # ~3% of sessions have no sessionDefaultChannelGrouping assignment.
+    # These never appear in the channel dimension query, so we fetch total
+    # sessions separately and expose the gap as unattributedWeekly.
+    print("⏳  Pulling total sessions per week …")
+    total_weekly: dict[str, int] = defaultdict(int)
+    raw_total = _run(client, prop, start_date, end_date,
+                     ["date"], ["sessions"], row_limit=10_000)
+    for date_str, sess in raw_total:
+        w = _week_monday(date_str)
+        if w >= this_monday_str:
+            continue
+        total_weekly[w] += _int(sess)
+
+    # ── 8. Latest-week snapshot — two most recent complete weeks (View 3) ─────
     # We already have channel_weekly; derive from it after assembling week list.
 
-    # ── 7. Unassigned + (not set) over 13 weeks (View 4) ─────────────────────
+    # ── 8. Unassigned + (not set) over 13 weeks (View 4) ─────────────────────
     # Also derived from channel_weekly.
 
     # ── Assemble sorted week list ─────────────────────────────────────────────
@@ -544,6 +558,22 @@ def fetch_traffic_data() -> dict:
         for w in all_weeks
     )
 
+    # ── Build unattributedWeekly ──────────────────────────────────────────────
+    # Sessions that GA4 cannot assign to any channel group never appear in
+    # the sessionDefaultChannelGrouping dimension query (~3% of total).
+    # Computed as: total_sessions_this_week - sum_of_all_named_channel_sessions.
+    unattributed_weekly = []
+    for w in all_weeks:
+        named_sum = sum(
+            channel_weekly[w].get(ch, {}).get("sessions", 0)
+            for ch in all_channels
+        )
+        gap = max(0, total_weekly.get(w, 0) - named_sum)
+        unattributed_weekly.append(gap)
+    unattributed_total = sum(unattributed_weekly)
+    print(f"  Unattributed sessions across {len(all_weeks)} weeks: {unattributed_total:,} "
+          f"({unattributed_total / max(1, sum(total_weekly.get(w,0) for w in all_weeks)) * 100:.1f}%)")
+
     payload = {
         "dataAsOfDate":        as_of_date,
         "weeks":               all_weeks,
@@ -560,6 +590,7 @@ def fetch_traffic_data() -> dict:
         "organicSocialWeekly": organic_social_weekly_out,
         "unassignedWeekly":    unassigned_series,
         "notSetCount":         not_set_count,
+        "unattributedWeekly":  unattributed_weekly,
         "primaryChannels":     PRIMARY_CHANNELS,
         "trackedCountries":    TRACKED_COUNTRIES,
     }
