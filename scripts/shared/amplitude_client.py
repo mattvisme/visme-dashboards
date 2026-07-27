@@ -57,15 +57,26 @@ def _fetch_event(event_name: str, start: str, end: str, interval: int,
         f"https://amplitude.com/api/2/events/segmentation"
         f"?e={e_param}&start={start}&end={end}&i={interval}"
     )
+    import time as _time
     req = urllib.request.Request(url, headers={"Authorization": auth_header})
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            body = json.loads(resp.read().decode())
-    except urllib.error.HTTPError as exc:
-        error_body = exc.read().decode(errors="replace")
-        raise RuntimeError(
-            f"Amplitude API {exc.code} for '{event_name}': {error_body}"
-        ) from exc
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                body = json.loads(resp.read().decode())
+            break
+        except urllib.error.HTTPError as exc:
+            error_body = exc.read().decode(errors="replace")
+            raise RuntimeError(
+                f"Amplitude API {exc.code} for '{event_name}': {error_body}"
+            ) from exc
+        except (TimeoutError, OSError) as exc:
+            if attempt == 3:
+                raise RuntimeError(
+                    f"Amplitude API timed out for '{event_name}' after 4 attempts"
+                ) from exc
+            wait = 15 * (2 ** attempt)  # 15s, 30s, 60s
+            print(f"  Amplitude timeout (attempt {attempt + 1}/4), retrying in {wait}s…")
+            _time.sleep(wait)
     if "data" not in body:
         raise RuntimeError(
             f"Amplitude API error for event '{event_name}': {body}"
