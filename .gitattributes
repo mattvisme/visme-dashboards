@@ -1,0 +1,16 @@
+# Normalize line endings to LF in the repository.
+# Windows checkouts will still get CRLF via core.autocrlf,
+# but the repo itself stays LF-only so Linux CI never shows
+# spurious "modified" diffs.
+* text=auto eol=lf
+
+# Treat binary files as binary (no line-ending conversion)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

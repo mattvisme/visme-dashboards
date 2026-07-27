@@ -442,20 +442,11 @@ def fetch_gsc_sheet_data(sheet_id=None, credentials_file=None) -> dict:
         w_pos[week]    = round(pos_val, 3) if pos_val > 0 else None
 
     all_weeks  = sorted(w_clicks.keys())
-
-    # Exclude weeks whose Sunday end-date hasn't fully settled in GSC yet.
-    # GSC has a ~3-day processing lag, so the most recently written week row
-    # often contains only 1 day of data. Drop any week whose Sunday is within
-    # 3 days of today so partial data never appears in the dashboard.
-    from datetime import date, timedelta
-    _gsc_cutoff = date.today() - timedelta(days=3)
-    all_weeks = [w for w in all_weeks
-                 if date.fromisoformat(w) + timedelta(days=6) <= _gsc_cutoff]
-
     start_date = all_weeks[0]  if all_weeks else ""
     # end_date is the Sunday (week-end) of the last complete week
+    from datetime import date, timedelta
     end_date = (date.fromisoformat(all_weeks[-1]) + timedelta(days=6)).isoformat() if all_weeks else ""
-    print(f"    {len(all_weeks)} weeks  ({skipped} skipped, partial weeks dropped)  endDate={end_date}")
+    print(f"    {len(all_weeks)} weeks  ({skipped} skipped)  endDate={end_date}")
 
     # ── dimension windows (queries / pages / countries) ───────────────────────
     def read_window_tab(tab_name, key_field):
