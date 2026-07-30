@@ -287,7 +287,17 @@ def fetch_signup_data() -> dict:
         if w < this_monday_str
     )
     all_weeks = all_mondays[-WEEKS:]
-    labels    = [_fmt_label(w) for w in all_weeks]
+
+    # Drop leading weeks that have zero total signups across all channels.
+    # This keeps the chart clean when the register event didn't fire historically.
+    while all_weeks:
+        first_total = sum(signups_weekly[all_weeks[0]].get(ch, 0) for ch in signups_weekly[all_weeks[0]])
+        if first_total == 0:
+            all_weeks = all_weeks[1:]
+        else:
+            break
+
+    labels = [_fmt_label(w) for w in all_weeks]
 
     # ── Build signupsByChannel ────────────────────────────────────────────────
     all_channels: set[str] = set()
