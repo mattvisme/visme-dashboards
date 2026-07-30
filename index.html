@@ -228,6 +228,20 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
       <a href="performance/index.html" class="card-link live">Open Dashboard →</a>
     </div>
 
+    <!-- PLG Free Signups -->
+    <div class="dash-card">
+      <div class="card-top">
+        <div class="card-icon" style="background:#F0FBF6;">🚀</div>
+        <span class="status-badge status-live">● Live</span>
+      </div>
+      <div class="card-name">PLG Free Signups</div>
+      <div class="card-desc">Free signup volume by acquisition channel and country. Rolling 13-week trend, week-over-week changes, top pages driving signups. Source: GA4 <code style="font-size:11px;background:#F0F4F8;padding:1px 4px;border-radius:3px;">register</code> event.</div>
+      <div class="source-tags">
+        <span class="source-tag" style="background:#EFF8FC;color:#2B9DC8;">GA4</span>
+      </div>
+      <div class="card-asof"><span class="card-asof-label">Data as of</span><span class="card-asof-value loading" id="asof-plg-signups">—</span></div>
+      <a href="plg-signups/index.html" class="card-link live">Open Dashboard →</a>
+    </div>
 
   </div>
 </main>
@@ -252,6 +266,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
     ['asof-paid-media', 'paid-media/index.html',  t => { const m = /const generatedAt = "([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
     ['asof-website',    'website/index.html',     t => { const m = /"dataAsOfDate":"([^"]+)"/.exec(t); return m ? m[1] : null; }],
     ['asof-performance','performance/index.html', t => { const m = /"lastUpdated":"([^"]+)"/.exec(t); return m ? fmtIso(m[1]) : null; }],
+    ['asof-plg-signups','plg-signups/index.html', t => { const m = /"dataAsOfDate":"([^"]+)"/.exec(t); return m ? m[1] : null; }],
   ];
 
   DASHBOARDS.forEach(([id, url, extract]) => {

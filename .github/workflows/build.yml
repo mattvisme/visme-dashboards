@@ -100,6 +100,12 @@ jobs:
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
         run: python scripts/build_website.py
 
+      - name: Build PLG Free Signups dashboard
+        env:
+          GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+        run: python scripts/build_plg_signups.py
+
       - name: Commit rebuilt dashboards
         run: |
           git config user.email "actions@github.com"
@@ -112,7 +118,8 @@ jobs:
             paid-media/index.html \
             performance/index.html \
             gsc/index.html \
-            website/index.html
+            website/index.html \
+            plg-signups/index.html
           git diff --staged --quiet || \
             git commit -m "Weekly rebuild $(date +%Y-%m-%d)"
           git pull --rebase --autostash origin main

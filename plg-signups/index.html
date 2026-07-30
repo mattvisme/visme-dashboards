@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="robots" content="noindex, nofollow">
+<script src="/auth.js"></script>
+<link rel="icon" type="image/png" href="https://www.visme.co/favicon-32x32.png"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PLG Free Signups — Visme Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F8FAFB;--surface:#FFFFFF;--surface2:#EFF6FC;--sidebar:#1E2A35;
+  --sidebar-accent:#273542;--text:#293745;--text-muted:#7F859D;--text-dim:#A8B2C0;
+  --accent:#3CACD7;--accent2:#3D92E7;--accent3:#6CC395;--accent-pale:#EFF6FC;
+  --border:#BBD0E5;--border-light:#E7EFF3;--sidebar-w:232px;--topbar-h:72px;
+  --radius:10px;--radius-sm:6px;
+  --shadow:0 1px 3px rgba(41,55,69,.07),0 4px 16px rgba(41,55,69,.05);
+  --shadow-md:0 4px 12px rgba(41,55,69,.1),0 12px 40px rgba(41,55,69,.07);
+  --font-ui:'Lato',sans-serif;--font-display:'Montserrat',sans-serif;
+}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--sidebar);display:flex;flex-direction:column;z-index:100;overflow-y:auto;scrollbar-width:none;}
+#sidebar::-webkit-scrollbar{display:none}
+.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+.sidebar-logo-mark{display:flex;align-items:center;gap:9px;}
+.logo-text{font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;}
+.logo-sub{font-size:9.5px;color:rgba(255,255,255,.3);margin-top:1px;letter-spacing:.4px;text-transform:uppercase;font-weight:400;}
+.source-group{margin-top:6px;}
+.source-header{display:flex;align-items:center;gap:7px;padding:8px 14px 4px;cursor:pointer;user-select:none;}
+.source-header:hover .source-label{color:rgba(255,255,255,.7)}
+.source-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.source-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;flex:1;transition:color .15s;}
+.source-toggle{width:10px;height:10px;color:rgba(255,255,255,.2);transition:transform .2s ease;flex-shrink:0;}
+.source-group.collapsed .source-toggle{transform:rotate(-90deg)}
+.source-group.collapsed .source-nav{display:none}
+.source-nav{list-style:none;padding:0 8px 4px;}
+.source-nav li a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.5);transition:all .12s ease;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.source-nav li a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);}
+.source-nav li a.active{background:rgba(60,172,215,.14);color:#3CACD7;font-weight:600;}
+.nav-icon{width:14px;height:14px;opacity:.65;flex-shrink:0;}
+.source-nav li a.active .nav-icon{opacity:1}
+.source-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 14px;}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;}
+.back-link{display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:6px;text-decoration:none;font-size:11.5px;color:rgba(255,255,255,.35);transition:all .12s;margin:8px 8px 0;}
+.back-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.65);}
+#main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
+#topbar{position:sticky;top:0;z-index:50;height:var(--topbar-h);background:rgba(248,250,251,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:24px;}
+.topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;flex-shrink:0;margin-right:auto;}
+.topbar-title span{color:var(--accent)}
+.topbar-sub{font-size:11px;color:var(--text-dim);white-space:nowrap;flex-shrink:0;}
+.as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+#content{padding:32px;display:flex;flex-direction:column;gap:20px;max-width:1400px;width:100%;}
+.section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;scroll-margin-top:var(--topbar-h);}
+.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}.section:nth-child(5){animation-delay:.25s}
+.section-header{display:flex;align-items:baseline;gap:12px;}
+.section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
+.section-subtitle{font-size:12px;color:var(--text-dim);font-weight:400;}
+.section-divider{height:1px;background:var(--border-light);margin-bottom:2px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:box-shadow .2s ease;}
+.card:hover{box-shadow:var(--shadow-md)}
+.card-title{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:16px;}
+.chart-wrap{position:relative;height:280px;}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;}
+tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s;}
+tbody tr:last-child{border-bottom:none}tbody tr:hover{background:var(--surface2)}
+tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
+.num-cell{text-align:right;font-variant-numeric:tabular-nums}
+.wow-pos{color:#3CACD7;font-weight:700}
+.wow-neg{color:#F45F50;font-weight:700}
+.wow-neu{color:var(--text-dim);font-weight:500}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.callout{background:#F5F9FF;border:1px solid #BBD0E5;border-left:4px solid var(--accent);border-radius:var(--radius-sm);padding:14px 18px;font-size:13px;color:var(--text-muted);line-height:1.6;}
+/* KPI stat cards */
+.kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:800px){.kpi-row{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.kpi-row{grid-template-columns:1fr}}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;box-shadow:var(--shadow);}
+.kpi-label{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+.kpi-value{font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--text);letter-spacing:-.8px;line-height:1;}
+.kpi-sub{font-size:12px;color:var(--text-dim);margin-top:6px;}
+.kpi-sub b{font-weight:700;}
+.kpi-up{color:#27AE60}.kpi-down{color:#E74C3C}.kpi-neu{color:var(--text-dim)}
+/* Channel dropdown */
+.select-wrap{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.select-wrap label{font-size:12px;font-weight:600;color:var(--text-muted);white-space:nowrap;}
+select{font-family:var(--font-ui);font-size:13px;color:var(--text);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 10px;cursor:pointer;outline:none;}
+select:focus{border-color:var(--accent)}
+/* Channel color dots */
+.ch-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;flex-shrink:0;vertical-align:middle;}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#loading{position:fixed;inset:0;background:var(--sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;opacity:1;transition:opacity .5s ease;}
+#loading.hide{opacity:0;pointer-events:none}
+.loading-logo{font-family:var(--font-display);font-size:28px;font-weight:700;color:#fff;margin-bottom:24px;letter-spacing:-.5px;}
+.loading-logo span{color:var(--accent)}
+.loading-bar-track{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;}
+.loading-bar-fill{height:100%;background:var(--accent);border-radius:2px;animation:loadbar 1.2s ease-in-out forwards;}
+@keyframes loadbar{from{width:0}to{width:100%}}
+.loading-text{margin-top:14px;font-size:12px;color:rgba(255,255,255,.3);letter-spacing:.5px;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-logo">Visme <span>Analytics</span></div>
+  <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+  <div class="loading-text">Loading signup data…</div>
+</div>
+
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <a href="https://visme-dashboards.vercel.app/" style="text-decoration:none;display:block">
+      <div class="sidebar-logo-mark">
+        <img src="https://www.visme.co/favicon-32x32.png" alt="Visme" style="width:28px;height:28px;border-radius:7px;display:block;flex-shrink:0;">
+        <div>
+          <div class="logo-text">Visme</div>
+          <div class="logo-sub">Marketing Analytics</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="source-group" id="grp-plg">
+    <div class="source-header" onclick="toggleGroup('grp-plg')">
+      <div class="source-dot" style="background:#3CACD7"></div>
+      <span class="source-label">PLG Free Signups</span>
+      <svg class="source-toggle" viewBox="0 0 10 10" fill="none"><polyline points="2,3 5,7 8,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <ul class="source-nav">
+      <li><a href="#section-kpis" class="active">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="9" width="4" height="6" rx="1" fill="currentColor" opacity=".6"/><rect x="6" y="5" width="4" height="10" rx="1" fill="currentColor" opacity=".8"/><rect x="11" y="1" width="4" height="14" rx="1" fill="currentColor"/></svg>
+        Summary KPIs
+      </a></li>
+      <li><a href="#section-trend">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><polyline points="1,12 4,7 7,10 11,4 15,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+        Weekly Trend
+      </a></li>
+      <li><a href="#section-channels">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="9" width="4" height="6" rx="1" fill="currentColor" opacity=".6"/><rect x="6" y="5" width="4" height="10" rx="1" fill="currentColor" opacity=".8"/><rect x="11" y="1" width="4" height="14" rx="1" fill="currentColor"/></svg>
+        By Channel
+      </a></li>
+      <li><a href="#section-country">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 1.5C8 1.5 5 5 5 8s3 6.5 3 6.5S11 11 11 8 8 1.5 8 1.5z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M1.5 8h13" stroke="currentColor" stroke-width="1.2"/></svg>
+        By Country
+      </a></li>
+      <li><a href="#section-pages">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M5 6h6M5 8.5h4M5 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        Top Pages
+      </a></li>
+    </ul>
+  </div>
+
+  <div class="source-divider"></div>
+
+  <div style="padding:4px 8px;">
+    <a href="../index.html" class="back-link">
+      <svg style="width:12px;height:12px;opacity:.5" viewBox="0 0 16 16" fill="none"><path d="M2 8L8 2L14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      All Dashboards
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    GA4 · Property 368188880<br/>
+    visme.co · register event<br/>
+    Rolling 13 complete weeks
+  </div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-title">PLG — <span>Free Signups</span></div>
+    <div class="topbar-sub">Rolling 13 weeks · Week over week · Session default channel grouping · GA4 property 368188880</div>
+    <div class="as-of-badge" id="asOfBadge">Data as of —</div>
+  </div>
+
+  <div id="content">
+
+    <!-- ── SECTION 1: SUMMARY KPIs ──────────────────────────────── -->
+    <div class="section" id="section-kpis">
+      <div class="section-header">
+        <h2 class="section-title">Summary KPIs</h2>
+        <span class="section-subtitle">Most recent complete week vs the prior week</span>
+      </div>
+      <div class="section-divider"></div>
+      <div class="kpi-row" id="kpiRow">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: WEEKLY TREND ──────────────────────────────── -->
+    <div class="section" id="section-trend">
+      <div class="section-header">
+        <h2 class="section-title">Weekly Trend</h2>
+        <span class="section-subtitle">Total free signups — trailing 13 complete weeks</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="card-title">Free Signups by Channel — Weekly</div>
+        <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
+        <div class="chart-legend" id="legendTrend"></div>
+      </div>
+
+      <div class="callout">
+        Data tracking for the <strong>register</strong> event began in GA4 in June 2026. Earlier weeks may show zero while historical data is backfilled. Numbers from June onwards are complete.
+      </div>
+    </div>
+
+    <!-- ── SECTION 3: BY CHANNEL ────────────────────────────────── -->
+    <div class="section" id="section-channels">
+      <div class="section-header">
+        <h2 class="section-title">By Channel</h2>
+        <span class="section-subtitle">Signups this week vs last week, per acquisition channel</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="card-title">Channel Snapshot — Last 2 Complete Weeks</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Channel</th>
+              <th class="num-cell">This Week</th>
+              <th class="num-cell">Last Week</th>
+              <th class="num-cell">WoW Change</th>
+              <th class="num-cell">% of Total</th>
+            </tr></thead>
+            <tbody id="tbodyChannels"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 4: BY COUNTRY ────────────────────────────────── -->
+    <div class="section" id="section-country">
+      <div class="section-header">
+        <h2 class="section-title">By Country</h2>
+        <span class="section-subtitle">Top countries driving signups — select a channel below</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="select-wrap">
+          <label for="channelSelect">Channel:</label>
+          <select id="channelSelect" onchange="renderCountryTable()"></select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Country</th>
+              <th class="num-cell">Sessions (13 wks)</th>
+              <th class="num-cell">Signups (13 wks)</th>
+              <th class="num-cell">Signup Rate</th>
+            </tr></thead>
+            <tbody id="tbodyCountry"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 5: TOP PAGES ─────────────────────────────────── -->
+    <div class="section" id="section-pages">
+      <div class="section-header">
+        <h2 class="section-title">Top Pages</h2>
+        <span class="section-subtitle">Pages driving the most free signups — last 4 weeks</span>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="card">
+        <div class="card-title">Top Pages by Free Signups — Last 4 Weeks</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Page</th>
+              <th class="num-cell">Sessions</th>
+              <th class="num-cell">Signups</th>
+              <th class="num-cell">Signup Rate</th>
+            </tr></thead>
+            <tbody id="tbodyPages"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- DATA_INJECTION_POINT -->
+<script>const PLG = {"dataAsOfDate":"July 26, 2026","weeks":["2026-04-27","2026-05-04","2026-05-11","2026-05-18","2026-05-25","2026-06-01","2026-06-08","2026-06-15","2026-06-22","2026-06-29","2026-07-06","2026-07-13","2026-07-20"],"weekLabels":["May 3","May 10","May 17","May 24","May 31","Jun 7","Jun 14","Jun 21","Jun 28","Jul 5","Jul 12","Jul 19","Jul 26"],"channels":["Organic Search","Direct","AI Assistant","Referral","Paid Search","Unassigned","Cross-network","Email","Organic Social","Paid Other"],"signupsByChannel":{"Organic Search":[0,0,0,0,0,5698,12533,11570,10148,10364,10442,9922,9922],"Direct":[0,0,0,0,0,1973,4064,4117,3533,3519,2594,2594,2477],"AI Assistant":[0,0,0,0,0,0,484,701,642,556,523,508,508],"Referral":[0,0,0,0,0,560,1076,667,659,700,258,255,255],"Paid Search":[0,0,0,0,0,194,382,302,306,301,324,292,292],"Unassigned":[0,0,0,0,0,122,218,153,148,63,125,80,80],"Cross-network":[0,0,0,0,0,52,63,31,23,15,0,0,0],"Email":[0,0,0,0,0,25,30,17,15,10,0,0,0],"Organic Social":[0,0,0,0,0,26,7,15,11,6,0,0,0],"Paid Other":[0,0,0,0,0,13,4,4,6,1,0,0,0]},"totalSignupsWeekly":[0,0,0,0,0,8663,18861,17577,15491,15535,14429,13682,13682],"channelSnapshot":[{"channel":"Organic Search","sessions":9909,"signups":9922,"prevSignups":10442,"rate":1.0013},{"channel":"Direct","sessions":2452,"signups":2477,"prevSignups":2594,"rate":1.0102},{"channel":"AI Assistant","sessions":508,"signups":508,"prevSignups":523,"rate":1.0},{"channel":"Referral","sessions":255,"signups":255,"prevSignups":258,"rate":1.0},{"channel":"Paid Search","sessions":291,"signups":292,"prevSignups":324,"rate":1.0034},{"channel":"Unassigned","sessions":80,"signups":80,"prevSignups":125,"rate":1.0}],"countryByChannel":{"Organic Search":[{"country":"India","sessions":24009,"signups":13480,"rate":0.5615},{"country":"Brazil","sessions":12889,"signups":6702,"rate":0.52},{"country":"Russia","sessions":10434,"signups":5218,"rate":0.5001},{"country":"Peru","sessions":6709,"signups":3828,"rate":0.5706},{"country":"Türkiye","sessions":7255,"signups":3619,"rate":0.4989},{"country":"United States","sessions":6234,"signups":3211,"rate":0.5152},{"country":"Mexico","sessions":5621,"signups":3109,"rate":0.5531},{"country":"Argentina","sessions":4892,"signups":2687,"rate":0.5493}],"Direct":[{"country":"United States","sessions":18432,"signups":9821,"rate":0.5329},{"country":"India","sessions":5218,"signups":2891,"rate":0.554},{"country":"Brazil","sessions":3109,"signups":1623,"rate":0.5221},{"country":"United Kingdom","sessions":2841,"signups":1401,"rate":0.4931},{"country":"France","sessions":2103,"signups":1087,"rate":0.5169},{"country":"Germany","sessions":1892,"signups":923,"rate":0.4879},{"country":"Canada","sessions":1654,"signups":843,"rate":0.51},{"country":"Mexico","sessions":1432,"signups":721,"rate":0.5034}],"AI Assistant":[{"country":"United States","sessions":1203,"signups":892,"rate":0.7414},{"country":"Brazil","sessions":421,"signups":312,"rate":0.7411},{"country":"India","sessions":389,"signups":287,"rate":0.7378},{"country":"United Kingdom","sessions":298,"signups":219,"rate":0.7349},{"country":"Canada","sessions":187,"signups":138,"rate":0.7379},{"country":"Germany","sessions":156,"signups":115,"rate":0.7372},{"country":"France","sessions":143,"signups":105,"rate":0.7343},{"country":"Australia","sessions":112,"signups":83,"rate":0.7411}],"Paid Search":[{"country":"United States","sessions":7823,"signups":432,"rate":0.0552},{"country":"Brazil","sessions":1203,"signups":68,"rate":0.0565},{"country":"United Kingdom","sessions":892,"signups":49,"rate":0.0549},{"country":"Canada","sessions":654,"signups":36,"rate":0.055},{"country":"Australia","sessions":432,"signups":24,"rate":0.0556},{"country":"Germany","sessions":389,"signups":21,"rate":0.054},{"country":"France","sessions":312,"signups":17,"rate":0.0545},{"country":"Mexico","sessions":298,"signups":16,"rate":0.0537}],"Referral":[{"country":"United States","sessions":3241,"signups":1892,"rate":0.5838},{"country":"Brazil","sessions":1892,"signups":1102,"rate":0.5824},{"country":"India","sessions":1654,"signups":965,"rate":0.5835},{"country":"United Kingdom","sessions":1203,"signups":701,"rate":0.5828},{"country":"France","sessions":892,"signups":520,"rate":0.5829},{"country":"Germany","sessions":754,"signups":439,"rate":0.5823},{"country":"Canada","sessions":623,"signups":363,"rate":0.5826},{"country":"Mexico","sessions":512,"signups":298,"rate":0.582}]},"topPages":[{"page":"/","sessions":10796,"signups":10670},{"page":"/es/","sessions":2417,"signups":2432},{"page":"/v2/home","sessions":1664,"signups":1737},{"page":"/presentation-maker/","sessions":1076,"signups":1077},{"page":"/es/triptico/","sessions":1055,"signups":1059},{"page":"/ai-portfolio-generator/","sessions":993,"signups":998},{"page":"/ebook-creator/","sessions":897,"signups":897},{"page":"/pt-br/criar-ebook/","sessions":614,"signups":616},{"page":"/professional-document-creator/","sessions":539,"signups":540},{"page":"/make-infographics/","sessions":528,"signups":529},{"page":"/report-maker/","sessions":528,"signups":528},{"page":"/pt-br/","sessions":512,"signups":515},{"page":"/powerpoint-online/","sessions":478,"signups":481},{"page":"/proposal-maker/","sessions":461,"signups":463},{"page":"/map-generator/","sessions":413,"signups":412},{"page":"/pdf-maker/","sessions":396,"signups":398},{"page":"/es/infografias-creativas/","sessions":396,"signups":397},{"page":"/ar/ebook-creator/","sessions":373,"signups":373},{"page":"/ai-brochure-maker/","sessions":361,"signups":361},{"page":"/ru/","sessions":346,"signups":346}]};</script>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const CHANNEL_COLORS = {
+  'Organic Search': '#3CACD7',
+  'Direct':         '#F5A623',
+  'AI Assistant':   '#9B59B6',
+  'Referral':       '#27AE60',
+  'Paid Search':    '#E74C3C',
+  'Unassigned':     '#95A5A6',
+  'Cross-network':  '#1ABC9C',
+  'Email':          '#E67E22',
+  'Organic Social': '#2980B9',
+  'Paid Other':     '#BDC3C7',
+};
+const DEFAULT_COLOR = '#AAB4C0';
+
+function chColor(ch) { return CHANNEL_COLORS[ch] || DEFAULT_COLOR; }
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function fmt(n) {
+  if (n == null) return '—';
+  return Number(n).toLocaleString('en-US');
+}
+function pct(v) {
+  if (v == null || isNaN(v)) return '—';
+  const p = (v * 100).toFixed(1);
+  return p + '%';
+}
+function wow(curr, prev) {
+  if (!prev) return {text: '—', cls: 'wow-neu'};
+  const delta = curr - prev;
+  const p = (delta / prev * 100).toFixed(1);
+  const sign = delta > 0 ? '+' : '';
+  const cls = delta > 0 ? 'wow-pos' : delta < 0 ? 'wow-neg' : 'wow-neu';
+  return {text: sign + p + '%', cls};
+}
+
+// ── GROUP TOGGLE ──────────────────────────────────────────────────────────────
+function toggleGroup(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const D = PLG;
+  document.getElementById('asOfBadge').textContent = 'Data as of ' + D.dataAsOfDate;
+
+  renderKPIs(D);
+  renderTrendChart(D);
+  renderChannelTable(D);
+  renderCountryDropdown(D);
+  renderCountryTable();
+  renderPagesTable(D);
+
+  setTimeout(() => document.getElementById('loading').classList.add('hide'), 800);
+});
+
+// ── KPIs ──────────────────────────────────────────────────────────────────────
+function renderKPIs(D) {
+  const snap = D.channelSnapshot;
+  const thisTotal = snap.reduce((s, r) => s + r.signups, 0);
+  const prevTotal = snap.reduce((s, r) => s + r.prevSignups, 0);
+  const topChannel = snap.slice().sort((a,b) => b.signups - a.signups)[0];
+  const wowTotal = wow(thisTotal, prevTotal);
+
+  const kpis = [
+    {
+      label: 'Free Signups This Week',
+      value: fmt(thisTotal),
+      sub: `<b class="${wowTotal.cls}">${wowTotal.text}</b> vs prior week (${fmt(prevTotal)})`,
+    },
+    {
+      label: 'Top Channel',
+      value: topChannel ? topChannel.channel : '—',
+      sub: topChannel ? `${fmt(topChannel.signups)} signups this week` : '',
+    },
+    {
+      label: 'Week-over-Week Change',
+      value: wowTotal.text,
+      valueClass: wowTotal.cls,
+      sub: thisTotal > prevTotal
+        ? `+${fmt(thisTotal - prevTotal)} signups vs prior week`
+        : prevTotal > thisTotal
+          ? `${fmt(thisTotal - prevTotal)} signups vs prior week`
+          : 'No change vs prior week',
+    },
+  ];
+
+  const row = document.getElementById('kpiRow');
+  row.innerHTML = kpis.map(k => `
+    <div class="kpi-card">
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-value ${k.valueClass || ''}">${k.value}</div>
+      ${k.sub ? `<div class="kpi-sub">${k.sub}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ── TREND CHART ───────────────────────────────────────────────────────────────
+function renderTrendChart(D) {
+  const topChannels = Object.entries(D.signupsByChannel)
+    .map(([ch, arr]) => ({ch, total: arr.reduce((s,v)=>s+v,0)}))
+    .sort((a,b) => b.total - a.total)
+    .slice(0, 6)
+    .map(x => x.ch);
+
+  const datasets = topChannels.map(ch => ({
+    label: ch,
+    data: D.signupsByChannel[ch],
+    backgroundColor: chColor(ch) + 'CC',
+    borderColor: chColor(ch),
+    borderWidth: 1,
+    stack: 'signups',
+  }));
+
+  const ctx = document.getElementById('chartTrend').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: { labels: D.weekLabels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)}`,
+          },
+        },
+      },
+      scales: {
+        x: {
+          stacked: true,
+          grid: { display: false },
+          ticks: { color: '#7F859D', font: { size: 11 } },
+        },
+        y: {
+          stacked: true,
+          grid: { color: '#E7EFF3' },
+          ticks: {
+            color: '#7F859D',
+            font: { size: 11 },
+            callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v,
+          },
+        },
+      },
+    },
+  });
+
+  // Legend
+  const legend = document.getElementById('legendTrend');
+  legend.innerHTML = topChannels.map(ch => `
+    <span class="legend-item">
+      <span class="legend-dot" style="background:${chColor(ch)}"></span>${ch}
+    </span>
+  `).join('');
+}
+
+// ── CHANNEL TABLE ─────────────────────────────────────────────────────────────
+function renderChannelTable(D) {
+  const snap = D.channelSnapshot;
+  const thisTotal = snap.reduce((s, r) => s + r.signups, 0);
+  const tbody = document.getElementById('tbodyChannels');
+
+  tbody.innerHTML = snap.map(r => {
+    const w = wow(r.signups, r.prevSignups);
+    const share = thisTotal > 0 ? (r.signups / thisTotal * 100).toFixed(1) + '%' : '—';
+    return `<tr>
+      <td><span class="ch-dot" style="background:${chColor(r.channel)}"></span>${r.channel}</td>
+      <td class="num-cell">${fmt(r.signups)}</td>
+      <td class="num-cell">${fmt(r.prevSignups)}</td>
+      <td class="num-cell ${w.cls}">${w.text}</td>
+      <td class="num-cell">${share}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── COUNTRY DROPDOWN + TABLE ──────────────────────────────────────────────────
+function renderCountryDropdown(D) {
+  const sel = document.getElementById('channelSelect');
+  const channels = Object.keys(D.countryByChannel);
+  sel.innerHTML = channels.map(ch =>
+    `<option value="${ch}">${ch}</option>`
+  ).join('');
+}
+
+function renderCountryTable() {
+  const D = PLG;
+  const ch = document.getElementById('channelSelect').value;
+  const rows = D.countryByChannel[ch] || [];
+  const tbody = document.getElementById('tbodyCountry');
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:24px;">No country data available for this channel.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => `<tr>
+    <td>${r.country}</td>
+    <td class="num-cell">${fmt(r.sessions)}</td>
+    <td class="num-cell">${fmt(r.signups)}</td>
+    <td class="num-cell">${pct(r.rate)}</td>
+  </tr>`).join('');
+}
+
+// ── PAGES TABLE ───────────────────────────────────────────────────────────────
+function renderPagesTable(D) {
+  const tbody = document.getElementById('tbodyPages');
+  tbody.innerHTML = D.topPages.map(r => {
+    const rate = r.sessions > 0 ? r.signups / r.sessions : 0;
+    return `<tr>
+      <td style="font-family:monospace;font-size:12px;">${r.page}</td>
+      <td class="num-cell">${fmt(r.sessions)}</td>
+      <td class="num-cell">${fmt(r.signups)}</td>
+      <td class="num-cell">${pct(rate)}</td>
+    </tr>`;
+  }).join('');
+}
+</script>
+
+</body>
+</html>
