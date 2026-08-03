@@ -5,8 +5,10 @@ Shared Google Sheets reader for HubSpot, Amplitude, PPC, and GSC data.
 
 import json
 import os
+import socket
 import sys
 import tempfile
+import time
 from datetime import date, datetime, timedelta
 
 from googleapiclient.discovery import build
@@ -22,6 +24,26 @@ AMPLITUDE_SHEET_ID = os.environ.get("AMPLITUDE_SHEET_ID",
 PPC_SHEET_ID       = os.environ.get("PPC_SHEET_ID",
                                      "11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho")
 GSC_SHEET_ID       = os.environ.get("GSC_SHEET_ID", "")
+
+
+def _execute(request, retries: int = 3):
+    """
+    Execute a Google API request with retry on transient network errors.
+    Covers socket timeouts and connection resets that occur in CI runners
+    (GitHub Actions) where SSL read timeouts are common on cold starts.
+    googleapiclient's built-in num_retries only handles 5xx HTTP errors,
+    not socket-level TimeoutError / ConnectionError, so we wrap it here.
+    """
+    for attempt in range(retries):
+        try:
+            return request.execute(num_retries=2)
+        except (TimeoutError, ConnectionError, socket.timeout, OSError) as exc:
+            if attempt < retries - 1:
+                wait = 5 * (attempt + 1)
+                print(f"  ⚠️  Sheets API network error ({exc}). Retrying in {wait}s…")
+                time.sleep(wait)
+            else:
+                raise
 
 
 def _resolve_credentials_file(credentials_file=None) -> str:
@@ -94,7 +116,7 @@ def fetch_hubspot_data(sheet_id=None, credentials_file=None) -> dict:
 
     # Weekly Summary tab
     print("  Pulling HubSpot 'Weekly Summary'…")
-    result = sheets.values().get(spreadsheetId=sheet_id, range="Weekly Summary!A2:G").execute()
+    result = _execute(sheets.values().get(spreadsheetId=sheet_id, range="Weekly Summary!A2:G"))
     rows = result.get("values", [])
     summary = {}
     skipped_s = 0
@@ -119,7 +141,7 @@ def fetch_hubspot_data(sheet_id=None, credentials_file=None) -> dict:
 
     # Weekly Channels tab
     print("  Pulling HubSpot 'Weekly Channels'…")
-    result2 = sheets.values().get(spreadsheetId=sheet_id, range="Weekly Channels!A2:F").execute()
+    result2 = _execute(sheets.values().get(spreadsheetId=sheet_id, range="Weekly Channels!A2:F"))
     rows2 = result2.get("values", [])
     channels = {}
     skipped_c = 0
@@ -182,10 +204,10 @@ def fetch_amplitude_data(sheet_id=None, credentials_file=None) -> dict:
 
     def pull_tab(tab_name):
         print(f"  Pulling Amplitude '{tab_name}'…")
-        result = sheets.values().get(
+        result = _execute(sheets.values().get(
             spreadsheetId=sheet_id,
             range=f"'{tab_name}'!A2:E"
-        ).execute()
+        ))
         rows = result.get("values", [])
         data = {}
         skipped = 0
@@ -293,9 +315,9 @@ def fetch_ppc_data(sheet_id=None) -> dict:
 
     # ── raw_campaign_daily ────────────────────────────────────────────────────
     print("  Pulling PPC 'raw_campaign_daily'…")
-    result = sheets.values().get(
+    result = _execute(sheets.values().get(
         spreadsheetId=sheet_id, range="raw_campaign_daily!A:H"
-    ).execute()
+    ))
     campaign_rows = result.get("values", [])
     if campaign_rows:
         campaign_rows = campaign_rows[1:]   # skip header row
@@ -329,9 +351,9 @@ def fetch_ppc_data(sheet_id=None) -> dict:
 
     # ── raw_conv_actions_daily ────────────────────────────────────────────────
     print("  Pulling PPC 'raw_conv_actions_daily'…")
-    result2 = sheets.values().get(
+    result2 = _execute(sheets.values().get(
         spreadsheetId=sheet_id, range="raw_conv_actions_daily!A:F"
-    ).execute()
+    ))
     conv_rows = result2.get("values", [])
     if conv_rows:
         conv_rows = conv_rows[1:]   # skip header row
@@ -416,7 +438,7 @@ def fetch_gsc_sheet_data(sheet_id=None, credentials_file=None) -> dict:
 
     # ── gsc_weekly ────────────────────────────────────────────────────────────
     print("  Pulling GSC 'gsc_weekly'…")
-    result = sheets.values().get(spreadsheetId=sheet_id, range="gsc_weekly!A2:E").execute()
+    result = _execute(sheets.values().get(spreadsheetId=sheet_id, range="gsc_weekly!A2:E"))
     rows = result.get("values", [])
 
     w_clicks = {}
@@ -460,8 +482,8 @@ def fetch_gsc_sheet_data(sheet_id=None, credentials_file=None) -> dict:
     # ── dimension windows (queries / pages / countries) ───────────────────────
     def read_window_tab(tab_name, key_field):
         print(f"  Pulling GSC '{tab_name}'…")
-        res = sheets.values().get(spreadsheetId=sheet_id,
-                                  range=f"{tab_name}!A2:G").execute()
+        res = _execute(sheets.values().get(spreadsheetId=sheet_id,
+                                          range=f"{tab_name}!A2:G"))
         tab_rows = res.get("values", [])
         windows = {}
         for row in tab_rows:
@@ -596,9 +618,9 @@ def fetch_google_ads_from_sheet(sheet_id=None, credentials_file=None) -> dict:
         return "Other"
 
     print("Google Ads (sheet): reading raw_campaign_daily...")
-    result = sheets.values().get(
+    result = _execute(sheets.values().get(
         spreadsheetId=sheet_id, range="raw_campaign_daily!A:H"
-    ).execute()
+    ))
     rows = result.get("values", [])[1:]   # skip header
 
     today       = date.today()
@@ -719,10 +741,10 @@ def fetch_bing_weekly(sheet_id, credentials_file=None):
       }
     """
     sheets = _get_sheets_service(credentials_file)
-    result = sheets.values().get(
+    result = _execute(sheets.values().get(
         spreadsheetId=sheet_id,
         range="'Bing Ads'!A1:ZZ20",
-    ).execute()
+    ))
     raw = result.get("values", [])
 
     max_cols = max((len(r) for r in raw), default=0)
@@ -817,24 +839,24 @@ def _ensure_snapshot_tab(sheets_rw, sheet_id: str) -> None:
     from googleapiclient.errors import HttpError
 
     # Check if tab already exists
-    meta = sheets_rw.get(spreadsheetId=sheet_id).execute()
+    meta = _execute(sheets_rw.get(spreadsheetId=sheet_id))
     existing = {s["properties"]["title"] for s in meta.get("sheets", [])}
     if _SNAPSHOT_TAB in existing:
         return
 
     print(f"  Creating '{_SNAPSHOT_TAB}' tab in spreadsheet…")
-    sheets_rw.batchUpdate(
+    _execute(sheets_rw.batchUpdate(
         spreadsheetId=sheet_id,
         body={"requests": [{"addSheet": {"properties": {"title": _SNAPSHOT_TAB}}}]},
-    ).execute()
+    ))
 
     # Write header row
-    sheets_rw.values().update(
+    _execute(sheets_rw.values().update(
         spreadsheetId=sheet_id,
         range=f"'{_SNAPSHOT_TAB}'!A1",
         valueInputOption="RAW",
         body={"values": [_SNAPSHOT_HEADERS]},
-    ).execute()
+    ))
     print(f"  Header row written to '{_SNAPSHOT_TAB}'.")
 
 
@@ -872,13 +894,13 @@ def write_fibbler_snapshot(
         closed_won_count,
         very_high_count,
     ]
-    sheets.values().append(
+    _execute(sheets.values().append(
         spreadsheetId=sheet_id,
         range=f"'{_SNAPSHOT_TAB}'!A1",
         valueInputOption="RAW",
         insertDataOption="INSERT_ROWS",
         body={"values": [row]},
-    ).execute()
+    ))
     print(f"  Snapshot written: {row}")
 
 
@@ -917,10 +939,10 @@ def read_last_fibbler_snapshot(
 
     sheets = _get_sheets_service(credentials_file)
     try:
-        result = sheets.values().get(
+        result = _execute(sheets.values().get(
             spreadsheetId=sheet_id,
             range=f"'{_SNAPSHOT_TAB}'!A:F",
-        ).execute()
+        ))
     except HttpError as exc:
         # Tab doesn't exist yet (400) or other access error
         print(f"  No prior snapshot: {exc}")
