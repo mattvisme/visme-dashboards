@@ -467,7 +467,7 @@ Both scripts post via `scripts/shared/slack_client.py` — a small, dependency-f
 
 ### Check 1 — Website traffic bot-spike (`check_website_traffic_anomaly`)
 
-Mirrors `scripts/build_website.py`'s GA4 queries. Pulls the last 48 hours (the two most recently *complete* calendar days) of sessions by `sessionDefaultChannelGrouping` and by `sessionSource`/`sessionMedium`, each compared to the trailing 4-week same-day-of-week average. Fires when:
+Mirrors `scripts/build_website.py`'s GA4 queries. Pulls the last 48 hours of sessions by `sessionDefaultChannelGrouping` and by `sessionSource`/`sessionMedium`, each compared to the trailing 4-week same-day-of-week average. The window is buffered `DATA_LAG_BUFFER_DAYS` (default 1) day behind "yesterday" — so by default it looks at the two calendar days ending 2 days ago, not 1 — because GA4 processing lag and timezone drift between the property and the UTC runner can otherwise leave the most recent day partially processed and show spurious 0s. Fires when:
 - Any channel's daily sessions exceed `CHANNEL_SPIKE_MULTIPLIER` (3x) its baseline, or
 - `sessionSource=(not set)` AND `sessionMedium=(not set)` sessions exceed `NOT_SET_SESSIONS_THRESHOLD` (200/day) combined with engagement rate below `NOT_SET_ENGAGEMENT_RATE_MAX` (5%) — this is the exact fingerprint of the Aug 4 incident.
 

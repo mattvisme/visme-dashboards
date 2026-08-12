@@ -63,6 +63,8 @@ Two workflows run independently of the weekly rebuild (`build.yml`) and never mo
 
 Both can also be run manually via **Actions → (workflow name) → Run workflow**.
 
+Both checks pull "the last 48 hours," buffered `DATA_LAG_BUFFER_DAYS` (default 1) extra day behind today to avoid GA4 processing lag/timezone drift showing up as spurious 0s — by default that's the two days ending 2 days ago, not yesterday.
+
 **Website traffic bot-spike check** — pulls the last 48 hours of sessions by channel and by source/medium, and flags:
 - Any channel's daily sessions exceeding `CHANNEL_SPIKE_MULTIPLIER` (default 3x) its trailing 4-week same-day-of-week average
 - `sessionSource=(not set)` AND `sessionMedium=(not set)` sessions exceeding `NOT_SET_SESSIONS_THRESHOLD` (default 200/day) combined with engagement rate below `NOT_SET_ENGAGEMENT_RATE_MAX` (default 5%) — the fingerprint from the Aug 4, 2026 bot-traffic incident

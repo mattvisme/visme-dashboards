@@ -22,9 +22,15 @@ Environment variables:
     SLACK_WEBHOOK_URL      Incoming webhook URL to post alerts to
 
 # ── DETECTION WINDOW ──────────────────────────────────────────────────────────
-# "Last 48 hours" = the two most recently *complete* calendar days (yesterday
-# and the day before), since today's data is always partial. Each of those
-# two days is compared against the trailing 4-week average for that same day
+# "Last 48 hours" = the two most recently *complete* calendar days, with an
+# extra DATA_LAG_BUFFER_DAYS-day buffer before "today" — not just yesterday.
+# GA4's default channel grouping and event data can still be finalizing for a
+# day or so after it ends (processing lag, plus the GA4 property's timezone
+# vs. the UTC runner's calendar day can disagree by a day), so treating
+# "yesterday" as complete can pull a partially-processed day and show
+# spurious 0s. Buffering back one extra day means the freshest day this
+# check ever looks at is 2 days old, and the older of the two is 3 days old.
+# Each day is compared against the trailing 4-week average for that same day
 # of week (e.g. a Tuesday is compared to the prior 4 Tuesdays), which controls
 # for weekday seasonality (weekends vs. weekdays, etc.).
 # ─────────────────────────────────────────────────────────────────────────────
@@ -55,6 +61,8 @@ SLACK_WEBHOOK_URL = os.environ.get("SLACK_WEBHOOK_URL", "")
 # All named here so they're easy to find and tune without hunting through logic.
 
 BASELINE_WEEKS = 4          # trailing same-day-of-week weeks to average
+DATA_LAG_BUFFER_DAYS = 1    # extra days of buffer before "yesterday", to avoid GA4
+                            # processing lag / timezone drift showing up as 0s
 
 # -- Check 1: website traffic bot-spike --
 CHANNEL_SPIKE_MULTIPLIER      = 3.0    # flag if today > 3x the 4-week baseline
@@ -98,9 +106,15 @@ def _get_credentials():
 # ── DATE HELPERS ──────────────────────────────────────────────────────────────
 
 def _target_days() -> list[date]:
-    """The two most recently complete calendar days, oldest first."""
+    """
+    The two most recently complete calendar days, oldest first — buffered
+    DATA_LAG_BUFFER_DAYS days behind "today" so GA4 has had time to finalize
+    them (see DETECTION WINDOW note above). With the default buffer of 1,
+    this is 2 and 3 days before today, not yesterday and the day before.
+    """
     today = date.today()
-    return [today - timedelta(days=2), today - timedelta(days=1)]
+    latest = today - timedelta(days=1 + DATA_LAG_BUFFER_DAYS)
+    return [latest - timedelta(days=1), latest]
 
 
 def _baseline_days(target: date) -> list[date]:
