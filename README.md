@@ -46,10 +46,37 @@ Go to **Settings → Secrets and variables → Actions** and add:
 | `AMPLITUDE_SHEET_ID` | Amplitude Google Sheet ID: `11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw` |
 | `PPC_SHEET_ID` | PPC Google Sheet ID: `11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho` |
 | `GSC_SHEET_ID` | ID of the Google Sheet populated by the GSC Apps Script exporter |
+| `SLACK_WEBHOOK_URL` | Slack Incoming Webhook URL used by the anomaly-check workflows to post alerts |
 
 The service account must have:
 - **GA4 Data API** access (Viewer role on the GA4 property)
 - **Google Sheets API** access (the service account email must have at least Viewer access on all spreadsheets)
+
+## Anomaly Detection & Slack Alerts
+
+Two workflows run independently of the weekly rebuild (`build.yml`) and never modify or commit any `index.html` — they only read data and post to Slack.
+
+| Workflow | Script | Schedule | Covers |
+|----------|--------|----------|--------|
+| `anomaly-check-daily.yml` | `scripts/check_traffic_anomaly.py` | Daily, 13:00 UTC | Website traffic bot-spike + PLG signup-drop |
+| `anomaly-check-gsc.yml` | `scripts/check_gsc_anomaly.py` | Weekly, Wednesday 14:00 UTC | GSC clicks/position drop |
+
+Both can also be run manually via **Actions → (workflow name) → Run workflow**.
+
+**Website traffic bot-spike check** — pulls the last 48 hours of sessions by channel and by source/medium, and flags:
+- Any channel's daily sessions exceeding `CHANNEL_SPIKE_MULTIPLIER` (default 3x) its trailing 4-week same-day-of-week average
+- `sessionSource=(not set)` AND `sessionMedium=(not set)` sessions exceeding `NOT_SET_SESSIONS_THRESHOLD` (default 200/day) combined with engagement rate below `NOT_SET_ENGAGEMENT_RATE_MAX` (default 5%) — the fingerprint from the Aug 4, 2026 bot-traffic incident
+
+**PLG signup-drop check** — pulls the last 48 hours of `register` events by channel, and flags:
+- Total daily signups dropping below `SIGNUP_TOTAL_DROP_RATIO` (default 50%) of the trailing 4-week average — likely a broken signup form or tracking break
+- Any channel's signups dropping to zero for a full day when its 4-week average was meaningfully above zero (`SIGNUP_CHANNEL_ZERO_MIN_BASELINE`)
+- Secondary/lower-severity signal: a channel's signups spiking `SIGNUP_SPIKE_MULTIPLIER` (default 3x)+ with no matching session spike, suggesting fake/bot signups rather than a tracking issue
+
+**GSC drop check** — compares the most recently settled week (respecting `fetch_gsc_sheet_data`'s existing 3-day processing-lag exclusion) against the trailing 4-week average, and flags:
+- Weekly clicks dropping more than `CLICKS_DROP_RATIO` (default 30%) vs. the trailing 4-week average
+- Weekly average position worsening by more than `POSITION_WORSEN_DELTA` (default 3 positions) vs. the trailing 4-week average
+
+**Tuning thresholds:** every threshold above is a named constant at the top of its script (`scripts/check_traffic_anomaly.py` or `scripts/check_gsc_anomaly.py`) — edit the constant and redeploy, no other logic changes needed.
 
 ## Adding a New Dashboard
 

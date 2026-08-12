@@ -1,0 +1,40 @@
+name: GSC Weekly Anomaly Check
+
+# Read-only / notify-only. Never touches index.html and never commits anything —
+# fully decoupled from build.yml (the weekly rebuild). Runs on Wednesdays: GSC
+# data updates weekly and build_gsc.py already excludes the most recent week
+# until its 3-day processing lag clears, so Wednesday is the earliest day the
+# most recently completed week (ending Sunday) is guaranteed to be settled.
+on:
+  schedule:
+    - cron: '0 14 * * 3'   # Every Wednesday at 14:00 UTC
+  workflow_dispatch:          # Manual trigger via GitHub UI
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install \
+            google-api-python-client \
+            google-auth \
+            google-auth-httplib2
+
+      - name: Run GSC anomaly check
+        env:
+          GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
+          GSC_SHEET_ID: ${{ secrets.GSC_SHEET_ID }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python scripts/check_gsc_anomaly.py

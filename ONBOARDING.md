@@ -18,6 +18,7 @@ A complete reference for understanding, maintaining, and extending the Visme mar
 10. [How to Add or Modify a Dashboard](#10-how-to-add-or-modify-a-dashboard)
 11. [Local Development](#11-local-development)
 12. [Common Issues & Debugging](#12-common-issues--debugging)
+13. [Anomaly Detection & Slack Alerts](#13-anomaly-detection--slack-alerts)
 
 ---
 
@@ -311,6 +312,7 @@ All secrets are stored in **GitHub → Settings → Secrets and variables → Ac
 | `MS_ADS_REFRESH_TOKEN` | PPC | Microsoft Ads OAuth refresh token |
 | `MS_ADS_CUSTOMER_ID` | PPC | Microsoft Ads customer ID |
 | `MS_ADS_ACCOUNT_ID` | PPC | Microsoft Ads account ID |
+| `SLACK_WEBHOOK_URL` | Anomaly checks | Slack Incoming Webhook URL the anomaly-check workflows post alerts to |
 
 ### Google Service Account
 
@@ -441,6 +443,76 @@ The weekly rebuild commits directly to `main`. Check:
 ### CR values look wrong
 
 CR is stored as a **percentage number**, not a decimal (e.g. `0.83` means 0.83%). The dashboard JS displays it as `value.toFixed(2) + '%'`. If you see values like `0.008`, the client is returning raw decimals — multiply by 100.
+
+---
+
+## 13. Anomaly Detection & Slack Alerts
+
+The weekly rebuild is the only automation that touches dashboard HTML. On top of it, two **read-only, notify-only** workflows watch for data anomalies between rebuilds and post to Slack. Neither writes to any `index.html`, commits anything, or interacts with `build.yml` in any way — they exist entirely because the weekly rebuild alone left a week-long blind spot (see the Aug 11, 2026 incident below).
+
+### Why this exists
+
+On Aug 11, 2026 the team discovered that `Unassigned`-channel sessions on the public website had spiked 2,900%+ week-over-week starting around Aug 4, caused by bot traffic originating from China. It went undetected for a week because the only automation in this repo was the Monday rebuild — no one was watching the data in between. These checks close that gap for the three most likely failure modes: bot-driven traffic spikes, broken signup tracking, and SEO ranking drops.
+
+### Workflows & scripts
+
+| Workflow | Script | Schedule |
+|----------|--------|----------|
+| `.github/workflows/anomaly-check-daily.yml` | `scripts/check_traffic_anomaly.py` | Daily, 13:00 UTC + manual |
+| `.github/workflows/anomaly-check-gsc.yml` | `scripts/check_gsc_anomaly.py` | Weekly, Wednesday 14:00 UTC + manual |
+
+`check_traffic_anomaly.py` runs two independent checks against the same GA4 property (368188880) in one script, sharing a single `BetaAnalyticsDataClient` session — each check is wrapped in its own `try/except` so a failure in one never blocks or hides a failure in the other. `check_gsc_anomaly.py` is scheduled separately because GSC data only updates weekly, and runs on Wednesday to stay clear of `fetch_gsc_sheet_data`'s existing 3-day settlement lag on the most recent week.
+
+Both scripts post via `scripts/shared/slack_client.py` — a small, dependency-free (`urllib`, not `requests`) Incoming Webhook client — to the `SLACK_WEBHOOK_URL` secret. Each Slack message names the check that fired, the metric, today's/this week's value vs. the trailing 4-week baseline, and the % change; the website check additionally includes a top-country and top-browser breakdown for the anomalous segment.
+
+### Check 1 — Website traffic bot-spike (`check_website_traffic_anomaly`)
+
+Mirrors `scripts/build_website.py`'s GA4 queries. Pulls the last 48 hours (the two most recently *complete* calendar days) of sessions by `sessionDefaultChannelGrouping` and by `sessionSource`/`sessionMedium`, each compared to the trailing 4-week same-day-of-week average. Fires when:
+- Any channel's daily sessions exceed `CHANNEL_SPIKE_MULTIPLIER` (3x) its baseline, or
+- `sessionSource=(not set)` AND `sessionMedium=(not set)` sessions exceed `NOT_SET_SESSIONS_THRESHOLD` (200/day) combined with engagement rate below `NOT_SET_ENGAGEMENT_RATE_MAX` (5%) — this is the exact fingerprint of the Aug 4 incident.
+
+### Check 2 — PLG signup-drop (`check_plg_signup_anomaly`)
+
+Mirrors `scripts/build_plg_signups.py`'s `register` event query. Pulls the last 48 hours of `register` eventCount by channel, compared to the trailing 4-week same-day-of-week average. Fires when:
+- Total daily signups drop below `SIGNUP_TOTAL_DROP_RATIO` (50%) of baseline (likely a broken signup form or tracking break), or
+- Any channel's signups drop to zero for a full day when its baseline was meaningfully above zero (`SIGNUP_CHANNEL_ZERO_MIN_BASELINE`).
+
+It also raises a secondary, lower-severity signal when a channel's signups spike `SIGNUP_SPIKE_MULTIPLIER` (3x)+ with no matching session spike in the same channel/day — that pattern suggests fake/bot signups rather than a genuine tracking issue.
+
+### Check 3 — GSC drop (`check_gsc_anomaly`)
+
+Reads the `gsc_weekly` tab via `fetch_gsc_sheet_data` (same function `build_gsc.py` uses), which already excludes any week whose Sunday end-date is within 3 days of today. Compares the most recently settled week against the trailing 4-week average. Fires when:
+- Weekly clicks drop more than `CLICKS_DROP_RATIO` (30%) vs. baseline, or
+- Weekly average position worsens by more than `POSITION_WORSEN_DELTA` (3 positions) vs. baseline.
+
+### Tuning thresholds
+
+Every threshold is a named constant near the top of its script — no need to hunt through the detection logic to change one:
+
+- `scripts/check_traffic_anomaly.py`: `BASELINE_WEEKS`, `CHANNEL_SPIKE_MULTIPLIER`, `CHANNEL_SPIKE_MIN_ABS_SESSIONS`, `CHANNEL_NEW_SPIKE_ABS_SESSIONS`, `NOT_SET_SESSIONS_THRESHOLD`, `NOT_SET_ENGAGEMENT_RATE_MAX`, `SIGNUP_TOTAL_DROP_RATIO`, `SIGNUP_TOTAL_MIN_BASELINE`, `SIGNUP_CHANNEL_ZERO_MIN_BASELINE`, `SIGNUP_SPIKE_MULTIPLIER`, `SIGNUP_SPIKE_MIN_ABS`, `SIGNUP_SPIKE_NEW_ABS`
+- `scripts/check_gsc_anomaly.py`: `BASELINE_WEEKS`, `CLICKS_DROP_RATIO`, `POSITION_WORSEN_DELTA`
+
+The `*_MIN_ABS*` / `*_NEW_ABS*` constants exist as noise floors — without them, a channel that goes from 1 session/day to 4 would technically be "a 4x spike" and fire constantly on tiny, statistically meaningless channels.
+
+### Setting up the Slack webhook
+
+1. In Slack, create an Incoming Webhook for the channel you want alerts in (Slack app config → Incoming Webhooks → Add New Webhook).
+2. Add the webhook URL as the `SLACK_WEBHOOK_URL` secret under **Settings → Secrets and variables → Actions**.
+3. Trigger either workflow manually (Actions tab → workflow name → Run workflow) to verify the message arrives.
+
+### Local testing
+
+```bash
+export GA4_CREDENTIALS_FILE="/path/to/service-account-key.json"
+export GA4_PROPERTY_ID="368188880"
+export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/..."
+python scripts/check_traffic_anomaly.py
+
+export GSC_SHEET_ID="<your-gsc-sheet-id>"
+python scripts/check_gsc_anomaly.py
+```
+
+If `SLACK_WEBHOOK_URL` is unset, both scripts log findings to stdout instead of posting — useful for a dry run.
 
 ### "No DATA_INJECTION_POINT found" error
 

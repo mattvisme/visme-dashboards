@@ -1,0 +1,37 @@
+name: Daily Anomaly Check
+
+# Read-only / notify-only. Never touches index.html and never commits anything —
+# fully decoupled from build.yml (the weekly rebuild). Runs check_traffic_anomaly.py,
+# which covers both the website bot-spike check and the PLG signup-drop check.
+on:
+  schedule:
+    - cron: '0 13 * * *'   # Every day at 13:00 UTC (offset from the Monday weekly rebuild)
+  workflow_dispatch:          # Manual trigger via GitHub UI
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install \
+            google-analytics-data \
+            google-auth
+
+      - name: Run traffic + PLG signup anomaly checks
+        env:
+          GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: python scripts/check_traffic_anomaly.py
