@@ -251,6 +251,163 @@ def fetch_ga4_data(property_id=None, credentials_file=None) -> dict:
     return payload
 
 
+# Per direct instruction: no prior-year data needed, start Jan 2026 and grow
+# forward from there as more months/weeks complete — not a fixed lookback
+# window. Selectable range is [START_DATE, last complete month/week], and
+# grows every time this is re-run.
+CHANNEL_PERF_START_DATE     = date(2026, 1, 1)
+CHANNEL_PERF_TOP_N_SOURCES  = 20   # per channel per period, matching the reference artifact's cutoff
+
+
+def _prev_month(y: int, m: int):
+    return (y - 1, 12) if m == 1 else (y, m - 1)
+
+
+def _next_month(y: int, m: int):
+    return (y + 1, 1) if m == 12 else (y, m + 1)
+
+
+def _month_bounds(y: int, m: int):
+    start = date(y, m, 1)
+    ny, nm = (y + 1, 1) if m == 12 else (y, m + 1)
+    end = date(ny, nm, 1) - timedelta(days=1)
+    return start, end
+
+
+def fetch_channel_performance_data(property_id=None, credentials_file=None) -> dict:
+    """
+    Fetch GA4 sessions by (Default Channel Group x Source/Medium) for:
+      - every complete calendar month from CHANNEL_PERF_START_DATE (Jan 2026)
+        through the last complete calendar month
+      - every complete Mon-Sun ISO week from the Monday on/after
+        CHANNEL_PERF_START_DATE through the last complete week
+
+    Both lists grow every time this is re-run — not a fixed lookback window.
+    The front end lets the user pick up to 3 months / 4 weeks from these
+    lists and compares every selected pair.
+
+    Traffic-side data ONLY. There is no GA4-side "Free"/"Paid" data in this
+    payload — that half of the dashboard comes from the Weekly Conversion &
+    Signups Google Sheet; see build_channel_performance.py.
+
+    Returns:
+      {
+        "asOfDate": str,
+        "months": {"keys": [...asc...], "labels": {key: label}},
+        "weeks":  {"keys": [...asc...], "labels": {key: label}},
+        "monthlyTraffic": {channel: {source_medium: {monthKey: sessions}}},
+        "weeklyTraffic":  {channel: {source_medium: {weekKey: sessions}}},
+        "channelOrder": [channel, ...]  # sorted by total sessions desc, NOT a fixed/hardcoded list
+      }
+    """
+    if property_id is None:
+        property_id = os.environ.get("GA4_PROPERTY_ID", "368188880")
+
+    creds = _get_credentials(credentials_file)
+    client = BetaAnalyticsDataClient(credentials=creds)
+    prop = f"properties/{property_id}"
+
+    def run(start_date: str, end_date: str, row_limit=250_000):
+        req = RunReportRequest(
+            property=prop,
+            date_ranges=[DateRange(start_date=start_date, end_date=end_date)],
+            dimensions=[Dimension(name="sessionDefaultChannelGroup"),
+                        Dimension(name="sessionSourceMedium")],
+            metrics=[Metric(name="sessions")],
+            limit=row_limit,
+        )
+        for attempt in range(4):
+            try:
+                resp = client.run_report(req, timeout=120)
+                break
+            except Exception as e:
+                if attempt == 3:
+                    raise
+                wait = 15 * (2 ** attempt)
+                print(f"  GA4 API error (attempt {attempt + 1}/4), retrying in {wait}s: {e}")
+                time.sleep(wait)
+        return [[d.value for d in r.dimension_values] + [m.value for m in r.metric_values]
+                for r in resp.rows]
+
+    def int_(v):
+        try:
+            return int(float(v))
+        except Exception:
+            return 0
+
+    today = date.today()
+
+    # ── Complete calendar months, Jan 2026 → last complete month ────────────
+    this_month_start = date(today.year, today.month, 1)
+    last_complete_month_end = this_month_start - timedelta(days=1)
+    y, m = CHANNEL_PERF_START_DATE.year, CHANNEL_PERF_START_DATE.month
+    month_ym = []
+    while (y, m) <= (last_complete_month_end.year, last_complete_month_end.month):
+        month_ym.append((y, m))
+        y, m = _next_month(y, m)
+
+    # ── Complete Mon-Sun ISO weeks, Monday on/after Jan 1 2026 → last complete week ──
+    start_offset = (0 - CHANNEL_PERF_START_DATE.weekday()) % 7
+    first_monday = CHANNEL_PERF_START_DATE + timedelta(days=start_offset)
+    this_monday = today - timedelta(days=today.weekday())
+    last_complete_week_monday = this_monday - timedelta(days=7)
+    week_mondays = []
+    d = first_monday
+    while d <= last_complete_week_monday:
+        week_mondays.append(d)
+        d += timedelta(weeks=1)
+
+    month_keys, month_labels = [], {}
+    monthly_traffic = defaultdict(lambda: defaultdict(dict))
+    print(f"⏳  Pulling channel performance — {len(month_ym)} months …")
+    for (yy, mm) in month_ym:
+        start, end = _month_bounds(yy, mm)
+        key = f"{yy:04d}-{mm:02d}"
+        month_keys.append(key)
+        month_labels[key] = start.strftime("%b '%y")   # "Jan '26" — abbreviated, per direct instruction (spacing)
+        for channel, source_medium, sessions in run(start.isoformat(), end.isoformat()):
+            monthly_traffic[channel][source_medium][key] = int_(sessions)
+
+    week_keys, week_labels = [], {}
+    weekly_traffic = defaultdict(lambda: defaultdict(dict))
+    print(f"⏳  Pulling channel performance — {len(week_mondays)} weeks …")
+    for monday in week_mondays:
+        sunday = monday + timedelta(days=6)
+        key = monday.isoformat()
+        week_keys.append(key)
+        # "Jul 13 – Jul 19 '26" — year shown once, per direct instruction (spacing)
+        mon_short = monday.strftime("%b") + f" {monday.day}"
+        week_labels[key] = f"{mon_short} – {_fmt_label(sunday)}"
+        for channel, source_medium, sessions in run(monday.isoformat(), sunday.isoformat()):
+            weekly_traffic[channel][source_medium][key] = int_(sessions)
+
+    # channelOrder: sorted by total sessions across everything just fetched,
+    # descending. Not a fixed/curated list — see README note in the handoff:
+    # the reference artifact's fixed 17-channel order was an artifact of only
+    # having 3 fixed CSV exports to work with, not a deliberate design choice.
+    channel_totals = defaultdict(int)
+    for src in (monthly_traffic, weekly_traffic):
+        for channel, sm_map in src.items():
+            for sm, per_period in sm_map.items():
+                channel_totals[channel] += sum(per_period.values())
+    channel_order = [c for c, _ in sorted(channel_totals.items(), key=lambda x: -x[1])]
+
+    as_of_date = week_labels[week_keys[-1]] if week_keys else last_complete_month_end.isoformat()
+
+    payload = {
+        "asOfDate": as_of_date,
+        "propertyId": property_id,
+        "months": {"keys": month_keys, "labels": month_labels},
+        "weeks": {"keys": week_keys, "labels": week_labels},
+        "monthlyTraffic": {ch: dict(sm) for ch, sm in monthly_traffic.items()},
+        "weeklyTraffic": {ch: dict(sm) for ch, sm in weekly_traffic.items()},
+        "channelOrder": channel_order,
+    }
+    print(f"✅  Channel performance collected — {len(month_keys)} months, "
+          f"{len(week_keys)} weeks, {len(channel_order)} channels")
+    return payload
+
+
 def fetch_paid_search_new_users(property_id=None, credentials_file=None, weeks=156) -> dict:
     """
     Fetch weekly new users from Paid Search channel only.

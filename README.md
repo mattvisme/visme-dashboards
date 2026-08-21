@@ -15,6 +15,7 @@ Self-contained marketing analytics dashboards served via GitHub Pages. Each dash
 | Amplitude PLG Metrics | `/amplitude/` | Amplitude (Google Sheets) |
 | GSC SEO Performance | `/gsc/` | Google Search Console API |
 | Paid Media | `/paid-media/` | Google Ads (Google Sheets) + Amplitude |
+| Marketing Channel Performance | `/channel-performance/` | GA4 (Traffic) + "Weekly Conversion & Signups channels" Google Sheet (Free/Paid, joined by a title classifier) |
 
 ## How It Works
 
@@ -43,6 +44,7 @@ Go to **Settings → Secrets and variables → Actions** and add:
 | `GA4_SERVICE_ACCOUNT_KEY` | Full JSON content of the service account key file |
 | `GA4_PROPERTY_ID` | GA4 property ID: `368188880` |
 | `HUBSPOT_SHEET_ID` | HubSpot Google Sheet ID: `1TsDySDrmgSQEUjunQg77twgUS1fGgZIC71IbX-bAz1s` |
+| `CHANNEL_PERF_SHEET_ID` | "Weekly Conversion & Signups channels" Google Sheet ID: `1F6h9jAVy7SEHiF1jS_HkFZ6Htu5fYJ-Q8yQxe0iJvCI` (optional — this default is baked into the code) |
 | `AMPLITUDE_SHEET_ID` | Amplitude Google Sheet ID: `11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw` |
 | `PPC_SHEET_ID` | PPC Google Sheet ID: `11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho` |
 | `GSC_SHEET_ID` | ID of the Google Sheet populated by the GSC Apps Script exporter |
@@ -51,6 +53,8 @@ Go to **Settings → Secrets and variables → Actions** and add:
 The service account must have:
 - **GA4 Data API** access (Viewer role on the GA4 property)
 - **Google Sheets API** access (the service account email must have at least Viewer access on all spreadsheets)
+
+> ⚠️ **As of 2026-08-21, the "Weekly Conversion & Signups channels" sheet (`CHANNEL_PERF_SHEET_ID`) is shared with only two humans** (Anna Glivinska as owner, Matt Strydom as editor) — the service account (`visme-dashboards@visme-marketing-491309.iam.gserviceaccount.com`) has **not** been granted access. `build_channel_performance.py` will fail on the Sheets read until someone with edit access shares that sheet with the service account email (Viewer is sufficient).
 
 ## Anomaly Detection & Slack Alerts
 
@@ -111,6 +115,7 @@ python scripts/build_amplitude.py
 python scripts/build_executive.py
 python scripts/build_ppc.py
 python scripts/build_gsc.py
+python scripts/build_channel_performance.py
 ```
 
 Then open the output files in a browser (`file://` URL) to validate.
@@ -126,6 +131,7 @@ visme-dashboards/
 ├── amplitude/index.html        ← Amplitude PLG metrics
 ├── gsc/index.html              ← GSC SEO dashboard (template)
 ├── paid-media/index.html       ← Paid Media dashboard (template)
+├── channel-performance/index.html ← Channel Performance (Traffic live from GA4; Free/Paid pending)
 ├── scripts/
 │   ├── build_executive.py
 │   ├── build_ga4.py
@@ -133,6 +139,7 @@ visme-dashboards/
 │   ├── build_amplitude.py
 │   ├── build_ppc.py
 │   ├── build_gsc.py
+│   ├── build_channel_performance.py
 │   └── shared/
 │       ├── ga4_client.py       ← GA4 Data API helper
 │       ├── sheets_client.py    ← Google Sheets reader (HubSpot, Amplitude, PPC, GSC)

@@ -5,14 +5,18 @@ Shared Google Sheets reader for HubSpot, Amplitude, PPC, and GSC data.
 
 import json
 import os
+import re
 import socket
 import sys
 import tempfile
 import time
+from collections import defaultdict
 from datetime import date, datetime, timedelta
 
 from googleapiclient.discovery import build
 from google.oauth2.service_account import Credentials
+
+from scripts.shared.title_classifier import classify_title, OTHER_UNCLASSIFIED
 
 SCOPES    = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 SCOPES_RW = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -24,6 +28,18 @@ AMPLITUDE_SHEET_ID = os.environ.get("AMPLITUDE_SHEET_ID",
 PPC_SHEET_ID       = os.environ.get("PPC_SHEET_ID",
                                      "11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho")
 GSC_SHEET_ID       = os.environ.get("GSC_SHEET_ID", "")
+CHANNEL_PERF_SHEET_ID = os.environ.get("CHANNEL_PERF_SHEET_ID",
+                                        "1F6h9jAVy7SEHiF1jS_HkFZ6Htu5fYJ-Q8yQxe0iJvCI")
+
+# Week 1's Monday, per the "Weekly Conversion & Signups channels" sheet's own
+# tab "Week 1 - Dec 29 - Jan 4". Verified: Dec 29, 2025 IS a Monday, and
+# Week 1's Monday + 32 weeks lands on Aug 10, 2026 — which IS a Monday and
+# matches the sheet's Week 33 tab "Aug 10 - 16" exactly (checked directly in
+# the sheet on 2026-08-21). Every week tab's Monday is computed from this
+# single verified anchor, not re-parsed from each tab's free-text label,
+# since month abbreviations in those labels are inconsistent (e.g. "Aug 3-9"
+# vs. "June 29 - July 5").
+CHANNEL_PERF_WEEK1_MONDAY = date(2025, 12, 29)
 
 
 def _execute(request, retries: int = 3):
@@ -813,6 +829,126 @@ def fetch_bing_weekly(sheet_id, credentials_file=None):
         }
 
     return sorted(seen.values(), key=lambda r: r["week_start"])
+
+
+def fetch_channel_conversions_data(sheet_id=None, credentials_file=None) -> dict:
+    """
+    Read every "Week N - ..." tab from the "Weekly Conversion & Signups
+    channels, MASTER doc" Google Sheet (columns: Level, Title, Registered,
+    Conversions — Level is uniformly 1 in every tab checked and is not
+    currently meaningful) and classify each Title into a GA4 channel via
+    scripts.shared.title_classifier, so it can be joined against live GA4
+    Traffic data by channel.
+
+    Registered -> "Free", Conversions -> "Paid" (confirmed directly, not
+    assumed — this sheet has no dollar/revenue figures at all).
+
+    Returns:
+      {
+        "weeklyConversions":  {channel: {weekKey: {free, paid}}},
+        "monthlyConversions": {channel: {monthKey: {free, paid}}},
+        "unclassifiedTitles": {title: {free, paid}},  # fell to Other (Unclassified)
+        "referralTitles":     {title: {free, paid}},  # fell to the generic Referral fallback
+        "weekCount": int,
+      }
+
+    weekKey is a Monday ISO date string, matching the GA4 client's week
+    convention exactly, so the two can be joined directly by key.
+
+    Month aggregation splits each week's Free/Paid proportionally by how
+    many of its 7 days fall in each calendar month (assumes activity is
+    evenly spread across the week — the sheet has no daily breakdown to
+    verify this against, so it's the best available approximation), per
+    direct instruction to favor accuracy for true month-over-month reads.
+    """
+    if sheet_id is None:
+        sheet_id = CHANNEL_PERF_SHEET_ID
+    if not sheet_id:
+        raise ValueError("No sheet_id provided and CHANNEL_PERF_SHEET_ID is not set")
+
+    def _int(v):
+        try:
+            return int(float(str(v).replace(",", "").strip()))
+        except (ValueError, TypeError):
+            return 0
+
+    sheets = _get_sheets_service(credentials_file)
+
+    meta = _execute(sheets.get(spreadsheetId=sheet_id))
+    all_titles = [s["properties"]["title"] for s in meta.get("sheets", [])]
+
+    week_re = re.compile(r"^Week (\d+)\s*-")
+    week_tabs = []
+    for t in all_titles:
+        m = week_re.match(t)
+        if m:
+            week_tabs.append((int(m.group(1)), t))
+    week_tabs.sort()
+
+    weekly = defaultdict(lambda: defaultdict(lambda: {"free": 0, "paid": 0}))
+    unclassified = defaultdict(lambda: {"free": 0, "paid": 0})
+    referral_titles = defaultdict(lambda: {"free": 0, "paid": 0})
+    week_keys = []
+
+    print(f"⏳  Pulling channel conversions — {len(week_tabs)} week tabs …")
+    for week_num, tab_title in week_tabs:
+        monday = CHANNEL_PERF_WEEK1_MONDAY + timedelta(weeks=week_num - 1)
+        week_key = monday.isoformat()
+        week_keys.append(week_key)
+
+        result = _execute(sheets.values().get(
+            spreadsheetId=sheet_id,
+            range=f"'{tab_title}'!A2:D",
+        ))
+        for row in result.get("values", []):
+            if len(row) < 4:
+                continue
+            title, registered, conversions = row[1], row[2], row[3]
+            reg, conv = _int(registered), _int(conversions)
+            channel = classify_title(title)
+            weekly[channel][week_key]["free"] += reg
+            weekly[channel][week_key]["paid"] += conv
+            if channel == OTHER_UNCLASSIFIED:
+                unclassified[title]["free"] += reg
+                unclassified[title]["paid"] += conv
+            elif channel == "Referral":
+                referral_titles[title]["free"] += reg
+                referral_titles[title]["paid"] += conv
+
+    # Month aggregation — proportional day-count split across month boundaries.
+    monthly = defaultdict(lambda: defaultdict(lambda: {"free": 0.0, "paid": 0.0}))
+    for week_num, tab_title in week_tabs:
+        monday = CHANNEL_PERF_WEEK1_MONDAY + timedelta(weeks=week_num - 1)
+        week_key = monday.isoformat()
+        day_counts = defaultdict(int)
+        for d in range(7):
+            day = monday + timedelta(days=d)
+            day_counts[f"{day.year:04d}-{day.month:02d}"] += 1
+        for channel, week_map in weekly.items():
+            vals = week_map.get(week_key)
+            if not vals:
+                continue
+            for month_key, days in day_counts.items():
+                frac = days / 7.0
+                monthly[channel][month_key]["free"] += vals["free"] * frac
+                monthly[channel][month_key]["paid"] += vals["paid"] * frac
+
+    monthly_rounded = {
+        ch: {mk: {"free": round(v["free"]), "paid": round(v["paid"])} for mk, v in mmap.items()}
+        for ch, mmap in monthly.items()
+    }
+    weekly_plain = {ch: dict(wmap) for ch, wmap in weekly.items()}
+
+    print(f"✅  Channel conversions collected — {len(week_keys)} weeks, "
+          f"{len(unclassified)} unclassified titles, {len(referral_titles)} referral titles")
+
+    return {
+        "weeklyConversions": weekly_plain,
+        "monthlyConversions": monthly_rounded,
+        "unclassifiedTitles": dict(unclassified),
+        "referralTitles": dict(referral_titles),
+        "weekCount": len(week_tabs),
+    }
 
 
 # ── FIBBLER SNAPSHOT FUNCTIONS ────────────────────────────────────────────────

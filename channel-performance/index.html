@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="robots" content="noindex, nofollow">
+<script src="/auth.js"></script>
+<link rel="icon" type="image/png" href="https://www.visme.co/favicon-32x32.png"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Marketing Channel Performance — Visme Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F8FAFB;--surface:#FFFFFF;--surface2:#EFF6FC;--sidebar:#1E2A35;
+  --sidebar-accent:#273542;--text:#293745;--text-muted:#7F859D;--text-dim:#A8B2C0;
+  --accent:#3CACD7;--accent2:#3D92E7;--accent3:#6CC395;--accent-pale:#EFF6FC;
+  --border:#BBD0E5;--border-light:#E7EFF3;--sidebar-w:232px;--topbar-h:72px;
+  --radius:10px;--radius-sm:6px;
+  --shadow:0 1px 3px rgba(41,55,69,.07),0 4px 16px rgba(41,55,69,.05);
+  --shadow-md:0 4px 12px rgba(41,55,69,.1),0 12px 40px rgba(41,55,69,.07);
+  --font-ui:'Lato',sans-serif;--font-display:'Montserrat',sans-serif;
+  --pos:#2E8B57;--neg:#F45F50;--pos-bg:#E8F8F0;--neg-bg:#FDECEA;--pos-border:#B3E0CA;--neg-border:#F6C8C4;
+  --pending-bg:#FBF6E9;--pending-text:#9A7B1F;--pending-border:#EFDFA9;
+  --highlight:#FDECC8;--mark-bg:#FBCB6B;--mark-text:#3A2400;
+}
+html{font-size:15px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--sidebar);display:flex;flex-direction:column;z-index:100;overflow-y:auto;scrollbar-width:none;}
+#sidebar::-webkit-scrollbar{display:none}
+.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
+.sidebar-logo-mark{display:flex;align-items:center;gap:9px;}
+.logo-gem{width:28px;height:28px;background:linear-gradient(135deg,#3CACD7 0%,#3D92E7 100%);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
+.logo-text{font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;}
+.logo-sub{font-size:9.5px;color:rgba(255,255,255,.3);margin-top:1px;letter-spacing:.4px;text-transform:uppercase;font-weight:400;}
+.source-group{margin-top:6px;}
+.source-header{display:flex;align-items:center;gap:7px;padding:8px 14px 4px;cursor:pointer;user-select:none;}
+.source-header:hover .source-label{color:rgba(255,255,255,.7)}
+.source-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.source-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;flex:1;transition:color .15s;}
+.source-nav{list-style:none;padding:0 8px 4px;}
+.source-nav li a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.5);transition:all .12s ease;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.source-nav li a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);}
+.source-nav li a.active{background:rgba(60,172,215,.14);color:#3CACD7;font-weight:600;}
+.nav-icon{width:14px;height:14px;opacity:.65;flex-shrink:0;}
+.source-nav li a.active .nav-icon{opacity:1}
+.source-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 14px;}
+.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;}
+.back-link{display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:6px;text-decoration:none;font-size:11.5px;color:rgba(255,255,255,.35);transition:all .12s;margin:8px 8px 0;}
+.back-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.65);}
+#main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
+#topbar{position:sticky;top:0;z-index:50;height:auto;min-height:var(--topbar-h);background:rgba(248,250,251,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;padding:14px 32px;gap:16px 24px;}
+.topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;flex-shrink:0;margin-right:auto;}
+.topbar-title span{color:var(--accent)}
+.as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.mode-control{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.mode-label{font-size:11.5px;font-weight:600;color:var(--text-muted);letter-spacing:.3px;text-transform:uppercase;white-space:nowrap;}
+.mode-pills{display:flex;gap:4px;}
+.pill{padding:5px 12px;border-radius:20px;font-size:12.5px;font-weight:500;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s ease;white-space:nowrap;user-select:none;}
+.pill:hover{background:var(--surface2);color:var(--text)}
+.pill.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(60,172,215,.35);}
+.period-select{padding:6px 10px;border-radius:8px;font-size:12.5px;font-weight:500;color:var(--text);background:var(--surface);border:1px solid var(--border);cursor:pointer;}
+.period-picker-bar{display:flex;align-items:flex-start;gap:14px;padding:12px 32px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.period-picker-bar .mode-label{padding-top:6px;flex-shrink:0;}
+.period-pills{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+.period-pill{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:500;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s ease;white-space:nowrap;user-select:none;}
+.period-pill:hover{background:var(--surface2);color:var(--text)}
+.period-pill.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.period-pill.disabled{opacity:.4;cursor:not-allowed;}
+.week-dropdowns{display:flex;gap:8px;flex-wrap:wrap;}
+.week-dropdowns .period-select{min-width:170px;}
+.search-group{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.search-input{padding:6px 10px;border-radius:8px;font-size:12.5px;border:1px solid var(--border);width:190px;font-family:var(--font-ui);}
+.search-input:focus{outline:none;border-color:var(--accent);}
+.btn{padding:6px 12px;border-radius:8px;font-size:12.5px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;}
+.btn:hover{background:var(--surface2);color:var(--text)}
+.search-status{font-size:11px;color:var(--text-dim);flex-shrink:0;}
+#content{padding:32px;display:flex;flex-direction:column;gap:20px;max-width:1400px;width:100%;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0;box-shadow:var(--shadow);overflow:hidden;}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;}
+thead th.num{text-align:right}
+thead th .unit{font-weight:400;text-transform:none;color:var(--text-dim);}
+tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s;}
+tbody tr.channel-row{cursor:pointer;}
+tbody tr.channel-row:hover{background:var(--surface2)}
+tbody tr:last-child{border-bottom:none}
+tbody tr.channel-group-row{background:var(--surface2);}
+tbody tr.sub-row{background:#FAFBFC;font-size:12px;}
+tbody tr.sub-row:hover{background:var(--surface2)}
+tbody tr.sub-row.match-highlight{background:var(--highlight)}
+tbody tr.unassigned-row{color:var(--text-dim);font-style:italic;}
+tbody td{padding:9px 14px;color:var(--text);vertical-align:middle;}
+.num-cell{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.channel-name{font-weight:600;}
+.sub-name{padding-left:26px;color:var(--text-muted);font-family:'SFMono-Regular',Consolas,monospace;font-size:11.5px;}
+.sub-name-l1{padding-left:20px;color:var(--text);font-family:var(--font-ui);font-weight:500;font-size:13px;}
+.sub-name-l2{padding-left:46px;}
+tr.sub-row-l2{background:#FAFBFC;}
+.expand-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1.5px solid var(--border);border-radius:4px;color:var(--text-muted);font-size:11px;margin-right:8px;flex-shrink:0;}
+.pending-cell{color:var(--text-dim);font-style:italic;font-size:11.5px;}
+.delta-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap;}
+.delta-pos{background:var(--pos-bg);color:var(--pos);border:1px solid var(--pos-border);}
+.delta-neg{background:var(--neg-bg);color:var(--neg);border:1px solid var(--neg-border);}
+.delta-neu{background:var(--surface2);color:var(--text-muted);border:1px solid var(--border-light);}
+.delta-new{background:var(--surface2);color:var(--text-dim);border:1px solid var(--border-light);font-style:italic;}
+mark{background:var(--mark-bg);color:var(--mark-text);border-radius:2px;padding:0 1px;}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#loading{position:fixed;inset:0;background:var(--sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;opacity:1;transition:opacity .5s ease;}
+#loading.hide{opacity:0;pointer-events:none}
+.loading-logo{font-family:var(--font-display);font-size:28px;font-weight:700;color:#fff;margin-bottom:24px;letter-spacing:-.5px;}
+.loading-logo span{color:var(--accent)}
+.loading-bar-track{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;}
+.loading-bar-fill{height:100%;background:var(--accent);border-radius:2px;animation:loadbar 1.2s ease-in-out forwards;}
+@keyframes loadbar{from{width:0}to{width:100%}}
+.loading-text{margin-top:14px;font-size:12px;color:rgba(255,255,255,.3);letter-spacing:.5px;}
+@media print{#sidebar,#topbar,.period-picker-bar{display:none}#main{margin-left:0}tr.sub-row{display:none}}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-logo">Visme <span>Analytics</span></div>
+  <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+  <div class="loading-text">Loading GA4 data…</div>
+</div>
+
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <a href="https://visme-dashboards.vercel.app/" style="text-decoration:none;display:block">
+      <div class="sidebar-logo-mark">
+        <img src="https://www.visme.co/favicon-32x32.png" alt="Visme" style="width:28px;height:28px;border-radius:7px;display:block;flex-shrink:0;">
+        <div>
+          <div class="logo-text">Visme</div>
+          <div class="logo-sub">Marketing Analytics</div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <div class="source-group" id="grp-ga4">
+    <div class="source-header">
+      <div class="source-dot" style="background:#3CACD7"></div>
+      <span class="source-label">Google Analytics 4</span>
+    </div>
+    <ul class="source-nav">
+      <li><a href="#section-table" class="active">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 1L8 15M1 8L15 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="8" r="4" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+        Channel Performance
+      </a></li>
+    </ul>
+  </div>
+
+  <div class="sidebar-footer">
+    GA4 · Property <span id="sbPropId">368188880</span><br/>
+    <a href="../index.html" class="back-link" style="display:inline-flex;align-items:center;gap:4px;color:rgba(255,255,255,.3);text-decoration:none;font-size:10px;margin-top:4px;">← All Dashboards</a>
+  </div>
+</nav>
+
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-title">Marketing <span>Channel Performance</span></div>
+    <div class="as-of-badge" id="asOfBadge">Data as of —</div>
+
+    <div class="mode-control">
+      <span class="mode-label">View</span>
+      <div class="mode-pills" id="modePills">
+        <span class="pill active" data-mode="month">Month</span>
+        <span class="pill" data-mode="week">Week</span>
+      </div>
+    </div>
+
+    <div class="search-group">
+      <input class="search-input" id="searchInput" type="text" placeholder="e.g. google / cpc"/>
+      <button class="btn" id="btnSearch">Search</button>
+      <button class="btn" id="btnClear">Clear</button>
+      <span class="search-status" id="searchStatus"></span>
+    </div>
+  </div>
+
+  <div class="period-picker-bar" id="periodPickerBarMonth">
+    <span class="mode-label" id="periodPickerLabel">SELECT MONTHS</span>
+    <div class="period-pills" id="periodPills"></div>
+  </div>
+
+  <div class="period-picker-bar" id="periodPickerBarWeek" style="display:none">
+    <span class="mode-label">SELECT WEEKS</span>
+    <div class="week-dropdowns" id="weekDropdowns">
+      <select class="period-select" id="weekSelect0"></select>
+      <select class="period-select" id="weekSelect1"></select>
+      <select class="period-select" id="weekSelect2"></select>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <div class="section" id="section-table">
+      <div class="card">
+        <div class="tbl-wrap">
+          <table id="tblChannels">
+            <thead>
+              <tr>
+                <th style="width:26px"></th>
+                <th>Channel</th>
+                <th class="num">Traffic</th>
+                <th class="num">Δ</th>
+                <th class="num">Free</th>
+                <th class="num">Δ</th>
+                <th class="num">Paid</th>
+                <th class="num">Δ</th>
+                <th class="num">% Traffic→Free</th>
+                <th class="num">Free→Paid %</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyChannels"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- TEMPLATE FILE: Run scripts/build_channel_performance.py to inject live data -->
+<!-- DATA_INJECTION_POINT -->
+
+<script>
+// ── STATE ────────────────────────────────────────────────────────────────
+let mode = 'month';               // 'month' | 'week'
+let selectedPeriods = [];         // array of period keys consumed by render() —
+                                   // month mode: pill-toggle array (up to 3);
+                                   // week mode: mirrors the 3 dropdown values
+let expandedPeriod = {};          // { "channel|periodKey": bool } — expands that row's source/medium breakdown
+let searchTerm = '';
+
+// Per direct instruction: up to 3 months via pills, exactly 3 weeks via
+// 3 dedicated dropdowns, selected freely from the full available list
+// (Jan 2026 onward), compared pairwise.
+const MAX_SELECT = { month: 3 };
+const WEEK_DROPDOWN_COUNT = 3;
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof CP === 'undefined') {
+    document.getElementById('asOfBadge').textContent = 'No data injected — run scripts/build_channel_performance.py';
+    document.getElementById('loading').classList.add('hide');
+    return;
+  }
+  document.getElementById('asOfBadge').textContent = 'Data as of ' + CP.asOfDate;
+  document.getElementById('sbPropId').textContent = CP.propertyId || '368188880';
+  setupModePills();
+  resetMonthSelection();
+  renderPeriodPills();
+  setupSearch();
+  render();
+  setTimeout(() => document.getElementById('loading').classList.add('hide'), 900);
+});
+
+function setupModePills() {
+  document.querySelectorAll('#modePills .pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('#modePills .pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      mode = p.dataset.mode;
+      document.getElementById('periodPickerBarMonth').style.display = mode === 'month' ? 'flex' : 'none';
+      document.getElementById('periodPickerBarWeek').style.display = mode === 'week' ? 'flex' : 'none';
+      if (mode === 'month') {
+        resetMonthSelection();
+        renderPeriodPills();
+      } else {
+        resetWeekSelection();
+        renderWeekDropdowns();
+      }
+      render();
+    });
+  });
+}
+
+function periodSet() {
+  return mode === 'month' ? CP.months : CP.weeks;
+}
+function trafficSet() {
+  return mode === 'month' ? CP.monthlyTraffic : CP.weeklyTraffic;
+}
+function conversionsSet() {
+  return (mode === 'month' ? CP.monthlyConversions : CP.weeklyConversions) || {};
+}
+
+function resetMonthSelection() {
+  const keys = CP.months.keys;
+  selectedPeriods = keys.length ? [keys[keys.length - 1]] : [];
+}
+
+// Clamped "N weeks before" a given index into CP.weeks.keys — never goes
+// past the earliest available week (early in the data history there may
+// not be 3 distinct weeks yet, in which case earlier slots repeat the
+// earliest week rather than erroring).
+function weekIndexBefore(idx, n) {
+  return Math.max(0, idx - n);
+}
+
+// Initial load / switching into Week mode: dropdown 1 = latest week,
+// dropdown 2 = the week before it, dropdown 3 = blank — per direct
+// instruction. After this, only the 1→2 cascade re-fires on user
+// interaction (see weekDropdownChanged); dropdown 3 stays whatever the
+// user leaves it at, including blank.
+function resetWeekSelection() {
+  const keys = CP.weeks.keys;
+  if (!keys.length) { selectedPeriods = []; return; }
+  const lastIdx = keys.length - 1;
+  selectedPeriods = [
+    keys[lastIdx],
+    keys[weekIndexBefore(lastIdx, 1)],
+    '',   // blank by default — a 3rd week is optional, not forced
+  ];
+}
+
+function renderWeekDropdowns() {
+  const keys = CP.weeks.keys;
+  const labels = CP.weeks.labels;
+  for (let i = 0; i < WEEK_DROPDOWN_COUNT; i++) {
+    const sel = document.getElementById('weekSelect' + i);
+    sel.innerHTML = '';
+    if (i === 2) {
+      // Only the 3rd dropdown may be blank — dropdowns 1 and 2 always
+      // carry a real week.
+      const blank = document.createElement('option');
+      blank.value = '';
+      blank.textContent = '— None —';
+      if (!selectedPeriods[i]) blank.selected = true;
+      sel.appendChild(blank);
+    }
+    keys.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = labels[k];
+      if (k === selectedPeriods[i]) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.onchange = () => weekDropdownChanged(i, sel.value);
+  }
+}
+
+// Only dropdown 1 (index 0) cascades a default into dropdown 2 (index 1),
+// per direct instruction — dropdown 3 is always independent, whether it
+// was reached via cascade-on-load or is being changed directly here.
+function weekDropdownChanged(i, value) {
+  selectedPeriods[i] = value;
+  if (i === 0) {
+    const keys = CP.weeks.keys;
+    const idx = keys.indexOf(value);
+    selectedPeriods[1] = keys[weekIndexBefore(idx, 1)];
+    renderWeekDropdowns();
+  }
+  render();
+}
+
+// Selected periods in chronological order (ascending), for consistent
+// column ordering and for "older -> newer" delta direction. Filters out
+// the blank 3rd-week slot (Week mode's dropdown 3 defaults to blank).
+function sortedSelected() {
+  const keys = periodSet().keys;
+  return selectedPeriods.filter(Boolean).slice().sort((a, b) => keys.indexOf(a) - keys.indexOf(b));
+}
+
+function renderPeriodPills() {
+  const set = periodSet();
+  const max = MAX_SELECT.month;
+  document.getElementById('periodPickerLabel').textContent = 'SELECT MONTHS';
+  const wrap = document.getElementById('periodPills');
+  wrap.innerHTML = '';
+  set.keys.forEach(k => {
+    const pill = document.createElement('span');
+    const isActive = selectedPeriods.includes(k);
+    const atCap = !isActive && selectedPeriods.length >= max;
+    pill.className = 'period-pill' + (isActive ? ' active' : '') + (atCap ? ' disabled' : '');
+    pill.textContent = set.labels[k];
+    pill.title = atCap ? `Up to ${max} selected — deselect one first` : '';
+    pill.addEventListener('click', () => {
+      if (isActive) {
+        selectedPeriods = selectedPeriods.filter(x => x !== k);
+        if (!selectedPeriods.length) selectedPeriods = [k]; // never allow zero selected
+      } else if (!atCap) {
+        selectedPeriods.push(k);
+      } else {
+        return;
+      }
+      renderPeriodPills();
+      render();
+    });
+    wrap.appendChild(pill);
+  });
+}
+
+function setupSearch() {
+  document.getElementById('btnSearch').addEventListener('click', () => {
+    searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+    Object.keys(expandedPeriod).forEach(k => delete expandedPeriod[k]);
+    render();
+  });
+  document.getElementById('btnClear').addEventListener('click', () => {
+    document.getElementById('searchInput').value = '';
+    searchTerm = '';
+    render();
+  });
+  document.getElementById('searchInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('btnSearch').click();
+  });
+}
+
+// ── FORMATTING ───────────────────────────────────────────────────────────
+function fmtInt(n) { return (n || 0).toLocaleString('en-US'); }
+
+// Threshold rule, per direct instruction: >=3% increase green, <=-3% decrease
+// red, everything else (including the ±2% "neutral" zone and the
+// unspecified 2-3% gap in the original spec) renders neutral gray.
+function deltaBadge(curr, prev) {
+  if (prev === 0 && curr === 0) return '';
+  if (prev === 0) return `<span class="delta-badge delta-new">new</span>`;
+  const pct = (curr - prev) / prev * 100;
+  let cls = 'delta-neu';
+  if (pct >= 3) cls = 'delta-pos';
+  else if (pct <= -3) cls = 'delta-neg';
+  const sign = pct >= 0 ? '+' : '';
+  return `<span class="delta-badge ${cls}">${sign}${pct.toFixed(1)}%</span>`;
+}
+
+function highlight(text) {
+  if (!searchTerm) return text;
+  const idx = text.toLowerCase().indexOf(searchTerm);
+  if (idx === -1) return text;
+  return text.slice(0, idx) + '<mark>' + text.slice(idx, idx + searchTerm.length) + '</mark>' + text.slice(idx + searchTerm.length);
+}
+
+// ── FREE/PAID HELPERS ────────────────────────────────────────────────────
+function pctStr(numer, denom) {
+  if (!denom) return '—';
+  return (numer / denom * 100).toFixed(2) + '%';
+}
+function convFor(conv, channel, key) {
+  const c = (conv[channel] || {})[key];
+  return c ? { free: c.free || 0, paid: c.paid || 0 } : { free: 0, paid: 0 };
+}
+// ── RENDER ───────────────────────────────────────────────────────────────
+// Layout: channel rows, each expanding to one row per selected period
+// (chronological), each of which expands further to its top source/medium
+// breakdown. A single selected period collapses this to the simple
+// classic view — one row per channel, no separate period level.
+function render() {
+  const set = periodSet();
+  if (!set.keys.length) return;
+  const periods = sortedSelected();
+  const k = periods.length;
+
+  const traffic = trafficSet();
+  const conv = conversionsSet();
+  const tbody = document.getElementById('tbodyChannels');
+  tbody.innerHTML = '';
+
+  let anyMatch = false;
+  let matchCount = 0;
+
+  const convAvailable = !CP.conversionsUnavailable;
+
+  function metricCells(trafficVal, prevTrafficVal, freeVal, prevFreeVal, paidVal, prevPaidVal, trafficAvailable) {
+    return `
+      <td class="num-cell${trafficAvailable ? '' : ' pending-cell'}">${trafficAvailable ? fmtInt(trafficVal) : '—'}</td>
+      <td class="num-cell">${trafficAvailable && prevTrafficVal !== null ? deltaBadge(trafficVal, prevTrafficVal) : ''}</td>
+      <td class="num-cell${convAvailable ? '' : ' pending-cell'}">${convAvailable ? fmtInt(freeVal) : '—'}</td>
+      <td class="num-cell">${convAvailable && prevFreeVal !== null ? deltaBadge(freeVal, prevFreeVal) : ''}</td>
+      <td class="num-cell${convAvailable ? '' : ' pending-cell'}">${convAvailable ? fmtInt(paidVal) : '—'}</td>
+      <td class="num-cell">${convAvailable && prevPaidVal !== null ? deltaBadge(paidVal, prevPaidVal) : ''}</td>
+      <td class="num-cell">${trafficAvailable && convAvailable ? pctStr(freeVal, trafficVal) : '—'}</td>
+      <td class="num-cell">${convAvailable ? pctStr(paidVal, freeVal) : '—'}</td>
+    `;
+  }
+
+  function renderSourceRows(channel, period, rows) {
+    const filtered = searchTerm ? rows.filter(r => r.sm.toLowerCase().includes(searchTerm)) : rows;
+    const sorted = filtered.slice().sort((a, b) => (b.byPeriod[period] || 0) - (a.byPeriod[period] || 0));
+    const top = sorted.slice(0, 20);
+    const rest = sorted.slice(20);
+    top.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.className = 'sub-row sub-row-l2' + (searchTerm && r.sm.toLowerCase().includes(searchTerm) ? ' match-highlight' : '');
+      tr.innerHTML = `
+        <td></td><td class="sub-name sub-name-l2">${highlight(r.sm)}</td>
+        <td class="num-cell">${fmtInt(r.byPeriod[period] || 0)}</td><td class="num-cell"></td>
+        <td class="num-cell pending-cell">—</td><td class="num-cell pending-cell">—</td>
+        <td class="num-cell pending-cell">—</td><td class="num-cell pending-cell">—</td>
+        <td class="num-cell pending-cell">—</td><td class="num-cell pending-cell">—</td>
+      `;
+      tbody.appendChild(tr);
+    });
+    const restTotal = rest.reduce((a, r) => a + (r.byPeriod[period] || 0), 0);
+    if (rest.length && restTotal > 0) {
+      const tr = document.createElement('tr');
+      tr.className = 'sub-row sub-row-l2';
+      tr.innerHTML = `
+        <td></td><td class="sub-name sub-name-l2">Other (${rest.length} sources)</td>
+        <td class="num-cell">${fmtInt(restTotal)}</td><td class="num-cell"></td>
+        <td class="num-cell pending-cell">—</td><td class="num-cell pending-cell">—</td>
+        <td class="num-cell pending-cell">—</td><td class="num-cell pending-cell">—</td>
+        <td class="num-cell pending-cell">—</td><td class="num-cell pending-cell">—</td>
+      `;
+      tbody.appendChild(tr);
+    }
+  }
+
+  // One row for a single (channel, period) combination. `nested` = true
+  // renders it as an indented period row under a channel group header;
+  // false renders it as the plain top-level row (the k===1 case).
+  function renderPeriodRow(channel, period, rows, trafficAvailable, prevPeriod, nested, extraClass) {
+    const key = channel + '|' + period;
+    const isOpen = trafficAvailable && (!!expandedPeriod[key] || !!searchTerm);
+    const trafficVal = trafficAvailable ? rows.reduce((a, r) => a + (r.byPeriod[period] || 0), 0) : null;
+    const prevTrafficVal = (trafficAvailable && prevPeriod != null)
+      ? rows.reduce((a, r) => a + (r.byPeriod[prevPeriod] || 0), 0) : null;
+    const cConv = convFor(conv, channel, period);
+    const pConv = prevPeriod != null ? convFor(conv, channel, prevPeriod) : null;
+
+    const tr = document.createElement('tr');
+    tr.className = (trafficAvailable ? 'channel-row' : '') + (extraClass ? ' ' + extraClass : '');
+    const nameCell = nested
+      ? `<td class="sub-name sub-name-l1">${set.labels[period]}</td>`
+      : `<td class="channel-name">${highlight(channel)}</td>`;
+    tr.innerHTML = `
+      <td>${trafficAvailable ? `<span class="expand-icon">${isOpen ? '−' : '+'}</span>` : ''}</td>
+      ${nameCell}
+      ${metricCells(trafficVal, prevTrafficVal, cConv.free, pConv ? pConv.free : null, cConv.paid, pConv ? pConv.paid : null, trafficAvailable)}
+    `;
+    if (trafficAvailable) tr.addEventListener('click', () => { expandedPeriod[key] = !expandedPeriod[key]; render(); });
+    tbody.appendChild(tr);
+    if (isOpen) renderSourceRows(channel, period, rows);
+  }
+
+  function renderChannel(channel, rows, trafficAvailable, extraClass) {
+    if (k === 1) {
+      renderPeriodRow(channel, periods[0], rows, trafficAvailable, null, false, extraClass);
+      return;
+    }
+    const header = document.createElement('tr');
+    header.className = 'channel-group-row' + (extraClass ? ' ' + extraClass : '');
+    header.innerHTML = `<td></td><td class="channel-name" colspan="9">${highlight(channel)}</td>`;
+    tbody.appendChild(header);
+    periods.forEach((p, i) => {
+      renderPeriodRow(channel, p, rows, trafficAvailable, i > 0 ? periods[i - 1] : null, true, extraClass);
+    });
+  }
+
+  CP.channelOrder.forEach(channel => {
+    const smMap = traffic[channel] || {};
+    const rows = Object.entries(smMap).map(([sm, perPeriod]) => ({ sm, byPeriod: perPeriod }));
+
+    let matchingRows = rows;
+    if (searchTerm) {
+      matchingRows = rows.filter(r => r.sm.toLowerCase().includes(searchTerm));
+      const channelMatches = matchingRows.length > 0 || channel.toLowerCase().includes(searchTerm);
+      if (!channelMatches) return;
+      anyMatch = true;
+      matchCount += matchingRows.length;
+    }
+    const anyTraffic = periods.some(p => rows.reduce((a, r) => a + (r.byPeriod[p] || 0), 0) > 0);
+    const anyConv = periods.some(p => { const c = convFor(conv, channel, p); return c.free || c.paid; });
+    if (!anyTraffic && !anyConv && !searchTerm) return;
+
+    renderChannel(channel, rows, true, channel === 'Unassigned' ? 'unassigned-row' : null);
+  });
+
+  // "Other (Unclassified)" — conversion titles the classifier couldn't place
+  // into any real GA4 channel. Not GA4 traffic, so Traffic/Δ show as "—".
+  if (!searchTerm) {
+    const OTHER = 'Other (Unclassified)';
+    const anyOtherData = periods.some(p => { const c = convFor(conv, OTHER, p); return c.free || c.paid; });
+    if (anyOtherData) renderChannel(OTHER, [], false, 'unassigned-row');
+  }
+
+  const statusEl = document.getElementById('searchStatus');
+  if (searchTerm) {
+    statusEl.textContent = anyMatch ? `${matchCount} match(es) found` : `No source/medium matching "${searchTerm}" found.`;
+  } else {
+    statusEl.textContent = '';
+  }
+}
+</script>
+</body>
+</html>
