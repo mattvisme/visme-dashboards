@@ -99,7 +99,8 @@ tbody td{padding:9px 14px;color:var(--text);vertical-align:middle;}
 .sub-name-l1{padding-left:20px;color:var(--text);font-family:var(--font-ui);font-weight:500;font-size:13px;}
 .sub-name-l2{padding-left:46px;}
 tr.sub-row-l2{background:#FAFBFC;}
-.expand-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1.5px solid var(--border);border-radius:4px;color:var(--text-muted);font-size:11px;margin-right:8px;flex-shrink:0;}
+.expand-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border:1.5px solid transparent;border-radius:4px;color:var(--text-muted);font-size:11px;margin-right:8px;flex-shrink:0;}
+.expand-icon.expandable{border-color:#8FCE9A;}
 .pending-cell{color:var(--text-dim);font-style:italic;font-size:11.5px;}
 .delta-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap;}
 .delta-pos{background:var(--pos-bg);color:var(--pos);border:1px solid var(--pos-border);}
@@ -203,13 +204,13 @@ mark{background:var(--mark-bg);color:var(--mark-text);border-radius:2px;padding:
             <thead>
               <tr>
                 <th style="width:26px"></th>
-                <th>Channel</th>
-                <th class="num">Traffic</th>
-                <th class="num">Δ</th>
-                <th class="num">Free</th>
-                <th class="num">Δ</th>
-                <th class="num">Paid</th>
-                <th class="num">Δ</th>
+                <th title="GA4 channels." style="cursor:help">Channel</th>
+                <th class="num" title="GA4 sessions, Traffic acquisition: Session primary channel group (Default Channel Group) report." style="cursor:help">Traffic</th>
+                <th class="num" title="Difference, % (compared to the previous period by default; or custom period if selected)" style="cursor:help">Δ</th>
+                <th class="num" title="Free Signups (Registrations) from the Admin DB." style="cursor:help">Free</th>
+                <th class="num" title="Difference, % (compared to the previous period by default; or custom period if selected)" style="cursor:help">Δ</th>
+                <th class="num" title="Paid conversions from the Admin DB. (all users off, Report: Channels-Campaigns)" style="cursor:help">Paid</th>
+                <th class="num" title="Difference, % (compared to the previous period by default; or custom period if selected)" style="cursor:help">Δ</th>
                 <th class="num">% Traffic→Free</th>
                 <th class="num">Free→Paid %</th>
               </tr>
@@ -306,8 +307,10 @@ function weekIndexBefore(idx, n) {
 // Initial load / switching into Week mode: dropdown 1 = latest week,
 // dropdown 2 = the week before it, dropdown 3 = blank — per direct
 // instruction. After this, only the 1→2 cascade re-fires on user
-// interaction (see weekDropdownChanged); dropdown 3 stays whatever the
-// user leaves it at, including blank.
+// interaction (see weekDropdownChanged); dropdowns 2 and 3 stay whatever
+// the user leaves them at, including blank — selecting just 1 week
+// (dropdowns 2 and 3 both None) is a valid state; its delta then falls
+// back to the calendar-previous week automatically (see render()).
 function resetWeekSelection() {
   const keys = CP.weeks.keys;
   if (!keys.length) { selectedPeriods = []; return; }
@@ -325,9 +328,10 @@ function renderWeekDropdowns() {
   for (let i = 0; i < WEEK_DROPDOWN_COUNT; i++) {
     const sel = document.getElementById('weekSelect' + i);
     sel.innerHTML = '';
-    if (i === 2) {
-      // Only the 3rd dropdown may be blank — dropdowns 1 and 2 always
-      // carry a real week.
+    if (i === 1 || i === 2) {
+      // Dropdowns 2 and 3 may be blank — per direct instruction, selecting
+      // only 1 week (dropdown 2 set to None) is a valid state. Dropdown 1
+      // always carries a real week.
       const blank = document.createElement('option');
       blank.value = '';
       blank.textContent = '— None —';
@@ -456,6 +460,16 @@ function render() {
   const periods = sortedSelected();
   const k = periods.length;
 
+  // When only 1 period is selected, still show its delta vs the calendar
+  // period right before it (not a user selection) — per direct instruction
+  // ("difference with the prev. week should still be visible" even when
+  // only 1 week is chosen).
+  let autoPrevPeriod = null;
+  if (k === 1) {
+    const idx0 = set.keys.indexOf(periods[0]);
+    autoPrevPeriod = idx0 > 0 ? set.keys[idx0 - 1] : null;
+  }
+
   const traffic = trafficSet();
   const conv = conversionsSet();
   const tbody = document.getElementById('tbodyChannels');
@@ -529,7 +543,7 @@ function render() {
       ? `<td class="sub-name sub-name-l1">${set.labels[period]}</td>`
       : `<td class="channel-name">${highlight(channel)}</td>`;
     tr.innerHTML = `
-      <td>${trafficAvailable ? `<span class="expand-icon">${isOpen ? '−' : '+'}</span>` : ''}</td>
+      <td>${trafficAvailable ? `<span class="expand-icon${isOpen ? '' : ' expandable'}">${isOpen ? '−' : '+'}</span>` : ''}</td>
       ${nameCell}
       ${metricCells(trafficVal, prevTrafficVal, cConv.free, pConv ? pConv.free : null, cConv.paid, pConv ? pConv.paid : null, trafficAvailable)}
     `;
@@ -540,7 +554,7 @@ function render() {
 
   function renderChannel(channel, rows, trafficAvailable, extraClass) {
     if (k === 1) {
-      renderPeriodRow(channel, periods[0], rows, trafficAvailable, null, false, extraClass);
+      renderPeriodRow(channel, periods[0], rows, trafficAvailable, autoPrevPeriod, false, extraClass);
       return;
     }
     const header = document.createElement('tr');
