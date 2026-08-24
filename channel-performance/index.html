@@ -320,6 +320,19 @@ function resetWeekSelection() {
   ];
 }
 
+// Per direct instruction: a week chosen in one dropdown is not offered in
+// the others. If a programmatic change (the 1→2 cascade below) would
+// duplicate a week already held by an earlier-index dropdown, the later
+// one is cleared to None rather than silently showing the same week
+// twice — dropdown 1 always wins over 2, which always wins over 3.
+function enforceUniqueWeeks() {
+  for (let i = 1; i < selectedPeriods.length; i++) {
+    if (selectedPeriods[i] && selectedPeriods.slice(0, i).includes(selectedPeriods[i])) {
+      selectedPeriods[i] = '';
+    }
+  }
+}
+
 function renderWeekDropdowns() {
   const keys = CP.weeks.keys.slice().reverse();   // newest first, per direct instruction
   const labels = CP.weeks.labels;
@@ -336,7 +349,9 @@ function renderWeekDropdowns() {
       if (!selectedPeriods[i]) blank.selected = true;
       sel.appendChild(blank);
     }
+    const usedByOthers = selectedPeriods.filter((v, j) => j !== i && v);
     keys.forEach(k => {
+      if (usedByOthers.includes(k)) return;   // already chosen in another dropdown
       const opt = document.createElement('option');
       opt.value = k;
       opt.textContent = labels[k];
@@ -356,8 +371,9 @@ function weekDropdownChanged(i, value) {
     const keys = CP.weeks.keys;
     const idx = keys.indexOf(value);
     selectedPeriods[1] = keys[weekIndexBefore(idx, 1)];
-    renderWeekDropdowns();
   }
+  enforceUniqueWeeks();
+  renderWeekDropdowns();
   render();
 }
 
