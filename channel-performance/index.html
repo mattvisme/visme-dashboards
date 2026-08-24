@@ -478,7 +478,7 @@ function render() {
   let anyMatch = false;
   let matchCount = 0;
 
-  const convAvailable = !CP.conversionsUnavailable;
+  const convAvailable = mode === 'month' ? !CP.monthConversionsUnavailable : !CP.weekConversionsUnavailable;
 
   function metricCells(trafficVal, prevTrafficVal, freeVal, prevFreeVal, paidVal, prevPaidVal, trafficAvailable) {
     return `

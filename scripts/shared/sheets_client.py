@@ -846,7 +846,6 @@ def fetch_channel_conversions_data(sheet_id=None, credentials_file=None) -> dict
     Returns:
       {
         "weeklyConversions":  {channel: {weekKey: {free, paid}}},
-        "monthlyConversions": {channel: {monthKey: {free, paid}}},
         "unclassifiedTitles": {title: {free, paid}},  # fell to Other (Unclassified)
         "referralTitles":     {title: {free, paid}},  # fell to the generic Referral fallback
         "weekCount": int,
@@ -855,11 +854,15 @@ def fetch_channel_conversions_data(sheet_id=None, credentials_file=None) -> dict
     weekKey is a Monday ISO date string, matching the GA4 client's week
     convention exactly, so the two can be joined directly by key.
 
-    Month aggregation splits each week's Free/Paid proportionally by how
-    many of its 7 days fall in each calendar month (assumes activity is
-    evenly spread across the week — the sheet has no daily breakdown to
-    verify this against, so it's the best available approximation), per
-    direct instruction to favor accuracy for true month-over-month reads.
+    Month-mode Free/Paid do NOT come from this function — see
+    fetch_channel_conversions_monthly_data(), which reads the separate
+    "Conversions / signups, monthly" sheet at true calendar-month
+    granularity. (An earlier version of this function derived monthly
+    numbers by splitting each week proportionally by day-count across
+    month boundaries; that approximation is retired now that an
+    authoritative monthly source exists — confirmed directly by Anna
+    Glivinska: "the weekly data isn't 100% corresponding the monthly
+    breakdown".)
     """
     if sheet_id is None:
         sheet_id = CHANNEL_PERF_SHEET_ID
@@ -915,39 +918,114 @@ def fetch_channel_conversions_data(sheet_id=None, credentials_file=None) -> dict
                 referral_titles[title]["free"] += reg
                 referral_titles[title]["paid"] += conv
 
-    # Month aggregation — proportional day-count split across month boundaries.
-    monthly = defaultdict(lambda: defaultdict(lambda: {"free": 0.0, "paid": 0.0}))
-    for week_num, tab_title in week_tabs:
-        monday = CHANNEL_PERF_WEEK1_MONDAY + timedelta(weeks=week_num - 1)
-        week_key = monday.isoformat()
-        day_counts = defaultdict(int)
-        for d in range(7):
-            day = monday + timedelta(days=d)
-            day_counts[f"{day.year:04d}-{day.month:02d}"] += 1
-        for channel, week_map in weekly.items():
-            vals = week_map.get(week_key)
-            if not vals:
-                continue
-            for month_key, days in day_counts.items():
-                frac = days / 7.0
-                monthly[channel][month_key]["free"] += vals["free"] * frac
-                monthly[channel][month_key]["paid"] += vals["paid"] * frac
-
-    monthly_rounded = {
-        ch: {mk: {"free": round(v["free"]), "paid": round(v["paid"])} for mk, v in mmap.items()}
-        for ch, mmap in monthly.items()
-    }
     weekly_plain = {ch: dict(wmap) for ch, wmap in weekly.items()}
 
-    print(f"✅  Channel conversions collected — {len(week_keys)} weeks, "
+    print(f"✅  Weekly channel conversions collected — {len(week_keys)} weeks, "
           f"{len(unclassified)} unclassified titles, {len(referral_titles)} referral titles")
 
     return {
         "weeklyConversions": weekly_plain,
-        "monthlyConversions": monthly_rounded,
         "unclassifiedTitles": dict(unclassified),
         "referralTitles": dict(referral_titles),
         "weekCount": len(week_tabs),
+    }
+
+
+CHANNEL_PERF_MONTHLY_SHEET_ID = os.environ.get("CHANNEL_PERF_MONTHLY_SHEET_ID",
+                                                "1JX0FMCDhhOlV4yEUW9vk9_BZqusKwNOGimcoYoJujzw")
+
+
+def _parse_month_tab_title(title):
+    """
+    "July 2026" -> "2026-07", "Jan 2026" -> "2026-01". The monthly sheet's
+    tab names are inconsistently abbreviated (checked directly: "May 2026",
+    "June 2026", "July 2026" are spelled out; "Feb 2026", "Jan 2026" are
+    abbreviated) — try both formats rather than assume one.
+    """
+    t = title.strip()
+    for fmt in ("%B %Y", "%b %Y"):
+        try:
+            d = datetime.strptime(t, fmt)
+            return f"{d.year:04d}-{d.month:02d}"
+        except ValueError:
+            continue
+    return None
+
+
+def fetch_channel_conversions_monthly_data(sheet_id=None, credentials_file=None) -> dict:
+    """
+    Read every month-named tab (e.g. "July 2026", "Jan 2026") from the
+    "Conversions / signups, monthly, all users off" Google Sheet — same
+    Level/Title/Registered/Conversions schema as the weekly sheet (see
+    fetch_channel_conversions_data), classified the same way via
+    scripts.shared.title_classifier, but authoritative at true calendar-
+    month granularity. This replaces the old day-count-split approximation
+    for Month mode, per direct instruction (Anna Glivinska: "the weekly
+    data isn't 100% corresponding the monthly breakdown").
+
+    Returns:
+      {
+        "monthlyConversions": {channel: {monthKey: {free, paid}}},
+        "unclassifiedTitles": {title: {free, paid}},
+        "referralTitles":     {title: {free, paid}},
+        "monthCount": int,
+      }
+    """
+    if sheet_id is None:
+        sheet_id = CHANNEL_PERF_MONTHLY_SHEET_ID
+    if not sheet_id:
+        raise ValueError("No sheet_id provided and CHANNEL_PERF_MONTHLY_SHEET_ID is not set")
+
+    def _int(v):
+        try:
+            return int(float(str(v).replace(",", "").strip()))
+        except (ValueError, TypeError):
+            return 0
+
+    sheets = _get_sheets_service(credentials_file)
+    meta = _execute(sheets.get(spreadsheetId=sheet_id))
+    all_titles = [s["properties"]["title"] for s in meta.get("sheets", [])]
+
+    month_tabs = []
+    for t in all_titles:
+        mk = _parse_month_tab_title(t)
+        if mk:
+            month_tabs.append((mk, t))
+    month_tabs.sort()
+
+    monthly = defaultdict(lambda: defaultdict(lambda: {"free": 0, "paid": 0}))
+    unclassified = defaultdict(lambda: {"free": 0, "paid": 0})
+    referral_titles = defaultdict(lambda: {"free": 0, "paid": 0})
+
+    print(f"⏳  Pulling monthly channel conversions — {len(month_tabs)} month tabs …")
+    for month_key, tab_title in month_tabs:
+        result = _execute(sheets.values().get(
+            spreadsheetId=sheet_id,
+            range=f"'{tab_title}'!A2:D",
+        ))
+        for row in result.get("values", []):
+            if len(row) < 4:
+                continue
+            title, registered, conversions = row[1], row[2], row[3]
+            reg, conv = _int(registered), _int(conversions)
+            channel = classify_title(title)
+            monthly[channel][month_key]["free"] += reg
+            monthly[channel][month_key]["paid"] += conv
+            if channel == OTHER_UNCLASSIFIED:
+                unclassified[title]["free"] += reg
+                unclassified[title]["paid"] += conv
+            elif channel == "Referral":
+                referral_titles[title]["free"] += reg
+                referral_titles[title]["paid"] += conv
+
+    print(f"✅  Monthly channel conversions collected — {len(month_tabs)} months, "
+          f"{len(unclassified)} unclassified titles, {len(referral_titles)} referral titles")
+
+    return {
+        "monthlyConversions": {ch: dict(mmap) for ch, mmap in monthly.items()},
+        "unclassifiedTitles": dict(unclassified),
+        "referralTitles": dict(referral_titles),
+        "monthCount": len(month_tabs),
     }
 
 

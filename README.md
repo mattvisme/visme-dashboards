@@ -44,7 +44,8 @@ Go to **Settings → Secrets and variables → Actions** and add:
 | `GA4_SERVICE_ACCOUNT_KEY` | Full JSON content of the service account key file |
 | `GA4_PROPERTY_ID` | GA4 property ID: `368188880` |
 | `HUBSPOT_SHEET_ID` | HubSpot Google Sheet ID: `1TsDySDrmgSQEUjunQg77twgUS1fGgZIC71IbX-bAz1s` |
-| `CHANNEL_PERF_SHEET_ID` | "Weekly Conversion & Signups channels" Google Sheet ID: `1F6h9jAVy7SEHiF1jS_HkFZ6Htu5fYJ-Q8yQxe0iJvCI` (optional — this default is baked into the code) |
+| `CHANNEL_PERF_SHEET_ID` | "Weekly Conversion & Signups channels" Google Sheet ID (Week mode Free/Paid): `1F6h9jAVy7SEHiF1jS_HkFZ6Htu5fYJ-Q8yQxe0iJvCI` (optional — this default is baked into the code) |
+| `CHANNEL_PERF_MONTHLY_SHEET_ID` | "Conversions / signups, monthly" Google Sheet ID (Month mode Free/Paid — true calendar-month source, not derived from the weekly sheet): `1JX0FMCDhhOlV4yEUW9vk9_BZqusKwNOGimcoYoJujzw` (optional — this default is baked into the code) |
 | `AMPLITUDE_SHEET_ID` | Amplitude Google Sheet ID: `11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw` |
 | `PPC_SHEET_ID` | PPC Google Sheet ID: `11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho` |
 | `GSC_SHEET_ID` | ID of the Google Sheet populated by the GSC Apps Script exporter |
@@ -54,7 +55,7 @@ The service account must have:
 - **GA4 Data API** access (Viewer role on the GA4 property)
 - **Google Sheets API** access (the service account email must have at least Viewer access on all spreadsheets)
 
-> ⚠️ **As of 2026-08-21, the "Weekly Conversion & Signups channels" sheet (`CHANNEL_PERF_SHEET_ID`) is shared with only two humans** (Anna Glivinska as owner, Matt Strydom as editor) — the service account (`visme-dashboards@visme-marketing-491309.iam.gserviceaccount.com`) has **not** been granted access. `build_channel_performance.py` will fail on the Sheets read until someone with edit access shares that sheet with the service account email (Viewer is sufficient).
+> As of 2026-08-21: the "Weekly Conversion & Signups channels" sheet (`CHANNEL_PERF_SHEET_ID`) and the "Conversions / signups, monthly" sheet (`CHANNEL_PERF_MONTHLY_SHEET_ID`) have both been shared with the service account (Viewer). Each is fetched independently in `build_channel_performance.py` — losing access to one degrades only that mode's Free/Paid to "unavailable" without affecting the other, GA4 Traffic, or any other dashboard's weekly rebuild.
 
 ## Anomaly Detection & Slack Alerts
 
