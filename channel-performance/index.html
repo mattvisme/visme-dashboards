@@ -321,7 +321,7 @@ function resetWeekSelection() {
 }
 
 function renderWeekDropdowns() {
-  const keys = CP.weeks.keys;
+  const keys = CP.weeks.keys.slice().reverse();   // newest first, per direct instruction
   const labels = CP.weeks.labels;
   for (let i = 0; i < WEEK_DROPDOWN_COUNT; i++) {
     const sel = document.getElementById('weekSelect' + i);
