@@ -105,3 +105,58 @@ def classify_title(title: str) -> str:
         return "Referral"
 
     return OTHER_UNCLASSIFIED
+
+
+def match_source_medium(source_medium: str, known_titles_lower: dict):
+    """
+    Best-effort 1:1 match from a single GA4 `source_medium` string (e.g.
+    "google / cpc") to a specific Admin DB Title (e.g. "GoogleCPC") —
+    NOT the channel-level classification above. Per direct instruction,
+    this powers a per-source Free/Paid display; it is deliberately
+    conservative and returns None (no match) far more often than a match,
+    since most GA4 source/mediums (especially long-tail Referral) have no
+    Title counterpart at all, and this must never guess.
+
+    known_titles_lower: {title.lower(): original_title} — the exact set of
+    Titles present in whichever conversion sheet(s) are loaded. Only exact
+    matches against this set are ever returned.
+
+    Returns the matched Title (original casing) or None.
+    """
+    if not source_medium:
+        return None
+    parts = source_medium.strip().split(" / ")
+    source = parts[0].strip().lower()
+    medium = parts[1].strip().lower() if len(parts) > 1 else ""
+
+    # Literal aliases — mirrors EXACT_MAP's reverse direction for the cases
+    # that aren't themselves domains.
+    if source == "(direct)" and medium in ("(none)", ""):
+        if "direct" in known_titles_lower:
+            return known_titles_lower["direct"]
+    if source == "google" and medium == "cpc":
+        if "googlecpc" in known_titles_lower:
+            return known_titles_lower["googlecpc"]
+    if source == "bing" and medium == "cpc":
+        if "bingcpc" in known_titles_lower:
+            return known_titles_lower["bingcpc"]
+
+    # Domain-based exact match — the GA4 source segment, stripped of a
+    # leading "www.", matched case-insensitively against a real Title.
+    host = source[4:] if source.startswith("www.") else source
+    if host in known_titles_lower:
+        return known_titles_lower[host]
+
+    # GA4 trims well-known search engines to a bare name with no TLD (e.g.
+    # source "google" for both "google / organic" and "google / cpc"),
+    # while the Admin DB records the full domain ("google.com"). If the
+    # source has no dot, match it against the registrable-name label of
+    # any known Title that looks like a domain — e.g. source "google"
+    # matches Title "google.com" because "google.com".split(".")[0] ==
+    # "google". Still exact, still conservative: no fuzzy/partial matching.
+    if "." not in host:
+        for title_lower, original in known_titles_lower.items():
+            if "." in title_lower and title_lower.split(".")[0] == host:
+                return original
+
+    return None

@@ -846,6 +846,9 @@ def fetch_channel_conversions_data(sheet_id=None, credentials_file=None) -> dict
     Returns:
       {
         "weeklyConversions":  {channel: {weekKey: {free, paid}}},
+        "titleConversions":   {title: {weekKey: {free, paid}}},  # raw, per-Title (not
+                              # rolled up to a channel) — powers the best-effort
+                              # per-source/medium match, see title_classifier.match_source_medium
         "unclassifiedTitles": {title: {free, paid}},  # fell to Other (Unclassified)
         "referralTitles":     {title: {free, paid}},  # fell to the generic Referral fallback
         "weekCount": int,
@@ -889,6 +892,7 @@ def fetch_channel_conversions_data(sheet_id=None, credentials_file=None) -> dict
     week_tabs.sort()
 
     weekly = defaultdict(lambda: defaultdict(lambda: {"free": 0, "paid": 0}))
+    by_title = defaultdict(lambda: defaultdict(lambda: {"free": 0, "paid": 0}))
     unclassified = defaultdict(lambda: {"free": 0, "paid": 0})
     referral_titles = defaultdict(lambda: {"free": 0, "paid": 0})
     week_keys = []
@@ -911,6 +915,8 @@ def fetch_channel_conversions_data(sheet_id=None, credentials_file=None) -> dict
             channel = classify_title(title)
             weekly[channel][week_key]["free"] += reg
             weekly[channel][week_key]["paid"] += conv
+            by_title[title][week_key]["free"] += reg
+            by_title[title][week_key]["paid"] += conv
             if channel == OTHER_UNCLASSIFIED:
                 unclassified[title]["free"] += reg
                 unclassified[title]["paid"] += conv
@@ -919,12 +925,14 @@ def fetch_channel_conversions_data(sheet_id=None, credentials_file=None) -> dict
                 referral_titles[title]["paid"] += conv
 
     weekly_plain = {ch: dict(wmap) for ch, wmap in weekly.items()}
+    title_plain = {t: dict(wmap) for t, wmap in by_title.items()}
 
     print(f"✅  Weekly channel conversions collected — {len(week_keys)} weeks, "
           f"{len(unclassified)} unclassified titles, {len(referral_titles)} referral titles")
 
     return {
         "weeklyConversions": weekly_plain,
+        "titleConversions": title_plain,
         "unclassifiedTitles": dict(unclassified),
         "referralTitles": dict(referral_titles),
         "weekCount": len(week_tabs),
@@ -966,6 +974,8 @@ def fetch_channel_conversions_monthly_data(sheet_id=None, credentials_file=None)
     Returns:
       {
         "monthlyConversions": {channel: {monthKey: {free, paid}}},
+        "titleConversions":   {title: {monthKey: {free, paid}}},  # raw, per-Title —
+                              # see title_classifier.match_source_medium
         "unclassifiedTitles": {title: {free, paid}},
         "referralTitles":     {title: {free, paid}},
         "monthCount": int,
@@ -994,6 +1004,7 @@ def fetch_channel_conversions_monthly_data(sheet_id=None, credentials_file=None)
     month_tabs.sort()
 
     monthly = defaultdict(lambda: defaultdict(lambda: {"free": 0, "paid": 0}))
+    by_title = defaultdict(lambda: defaultdict(lambda: {"free": 0, "paid": 0}))
     unclassified = defaultdict(lambda: {"free": 0, "paid": 0})
     referral_titles = defaultdict(lambda: {"free": 0, "paid": 0})
 
@@ -1011,6 +1022,8 @@ def fetch_channel_conversions_monthly_data(sheet_id=None, credentials_file=None)
             channel = classify_title(title)
             monthly[channel][month_key]["free"] += reg
             monthly[channel][month_key]["paid"] += conv
+            by_title[title][month_key]["free"] += reg
+            by_title[title][month_key]["paid"] += conv
             if channel == OTHER_UNCLASSIFIED:
                 unclassified[title]["free"] += reg
                 unclassified[title]["paid"] += conv
@@ -1023,6 +1036,7 @@ def fetch_channel_conversions_monthly_data(sheet_id=None, credentials_file=None)
 
     return {
         "monthlyConversions": {ch: dict(mmap) for ch, mmap in monthly.items()},
+        "titleConversions": {t: dict(mmap) for t, mmap in by_title.items()},
         "unclassifiedTitles": dict(unclassified),
         "referralTitles": dict(referral_titles),
         "monthCount": len(month_tabs),

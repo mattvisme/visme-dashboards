@@ -305,19 +305,17 @@ function weekIndexBefore(idx, n) {
 }
 
 // Initial load / switching into Week mode: dropdown 1 = latest week,
-// dropdown 2 = the week before it, dropdown 3 = blank — per direct
-// instruction. After this, only the 1→2 cascade re-fires on user
-// interaction (see weekDropdownChanged); dropdowns 2 and 3 stay whatever
-// the user leaves them at, including blank — selecting just 1 week
-// (dropdowns 2 and 3 both None) is a valid state; its delta then falls
-// back to the calendar-previous week automatically (see render()).
+// dropdowns 2 and 3 = blank — per direct instruction. Its delta falls
+// back to the calendar-previous week automatically (see render()). The
+// 1→2 cascade (see weekDropdownChanged) only re-fires once the user
+// actually changes dropdown 1 — it does not populate dropdown 2 on load.
 function resetWeekSelection() {
   const keys = CP.weeks.keys;
   if (!keys.length) { selectedPeriods = []; return; }
   const lastIdx = keys.length - 1;
   selectedPeriods = [
     keys[lastIdx],
-    keys[weekIndexBefore(lastIdx, 1)],
+    '',   // blank by default
     '',   // blank by default — a 3rd week is optional, not forced
   ];
 }
@@ -493,6 +491,18 @@ function render() {
     `;
   }
 
+  // Best-effort per-source/medium match — see title_classifier.match_source_medium
+  // (Python) for what does/doesn't match. Most rows, especially long-tail
+  // Referral, legitimately have no match at all: that's "—", not a bug.
+  function matchedFreePaid(sm, period) {
+    if (!convAvailable) return null;
+    const title = (CP.sourceMediumMatch || {})[sm];
+    if (!title) return null;
+    const titleConv = mode === 'month' ? CP.monthlyTitleConversions : CP.weeklyTitleConversions;
+    const c = (titleConv[title] || {})[period];
+    return { free: (c && c.free) || 0, paid: (c && c.paid) || 0 };
+  }
+
   function renderSourceRows(channel, period, rows) {
     const filtered = searchTerm ? rows.filter(r => r.sm.toLowerCase().includes(searchTerm)) : rows;
     const sorted = filtered.slice().sort((a, b) => (b.byPeriod[period] || 0) - (a.byPeriod[period] || 0));
@@ -501,15 +511,20 @@ function render() {
     top.forEach(r => {
       const tr = document.createElement('tr');
       tr.className = 'sub-row sub-row-l2' + (searchTerm && r.sm.toLowerCase().includes(searchTerm) ? ' match-highlight' : '');
+      const trafficVal = r.byPeriod[period] || 0;
+      const m = matchedFreePaid(r.sm, period);
       tr.innerHTML = `
         <td></td><td class="sub-name sub-name-l2">${highlight(r.sm)}</td>
-        <td class="num-cell">${fmtInt(r.byPeriod[period] || 0)}</td><td class="num-cell"></td>
-        <td class="num-cell pending-cell">—</td><td class="num-cell pending-cell">—</td>
-        <td class="num-cell pending-cell">—</td><td class="num-cell pending-cell">—</td>
-        <td class="num-cell pending-cell">—</td><td class="num-cell pending-cell">—</td>
+        <td class="num-cell">${fmtInt(trafficVal)}</td><td class="num-cell"></td>
+        <td class="num-cell${m ? '' : ' pending-cell'}">${m ? fmtInt(m.free) : '—'}</td><td class="num-cell"></td>
+        <td class="num-cell${m ? '' : ' pending-cell'}">${m ? fmtInt(m.paid) : '—'}</td><td class="num-cell"></td>
+        <td class="num-cell">${m ? pctStr(m.free, trafficVal) : '—'}</td>
+        <td class="num-cell">${m ? pctStr(m.paid, m.free) : '—'}</td>
       `;
       tbody.appendChild(tr);
     });
+    // "Other (N sources)" aggregates many different sources at once, so a
+    // single matched title never applies to it — stays "—" regardless.
     const restTotal = rest.reduce((a, r) => a + (r.byPeriod[period] || 0), 0);
     if (rest.length && restTotal > 0) {
       const tr = document.createElement('tr');

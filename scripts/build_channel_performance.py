@@ -41,6 +41,7 @@ from scripts.shared.sheets_client import (
     fetch_channel_conversions_data, CHANNEL_PERF_SHEET_ID,
     fetch_channel_conversions_monthly_data, CHANNEL_PERF_MONTHLY_SHEET_ID,
 )
+from scripts.shared.title_classifier import match_source_medium
 from scripts.shared.html_utils import inject_data
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -61,12 +62,14 @@ def main():
     cp_data = fetch_channel_performance_data(property_id=property_id)
 
     unclassified, referral = {}, {}
+    title_conversions_week, title_conversions_month = {}, {}
 
     print("\n[2/3] Fetching Week-mode Free/Paid from the weekly conversion sheet...")
     try:
         week_conv = fetch_channel_conversions_data(sheet_id=week_sheet_id)
         cp_data["weeklyConversions"] = week_conv["weeklyConversions"]
         cp_data["weekConversionsUnavailable"] = False
+        title_conversions_week = week_conv["titleConversions"]
         unclassified.update(week_conv["unclassifiedTitles"])
         referral.update(week_conv["referralTitles"])
     except Exception:
@@ -82,6 +85,7 @@ def main():
         month_conv = fetch_channel_conversions_monthly_data(sheet_id=month_sheet_id)
         cp_data["monthlyConversions"] = month_conv["monthlyConversions"]
         cp_data["monthConversionsUnavailable"] = False
+        title_conversions_month = month_conv["titleConversions"]
         unclassified.update(month_conv["unclassifiedTitles"])
         referral.update(month_conv["referralTitles"])
     except Exception:
@@ -94,6 +98,31 @@ def main():
 
     cp_data["unclassifiedTitles"] = unclassified
     cp_data["referralTitles"] = referral
+    cp_data["weeklyTitleConversions"] = title_conversions_week
+    cp_data["monthlyTitleConversions"] = title_conversions_month
+
+    # Best-effort per-source/medium match — see title_classifier.match_source_medium
+    # for exactly what does and doesn't match (per direct instruction, this is a
+    # deliberate tradeoff Anna Glivinska is aware of: most long-tail Referral rows
+    # will have no match at all, and that's correct, not a bug).
+    print("\nMatching GA4 source/mediums to Admin DB titles (best-effort, per direct instruction)...")
+    known_titles_lower = {}
+    for titles in (title_conversions_week, title_conversions_month):
+        for t in titles:
+            known_titles_lower.setdefault(t.lower(), t)
+
+    all_source_mediums = set()
+    for traffic_map in (cp_data.get("monthlyTraffic", {}), cp_data.get("weeklyTraffic", {})):
+        for sm_map in traffic_map.values():
+            all_source_mediums.update(sm_map.keys())
+
+    source_medium_match = {}
+    for sm in all_source_mediums:
+        matched = match_source_medium(sm, known_titles_lower)
+        if matched:
+            source_medium_match[sm] = matched
+    cp_data["sourceMediumMatch"] = source_medium_match
+    print(f"  Matched {len(source_medium_match)} of {len(all_source_mediums)} source/mediums.")
 
     inject_data(
         template_path=TEMPLATE,
