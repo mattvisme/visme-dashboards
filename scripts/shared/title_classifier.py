@@ -147,14 +147,17 @@ def match_source_medium(source_medium: str, known_titles_lower: dict):
     if host in known_titles_lower:
         return known_titles_lower[host]
 
-    # GA4 trims well-known search engines to a bare name with no TLD (e.g.
-    # source "google" for both "google / organic" and "google / cpc"),
-    # while the Admin DB records the full domain ("google.com"). If the
-    # source has no dot, match it against the registrable-name label of
-    # any known Title that looks like a domain — e.g. source "google"
-    # matches Title "google.com" because "google.com".split(".")[0] ==
-    # "google". Still exact, still conservative: no fuzzy/partial matching.
-    if "." not in host:
+    # GA4 trims well-known search engines to a bare name with no TLD for
+    # organic search (e.g. source "google" in "google / organic"), while
+    # the Admin DB records the full domain ("google.com"). Restricted to
+    # medium == "organic" ONLY — bug found in QA: "bing / ppc" and the
+    # malformed "google / cpc/" tracking artifact both have bare source
+    # "bing"/"google" too, and were wrongly inheriting bing.com's/
+    # google.com's entire organic Free/Paid count just because the source
+    # word matched, even though "cpc"/"ppc" is not "organic". A given
+    # Title's numbers must only ever attach to the ONE row that's actually
+    # organic search for it, never to unrelated same-source rows.
+    if medium == "organic" and "." not in host:
         for title_lower, original in known_titles_lower.items():
             if "." in title_lower and title_lower.split(".")[0] == host:
                 return original
