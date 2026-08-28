@@ -164,7 +164,7 @@ mark{background:var(--mark-bg);color:var(--mark-text);border-radius:2px;padding:
   <div id="topbar">
     <div class="topbar-title">Marketing <span>Channel Performance</span></div>
     <div class="as-of-badge" id="asOfBadge">Data as of —</div>
-    <div class="as-of-badge" id="totalTrafficBadge">Total Traffic: —</div>
+    <div id="totalTrafficBadges" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
 
     <div class="mode-control">
       <span class="mode-label">View</span>
@@ -490,10 +490,11 @@ function render() {
   const tbody = document.getElementById('tbodyChannels');
   tbody.innerHTML = '';
 
-  const currentPeriod = periods[periods.length - 1];
-  const totalTraffic = CP.channelOrder.reduce((sum, ch) =>
-    sum + Object.values(traffic[ch] || {}).reduce((s, byPeriod) => s + (byPeriod[currentPeriod] || 0), 0), 0);
-  document.getElementById('totalTrafficBadge').textContent = 'Total Traffic: ' + fmtInt(totalTraffic);
+  document.getElementById('totalTrafficBadges').innerHTML = periods.map(p => {
+    const total = CP.channelOrder.reduce((sum, ch) =>
+      sum + Object.values(traffic[ch] || {}).reduce((s, byPeriod) => s + (byPeriod[p] || 0), 0), 0);
+    return `<div class="as-of-badge">${set.labels[p]}: ${fmtInt(total)}</div>`;
+  }).join('');
 
   let anyMatch = false;
   let matchCount = 0;
