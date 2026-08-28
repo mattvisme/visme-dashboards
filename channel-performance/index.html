@@ -494,10 +494,15 @@ function render() {
   const tbody = document.getElementById('tbodyChannels');
   tbody.innerHTML = '';
 
-  document.getElementById('totalTrafficBadges').innerHTML = periods.map(p => {
-    const total = CP.channelOrder.reduce((sum, ch) =>
+  function totalTrafficFor(p) {
+    return CP.channelOrder.reduce((sum, ch) =>
       sum + Object.values(traffic[ch] || {}).reduce((s, byPeriod) => s + (byPeriod[p] || 0), 0), 0);
-    return `<div class="as-of-badge">${set.labels[p]}: ${fmtInt(total)}</div>`;
+  }
+  document.getElementById('totalTrafficBadges').innerHTML = periods.map((p, i) => {
+    const total = totalTrafficFor(p);
+    const prevPeriod = i > 0 ? periods[i - 1] : autoPrevPeriod;
+    const delta = prevPeriod ? deltaBadge(total, totalTrafficFor(prevPeriod)) : '';
+    return `<div class="as-of-badge">${set.labels[p]}: ${fmtInt(total)} ${delta}</div>`;
   }).join('');
 
   let anyMatch = false;
