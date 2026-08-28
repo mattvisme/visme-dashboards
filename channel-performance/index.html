@@ -88,6 +88,8 @@ tbody tr.channel-row{cursor:pointer;}
 tbody tr.channel-row:hover{background:var(--surface2)}
 tbody tr:last-child{border-bottom:none}
 tbody tr.channel-group-row{background:var(--surface2);}
+tbody tr.totals-row{border-bottom:2px solid var(--border);}
+tbody tr.totals-row .channel-name{font-weight:700;}
 tbody tr.sub-row{background:#FAFBFC;font-size:12px;}
 tbody tr.sub-row:hover{background:var(--surface2)}
 tbody tr.sub-row.match-highlight{background:var(--highlight)}
@@ -193,11 +195,6 @@ mark{background:var(--mark-bg);color:var(--mark-text);border-radius:2px;padding:
       <select class="period-select" id="weekSelect1"></select>
       <select class="period-select" id="weekSelect2"></select>
     </div>
-  </div>
-
-  <div class="period-picker-bar">
-    <span class="mode-label">TOTAL TRAFFIC</span>
-    <div id="totalTrafficBadges" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
   </div>
 
   <div id="content">
@@ -494,17 +491,6 @@ function render() {
   const tbody = document.getElementById('tbodyChannels');
   tbody.innerHTML = '';
 
-  function totalTrafficFor(p) {
-    return CP.channelOrder.reduce((sum, ch) =>
-      sum + Object.values(traffic[ch] || {}).reduce((s, byPeriod) => s + (byPeriod[p] || 0), 0), 0);
-  }
-  document.getElementById('totalTrafficBadges').innerHTML = periods.map((p, i) => {
-    const total = totalTrafficFor(p);
-    const prevPeriod = i > 0 ? periods[i - 1] : autoPrevPeriod;
-    const delta = prevPeriod ? deltaBadge(total, totalTrafficFor(prevPeriod)) : '';
-    return `<div class="as-of-badge">${set.labels[p]}: ${fmtInt(total)} ${delta}</div>`;
-  }).join('');
-
   let anyMatch = false;
   let matchCount = 0;
 
@@ -610,6 +596,34 @@ function render() {
     tbody.appendChild(header);
     periods.forEach((p, i) => {
       renderPeriodRow(channel, p, rows, trafficAvailable, i > 0 ? periods[i - 1] : null, true, extraClass);
+    });
+  }
+
+  // Grand-total row per selected period, above the channel list — sums
+  // Traffic/Free/Paid across every channel in CP.channelOrder.
+  if (!searchTerm) {
+    function totalsFor(p) {
+      let trafficSum = 0, freeSum = 0, paidSum = 0;
+      CP.channelOrder.forEach(ch => {
+        trafficSum += Object.values(traffic[ch] || {}).reduce((s, byPeriod) => s + (byPeriod[p] || 0), 0);
+        const c = convFor(conv, ch, p);
+        freeSum += c.free;
+        paidSum += c.paid;
+      });
+      return { traffic: trafficSum, free: freeSum, paid: paidSum };
+    }
+    periods.forEach((p, i) => {
+      const prevP = i > 0 ? periods[i - 1] : autoPrevPeriod;
+      const cur = totalsFor(p);
+      const prev = prevP ? totalsFor(prevP) : null;
+      const tr = document.createElement('tr');
+      tr.className = 'channel-group-row totals-row';
+      tr.innerHTML = `
+        <td></td>
+        <td class="channel-name">Total${k > 1 ? ' — ' + set.labels[p] : ''}</td>
+        ${metricCells(cur.traffic, prev ? prev.traffic : null, cur.free, prev ? prev.free : null, cur.paid, prev ? prev.paid : null, true)}
+      `;
+      tbody.appendChild(tr);
     });
   }
 
