@@ -97,6 +97,7 @@ tbody tr.unassigned-row{color:var(--text-dim);font-style:italic;}
 tbody td{padding:9px 14px;color:var(--text);vertical-align:middle;}
 .num-cell{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
 .channel-name{font-weight:600;}
+.has-tooltip{cursor:help;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--text-dim);text-underline-offset:3px;}
 .sub-name{padding-left:26px;color:var(--text-muted);font-family:'SFMono-Regular',Consolas,monospace;font-size:11.5px;}
 .sub-name-l1{padding-left:20px;color:var(--text);font-family:var(--font-ui);font-weight:500;font-size:13px;}
 .sub-name-l2{padding-left:46px;}
@@ -247,31 +248,37 @@ const MAX_SELECT = { month: 3 };
 const WEEK_DROPDOWN_COUNT = 3;
 
 // Plain-language descriptions of GA4's own Default Channel Group values,
-// for non-marketers reading this report (per Thera Martens' Slack request).
-// "Other (Unclassified)" and "Unassigned" are the two rows that aren't a
-// normal traffic channel — described as such rather than guessed at.
+// for non-marketers reading this report. Wording is Thera Martens' own
+// "ELT-friendly description" table from Slack, used verbatim — not our
+// paraphrase. "Other (Unclassified)" isn't a real GA4 channel; described
+// as such (not in her table, since it's our own synthetic bucket).
 const CHANNEL_DESCRIPTIONS = {
-  'Direct': 'Visits with no identifiable source — typed the URL directly, used a bookmark, or opened a link that stripped referrer data.',
-  'Organic Search': 'Unpaid clicks from search engine results (Google, Bing, etc.).',
-  'Paid Search': 'Clicks from paid search ads (Google Ads, Bing Ads, etc.).',
-  'Organic Social': 'Unpaid traffic from social platforms (Facebook, LinkedIn, X, etc.).',
-  'Paid Social': 'Paid ads run on social platforms.',
-  'Organic Video': 'Unpaid traffic from video platforms (YouTube, Vimeo, etc.).',
-  'Paid Video': 'Paid ads run on video platforms.',
-  'Organic Shopping': 'Unpaid traffic from shopping platforms/marketplaces.',
-  'Display': 'Traffic from display/banner ads.',
-  'Paid Other': "Paid traffic that doesn't fit the other paid categories.",
-  'Cross-network': 'Ads that ran across multiple ad networks at once (e.g. Google Performance Max).',
-  'Affiliates': 'Traffic from affiliate/partner marketing links.',
-  'Referral': 'Traffic from links on other websites (not search, social, or paid ads).',
-  'Email': 'Traffic from links in email campaigns.',
-  'AI Assistant': 'Traffic referred from AI chat tools (ChatGPT, Gemini, etc.).',
-  'Unassigned': "Sessions GA4 couldn't sort into any channel above, usually from missing or conflicting tracking parameters.",
-  'Other (Unclassified)': "Not a GA4 channel — Free/Paid signups whose source title couldn't be matched to a channel by our classifier.",
+  'Organic Search': 'Unpaid search traffic; can include AI-powered search',
+  'Direct': 'No identifiable source; can include unattributed AI traffic',
+  'Referral': 'Links from other websites; some AI tools appear here',
+  'Unassigned': "GA4 couldn't classify the source; can include AI traffic",
+  'Paid Search': 'Traffic from paid search ads',
+  'Email': 'Traffic from email campaigns',
+  'Organic Social': 'Unpaid traffic from social networks',
+  'AI Assistant': 'AI traffic we can explicitly identify (e.g. ChatGPT, Claude)',
+  'Cross-network': 'Google Ads across multiple Google networks',
+  'Organic Video': 'Unpaid traffic from video platforms',
+  'Affiliates': 'Traffic from tracked affiliate partners',
+  'Paid Other': 'Other paid traffic not classified elsewhere',
+  'Paid Social': 'Traffic from paid social campaigns',
+  'Organic Shopping': 'Unpaid traffic from product/shopping listings',
+  'Paid Video': 'Paid ads run on video platforms',
+  'Display': 'Traffic from display/banner ads',
+  'Other (Unclassified)': "Not a GA4 channel — traffic that doesn't match another channel.",
 };
-function channelTitleAttr(channel) {
+// Wraps a channel name with a title tooltip AND a visible cue (dotted
+// underline + help cursor via .has-tooltip) so it's clear hovering does
+// something — a bare title attribute gives no visual hint on its own.
+function channelLabelHtml(channel) {
+  const label = highlight(channel);
   const desc = CHANNEL_DESCRIPTIONS[channel];
-  return desc ? ` title="${desc.replace(/"/g, '&quot;')}"` : '';
+  if (!desc) return label;
+  return `<span class="has-tooltip" title="${desc.replace(/"/g, '&quot;')}">${label}</span>`;
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────
@@ -602,7 +609,7 @@ function render() {
     tr.className = (trafficAvailable ? 'channel-row' : '') + (extraClass ? ' ' + extraClass : '');
     const nameCell = nested
       ? `<td class="sub-name sub-name-l1">${set.labels[period]}</td>`
-      : `<td class="channel-name"${channelTitleAttr(channel)} style="cursor:help">${highlight(channel)}</td>`;
+      : `<td class="channel-name">${channelLabelHtml(channel)}</td>`;
     tr.innerHTML = `
       <td>${trafficAvailable ? `<span class="expand-icon${isOpen ? '' : ' expandable'}">${isOpen ? '−' : '+'}</span>` : ''}</td>
       ${nameCell}
@@ -620,7 +627,7 @@ function render() {
     }
     const header = document.createElement('tr');
     header.className = 'channel-group-row' + (extraClass ? ' ' + extraClass : '');
-    header.innerHTML = `<td></td><td class="channel-name" colspan="9"${channelTitleAttr(channel)} style="cursor:help">${highlight(channel)}</td>`;
+    header.innerHTML = `<td></td><td class="channel-name" colspan="9">${channelLabelHtml(channel)}</td>`;
     tbody.appendChild(header);
     periods.forEach((p, i) => {
       renderPeriodRow(channel, p, rows, trafficAvailable, i > 0 ? periods[i - 1] : null, true, extraClass);
