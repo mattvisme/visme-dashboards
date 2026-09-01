@@ -246,6 +246,34 @@ let searchTerm = '';
 const MAX_SELECT = { month: 3 };
 const WEEK_DROPDOWN_COUNT = 3;
 
+// Plain-language descriptions of GA4's own Default Channel Group values,
+// for non-marketers reading this report (per Thera Martens' Slack request).
+// "Other (Unclassified)" and "Unassigned" are the two rows that aren't a
+// normal traffic channel — described as such rather than guessed at.
+const CHANNEL_DESCRIPTIONS = {
+  'Direct': 'Visits with no identifiable source — typed the URL directly, used a bookmark, or opened a link that stripped referrer data.',
+  'Organic Search': 'Unpaid clicks from search engine results (Google, Bing, etc.).',
+  'Paid Search': 'Clicks from paid search ads (Google Ads, Bing Ads, etc.).',
+  'Organic Social': 'Unpaid traffic from social platforms (Facebook, LinkedIn, X, etc.).',
+  'Paid Social': 'Paid ads run on social platforms.',
+  'Organic Video': 'Unpaid traffic from video platforms (YouTube, Vimeo, etc.).',
+  'Paid Video': 'Paid ads run on video platforms.',
+  'Organic Shopping': 'Unpaid traffic from shopping platforms/marketplaces.',
+  'Display': 'Traffic from display/banner ads.',
+  'Paid Other': "Paid traffic that doesn't fit the other paid categories.",
+  'Cross-network': 'Ads that ran across multiple ad networks at once (e.g. Google Performance Max).',
+  'Affiliates': 'Traffic from affiliate/partner marketing links.',
+  'Referral': 'Traffic from links on other websites (not search, social, or paid ads).',
+  'Email': 'Traffic from links in email campaigns.',
+  'AI Assistant': 'Traffic referred from AI chat tools (ChatGPT, Gemini, etc.).',
+  'Unassigned': "Sessions GA4 couldn't sort into any channel above, usually from missing or conflicting tracking parameters.",
+  'Other (Unclassified)': "Not a GA4 channel — Free/Paid signups whose source title couldn't be matched to a channel by our classifier.",
+};
+function channelTitleAttr(channel) {
+  const desc = CHANNEL_DESCRIPTIONS[channel];
+  return desc ? ` title="${desc.replace(/"/g, '&quot;')}"` : '';
+}
+
 // ── INIT ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof CP === 'undefined') {
@@ -574,7 +602,7 @@ function render() {
     tr.className = (trafficAvailable ? 'channel-row' : '') + (extraClass ? ' ' + extraClass : '');
     const nameCell = nested
       ? `<td class="sub-name sub-name-l1">${set.labels[period]}</td>`
-      : `<td class="channel-name">${highlight(channel)}</td>`;
+      : `<td class="channel-name"${channelTitleAttr(channel)} style="cursor:help">${highlight(channel)}</td>`;
     tr.innerHTML = `
       <td>${trafficAvailable ? `<span class="expand-icon${isOpen ? '' : ' expandable'}">${isOpen ? '−' : '+'}</span>` : ''}</td>
       ${nameCell}
@@ -592,7 +620,7 @@ function render() {
     }
     const header = document.createElement('tr');
     header.className = 'channel-group-row' + (extraClass ? ' ' + extraClass : '');
-    header.innerHTML = `<td></td><td class="channel-name" colspan="9">${highlight(channel)}</td>`;
+    header.innerHTML = `<td></td><td class="channel-name" colspan="9"${channelTitleAttr(channel)} style="cursor:help">${highlight(channel)}</td>`;
     tbody.appendChild(header);
     periods.forEach((p, i) => {
       renderPeriodRow(channel, p, rows, trafficAvailable, i > 0 ? periods[i - 1] : null, true, extraClass);
