@@ -98,6 +98,8 @@ tbody td{padding:9px 14px;color:var(--text);vertical-align:middle;}
 .num-cell{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
 .channel-name{font-weight:600;}
 .has-tooltip{cursor:help;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--text-dim);text-underline-offset:3px;}
+#tooltipBubble{position:fixed;z-index:500;background:#1a1a2e;color:#fff;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:400;line-height:1.4;max-width:260px;text-transform:none;letter-spacing:normal;box-shadow:0 4px 12px rgba(0,0,0,.2);pointer-events:none;opacity:0;transition:opacity .1s ease;}
+#tooltipBubble.show{opacity:1;}
 .sub-name{padding-left:26px;color:var(--text-muted);font-family:'SFMono-Regular',Consolas,monospace;font-size:11.5px;}
 .sub-name-l1{padding-left:20px;color:var(--text);font-family:var(--font-ui);font-weight:500;font-size:13px;}
 .sub-name-l2{padding-left:46px;}
@@ -207,13 +209,13 @@ mark{background:var(--mark-bg);color:var(--mark-text);border-radius:2px;padding:
             <thead>
               <tr>
                 <th style="width:26px"></th>
-                <th title="GA4 channels." style="cursor:help">Channel</th>
-                <th class="num" title="GA4 sessions, Traffic acquisition: Session primary channel group (Default Channel Group) report." style="cursor:help">Traffic</th>
-                <th class="num" title="Difference, % (compared to the previous period by default; or custom period if selected)" style="cursor:help">Δ</th>
-                <th class="num" title="Free Signups (Registrations) from the Admin DB." style="cursor:help">Free</th>
-                <th class="num" title="Difference, % (compared to the previous period by default; or custom period if selected)" style="cursor:help">Δ</th>
-                <th class="num" title="Paid conversions from the Admin DB. (all users off, Report: Channels-Campaigns)" style="cursor:help">Paid</th>
-                <th class="num" title="Difference, % (compared to the previous period by default; or custom period if selected)" style="cursor:help">Δ</th>
+                <th data-tooltip="GA4 channels." style="cursor:help">Channel</th>
+                <th class="num" data-tooltip="GA4 sessions, Traffic acquisition: Session primary channel group (Default Channel Group) report." style="cursor:help">Traffic</th>
+                <th class="num" data-tooltip="Difference, % (compared to the previous period by default; or custom period if selected)" style="cursor:help">Δ</th>
+                <th class="num" data-tooltip="Free Signups (Registrations) from the Admin DB." style="cursor:help">Free</th>
+                <th class="num" data-tooltip="Difference, % (compared to the previous period by default; or custom period if selected)" style="cursor:help">Δ</th>
+                <th class="num" data-tooltip="Paid conversions from the Admin DB. (all users off, Report: Channels-Campaigns)" style="cursor:help">Paid</th>
+                <th class="num" data-tooltip="Difference, % (compared to the previous period by default; or custom period if selected)" style="cursor:help">Δ</th>
                 <th class="num">% Traffic→Free</th>
                 <th class="num">Free→Paid %</th>
               </tr>
@@ -271,15 +273,47 @@ const CHANNEL_DESCRIPTIONS = {
   'Display': 'Traffic from display/banner ads',
   'Other (Unclassified)': "Not a GA4 channel — traffic that doesn't match another channel.",
 };
-// Wraps a channel name with a title tooltip AND a visible cue (dotted
-// underline + help cursor via .has-tooltip) so it's clear hovering does
-// something — a bare title attribute gives no visual hint on its own.
+// Wraps a channel name with a tooltip AND a visible cue (dotted underline +
+// help cursor via .has-tooltip) so it's clear hovering does something.
+// Uses data-tooltip + a custom floating bubble (see #tooltipBubble below)
+// instead of the native title attribute — native title tooltips are known
+// to be unreliable on Chrome/macOS (reported: cursor changes but the text
+// never appears), so we render our own instead of depending on the browser.
 function channelLabelHtml(channel) {
   const label = highlight(channel);
   const desc = CHANNEL_DESCRIPTIONS[channel];
   if (!desc) return label;
-  return `<span class="has-tooltip" title="${desc.replace(/"/g, '&quot;')}">${label}</span>`;
+  return `<span class="has-tooltip" data-tooltip="${desc.replace(/"/g, '&quot;')}">${label}</span>`;
 }
+
+// Shared floating tooltip: delegated so it works for header <th>s (static)
+// and channel-name spans (re-rendered on every table redraw).
+(function initTooltips() {
+  const bubble = document.createElement('div');
+  bubble.id = 'tooltipBubble';
+  document.body.appendChild(bubble);
+  let target = null;
+  function position(el) {
+    const r = el.getBoundingClientRect();
+    bubble.style.left = Math.max(4, r.left) + 'px';
+    bubble.style.top = (r.bottom + 6) + 'px';
+  }
+  document.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-tooltip]');
+    if (!el) return;
+    target = el;
+    bubble.textContent = el.getAttribute('data-tooltip');
+    position(el);
+    bubble.classList.add('show');
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest('[data-tooltip]') === target) {
+      bubble.classList.remove('show');
+      target = null;
+    }
+  });
+  document.addEventListener('scroll', () => { if (target) position(target); }, true);
+})();
 
 // ── INIT ─────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {

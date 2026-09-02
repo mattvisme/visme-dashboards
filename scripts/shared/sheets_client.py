@@ -997,11 +997,17 @@ def fetch_channel_conversions_monthly_data(sheet_id=None, credentials_file=None)
     all_titles = [s["properties"]["title"] for s in meta.get("sheets", [])]
 
     month_tabs = []
+    unparsed = []
     for t in all_titles:
         mk = _parse_month_tab_title(t)
         if mk:
             month_tabs.append((mk, t))
+        elif t not in ("Sheet1",) and not t.startswith("Copy of"):
+            unparsed.append(t)
     month_tabs.sort()
+    print(f"  Month tabs found: {[t for _, t in month_tabs]}")
+    if unparsed:
+        print(f"  ⚠️  Tabs that didn't match a month name (skipped): {unparsed}")
 
     monthly = defaultdict(lambda: defaultdict(lambda: {"free": 0, "paid": 0}))
     by_title = defaultdict(lambda: defaultdict(lambda: {"free": 0, "paid": 0}))
@@ -1014,7 +1020,11 @@ def fetch_channel_conversions_monthly_data(sheet_id=None, credentials_file=None)
             spreadsheetId=sheet_id,
             range=f"'{tab_title}'!A2:D",
         ))
-        for row in result.get("values", []):
+        rows = result.get("values", [])
+        if not rows:
+            print(f"  ⚠️  '{tab_title}' ({month_key}) has no data rows — that month "
+                  f"will show blank Free/Paid in Month mode.")
+        for row in rows:
             if len(row) < 4:
                 continue
             title, registered, conversions = row[1], row[2], row[3]
