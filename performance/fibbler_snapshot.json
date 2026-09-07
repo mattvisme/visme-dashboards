@@ -1,70 +1,94 @@
 {
   "note": "Updated by running: Ask Claude Code to refresh Fibbler data via MCP tools. Commit and push after each update.",
-  "snapshotDate": "2026-08-24",
+  "snapshotDate": "2026-09-07",
   "campaigns": [
-    {
-      "channel": "LinkedIn",
-      "name": "Document Ads - Sponsorships/Partnership Skills",
-      "format": "Document Ad",
-      "impressions": 124816,
-      "clicks": 35,
-      "engagements": 9841,
-      "ctr": 0.03,
-      "engagementRate": 7.88,
-      "spend": 5266,
-      "influencedDeals": 0
-    },
     {
       "channel": "LinkedIn",
       "name": "Retargeting - Sports Presentation Examples",
       "format": "Document Ad",
-      "impressions": 80752,
-      "clicks": 35,
-      "engagements": 6400,
+      "impressions": 96850,
+      "clicks": 42,
+      "engagements": 6305,
       "ctr": 0.04,
-      "engagementRate": 7.93,
-      "spend": 4268,
-      "influencedDeals": 0
+      "engagementRate": 6.51,
+      "spend": 4819,
+      "influencedDeals": 1
     },
     {
       "channel": "LinkedIn",
-      "name": "Document Ad - Sales Enablement",
+      "name": "Document Ads - Sponsorships/Partnership Skills",
       "format": "Document Ad",
-      "impressions": 34624,
-      "clicks": 3,
-      "engagements": 2164,
+      "impressions": 134182,
+      "clicks": 19,
+      "engagements": 7286,
       "ctr": 0.01,
-      "engagementRate": 6.25,
-      "spend": 3638,
-      "influencedDeals": 0
+      "engagementRate": 5.43,
+      "spend": 4816,
+      "influencedDeals": 3
     },
     {
       "channel": "LinkedIn",
       "name": "Retargeting 2 - LAFC Webinar",
       "format": "Image Ad",
-      "impressions": 24908,
+      "impressions": 21411,
       "clicks": 3,
-      "engagements": 73,
+      "engagements": 41,
       "ctr": 0.01,
-      "engagementRate": 0.29,
-      "spend": 1460,
+      "engagementRate": 0.19,
+      "spend": 2165,
+      "influencedDeals": 1
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Document Ad - Sales Enablement",
+      "format": "Document Ad",
+      "impressions": 12237,
+      "clicks": 0,
+      "engagements": 793,
+      "ctr": 0.0,
+      "engagementRate": 6.48,
+      "spend": 2157,
+      "influencedDeals": 0
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "Retargeting 2 - Demo Request",
+      "format": "Image Ad",
+      "impressions": 7381,
+      "clicks": 0,
+      "engagements": 3,
+      "ctr": 0.0,
+      "engagementRate": 0.04,
+      "spend": 582,
+      "influencedDeals": 0
+    },
+    {
+      "channel": "LinkedIn",
+      "name": "TOFU - Insurance Content Playbook",
+      "format": "Document Ad",
+      "impressions": 6380,
+      "clicks": 0,
+      "engagements": 791,
+      "ctr": 0.0,
+      "engagementRate": 12.4,
+      "spend": 235,
       "influencedDeals": 0
     }
   ],
   "current": {
     "pipelineValue": 0,
     "pipelineDealCount": 0,
-    "closedWonValue": 0,
-    "closedWonCount": 0,
-    "veryHighCount": 355,
+    "closedWonValue": 297,
+    "closedWonCount": 1,
+    "veryHighCount": 275,
     "companies": []
   },
   "previous": {
-    "pipelineValue": 648,
-    "pipelineDealCount": 1,
+    "pipelineValue": 0,
+    "pipelineDealCount": 0,
     "closedWonValue": 0,
     "closedWonCount": 0,
-    "veryHighCount": 442,
+    "veryHighCount": 355,
     "companies": []
   }
 }
