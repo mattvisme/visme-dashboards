@@ -42,7 +42,7 @@ from scripts.shared.sheets_client import (
     fetch_channel_conversions_data, CHANNEL_PERF_SHEET_ID,
     fetch_channel_conversions_monthly_data, CHANNEL_PERF_MONTHLY_SHEET_ID,
 )
-from scripts.shared.title_classifier import match_source_medium
+from scripts.shared.title_classifier import match_source_medium, DOMAIN_CHANNELS
 from scripts.shared.html_utils import inject_data
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -127,17 +127,22 @@ def main():
         for t in titles:
             known_titles_lower.setdefault(t.lower(), t)
 
-    # Affiliates' traffic keys are now bare FirstPromoter domains (e.g. "google.com",
-    # "direct"), not GA4's "source / medium" strings — matching them against admin-DB
-    # titles produces false collisions with other channels' real GA4-format matches
-    # (e.g. Affiliates' bare "google.com" wrongly picking up Organic Search's numbers).
-    # Excluded from matching entirely; Affiliates sub-rows show "—" for Free/Paid.
+    # Affiliates' traffic keys are bare FirstPromoter domains (e.g. "google.com",
+    # "guru99.com"), not GA4's "source / medium" strings. Generic ones like
+    # "google.com"/"direct" are just the visitor's last referrer before they
+    # clicked an affiliate link — matching those against admin-DB titles would
+    # wrongly collide with Organic Search's/Direct's own real numbers. But the
+    # confirmed affiliate-specific domains (same list used to classify Admin DB
+    # Titles into the Affiliates channel — see title_classifier.DOMAIN_CHANNELS)
+    # aren't ambiguous with any other channel, so those are safe to match.
+    affiliate_domains = set(DOMAIN_CHANNELS["Affiliates"])
     all_source_mediums = set()
     for traffic_map in (cp_data.get("monthlyTraffic", {}), cp_data.get("weeklyTraffic", {})):
         for channel, sm_map in traffic_map.items():
             if channel == "Affiliates":
-                continue
-            all_source_mediums.update(sm_map.keys())
+                all_source_mediums.update(sm for sm in sm_map if sm in affiliate_domains)
+            else:
+                all_source_mediums.update(sm_map.keys())
 
     source_medium_match = {}
     for sm in all_source_mediums:
