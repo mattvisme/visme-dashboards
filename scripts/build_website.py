@@ -61,6 +61,7 @@ from google.analytics.data_v1beta.types import (
 from google.oauth2 import service_account
 
 from scripts.shared.html_utils import inject_data
+from scripts.shared.firstpromoter_client import fetch_affiliate_source_weekly
 
 REPO_ROOT    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE     = os.path.join(REPO_ROOT, "website", "index.html")
@@ -383,18 +384,15 @@ def fetch_traffic_data() -> dict:
         ai_source_weekly[source][w] += _int(sess)
 
     # ── 5. Affiliate source × week (View 6) ──────────────────────────────────
-    print("⏳  Pulling Affiliate sessions by source …")
-    aff_source_weekly: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
-    raw_aff = _run(client, prop, start_date, end_date,
-                   ["sessionSource", "date"],
-                   ["sessions"],
-                   row_limit=2000,
-                   dimension_filter=_channel_filter("Affiliates"))
-    for source, date_str, sess in raw_aff:
-        w = _week_monday(date_str)
-        if w >= this_monday_str:
-            continue
-        aff_source_weekly[source][w] += _int(sess)
+    # Sourced from FirstPromoter (not GA4 channel grouping): legacy affiliates
+    # run promo links without expanded UTM tags, so their traffic/conversions
+    # don't land in GA4's "Affiliates" channel. FirstPromoter tracks referrals
+    # via its own cookie/link regardless of UTM tagging, so it's ground truth.
+    print("⏳  Pulling Affiliate signups by source (FirstPromoter) …")
+    aff_metrics = fetch_affiliate_source_weekly()
+    aff_source_weekly = aff_metrics["signups"]
+    aff_conversions_weekly = aff_metrics["conversions"]
+    aff_revenue_weekly = aff_metrics["revenue"]
 
     # ── 6. Organic Social source × week (View 7) ─────────────────────────────
     print("⏳  Pulling Organic Social sessions by source …")
@@ -529,6 +527,14 @@ def fetch_traffic_data() -> dict:
         s: [aff_source_weekly[s].get(w, 0) for w in all_weeks]
         for s in aff_sources_sorted
     }
+    affiliate_conversions_weekly_out: dict[str, list] = {
+        s: [aff_conversions_weekly.get(s, {}).get(w, 0) for w in all_weeks]
+        for s in aff_sources_sorted
+    }
+    affiliate_revenue_weekly_out: dict[str, list] = {
+        s: [round(aff_revenue_weekly.get(s, {}).get(w, 0), 2) for w in all_weeks]
+        for s in aff_sources_sorted
+    }
 
     # ── Build organicSocialWeekly ─────────────────────────────────────────────
     # Named platforms sorted by total sessions desc; Other appended last if present.
@@ -587,6 +593,8 @@ def fetch_traffic_data() -> dict:
         "latestWeekSnapshot":  snapshot,
         "aiAssistantWeekly":   ai_assistant_weekly_out,
         "affiliateWeekly":     affiliate_weekly_out,
+        "affiliateConversionsWeekly": affiliate_conversions_weekly_out,
+        "affiliateRevenueWeekly": affiliate_revenue_weekly_out,
         "organicSocialWeekly": organic_social_weekly_out,
         "unassignedWeekly":    unassigned_series,
         "notSetCount":         not_set_count,

@@ -30,7 +30,8 @@ jobs:
             google-auth-oauthlib \
             gspread \
             google-ads \
-            bingads
+            bingads \
+            requests
 
       - name: Build auth (inject password into login.html)
         env:
@@ -98,6 +99,8 @@ jobs:
         env:
           GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          FIRSTPROMOTER_API_KEY: ${{ secrets.FIRSTPROMOTER_API_KEY }}
+          FIRSTPROMOTER_ACCOUNT_ID: ${{ secrets.FIRSTPROMOTER_ACCOUNT_ID }}
         run: python scripts/build_website.py
 
       - name: Build PLG Free Signups dashboard

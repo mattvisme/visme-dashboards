@@ -433,6 +433,9 @@ function fmtN(v) {
   if (v >= 1000)    return (v/1000).toFixed(1)+'K';
   return v.toLocaleString();
 }
+function fmtUSD(v) {
+  return '$' + fmtN(Math.round(v));
+}
 const MIN_VOL = 50; // suppress WoW % when either week is below this
 
 function fmtPct(curr, prev) {
@@ -829,6 +832,8 @@ function buildAIAssistant() {
 // ── VIEW 6: AFFILIATE BREAKDOWN ───────────────────────────────────────────────
 function buildAffiliate() {
   const dataMap  = TRAFFIC.affiliateWeekly || {};
+  const convMap  = TRAFFIC.affiliateConversionsWeekly || {};
+  const revMap   = TRAFFIC.affiliateRevenueWeekly || {};
   const hasData  = Object.values(dataMap).some(series => series.some(v => v > 0));
   const container = document.getElementById('affiliateBody');
   if (!container) return;
@@ -843,7 +848,7 @@ function buildAffiliate() {
 
   container.innerHTML = `
     <div class="card">
-      <div class="card-title">Weekly Sessions by Affiliate Source</div>
+      <div class="card-title">Weekly Signups by Affiliate Source</div>
       <div class="chart-wrap"><canvas id="chartAffiliate"></canvas></div>
       <div class="chart-legend" id="legendAffiliate"></div>
     </div>
@@ -856,12 +861,33 @@ function buildAffiliate() {
             <th class="num-cell">This Week</th>
             <th class="num-cell">Last Week</th>
             <th class="num-cell">WoW Change</th>
+            <th class="num-cell">Conversions</th>
+            <th class="num-cell">Revenue</th>
           </tr></thead>
           <tbody id="tbodyAffiliate"></tbody>
         </table>
       </div>
     </div>`;
   buildSourceBreakdown(dataMap, 'chartAffiliate', 'legendAffiliate', 'tbodyAffiliate');
+
+  // Source-level chart/legend built above; override the table with conversions + revenue.
+  const sources = Object.keys(dataMap);
+  const n = TRAFFIC.weekLabels.length;
+  document.getElementById('tbodyAffiliate').innerHTML = sources.map((s, i) => {
+    const thisS = (dataMap[s] || [])[n - 1] || 0;
+    const prevS = n >= 2 ? ((dataMap[s] || [])[n - 2] || 0) : 0;
+    const conv  = (convMap[s] || [])[n - 1] || 0;
+    const rev   = (revMap[s] || [])[n - 1] || 0;
+    const color = PALETTE[i % PALETTE.length];
+    return `<tr>
+      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};margin-right:7px;flex-shrink:0"></span>${s}</td>
+      <td class="num-cell">${fmtN(thisS)}</td>
+      <td class="num-cell">${fmtN(prevS)}</td>
+      ${wowCell(thisS, prevS)}
+      <td class="num-cell">${fmtN(conv)}</td>
+      <td class="num-cell">${fmtUSD(rev)}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ── VIEW 4: QUALITY CHECKS ────────────────────────────────────────────────────
