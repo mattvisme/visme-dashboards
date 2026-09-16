@@ -72,6 +72,12 @@ def main():
         aff_periods = fetch_affiliate_traffic_by_period(CHANNEL_PERF_START_DATE)
         cp_data["weeklyTraffic"]["Affiliates"] = aff_periods["weeklyTraffic"]
         cp_data["monthlyTraffic"]["Affiliates"] = aff_periods["monthlyTraffic"]
+        # Per-promoter Free/Paid, sourced from FirstPromoter directly — kept
+        # separate from weeklyConversions/monthlyConversions (the Admin DB
+        # sheet's channel-level totals, unaffected by this) since promoter
+        # names have no Title counterpart there for the frontend to match.
+        cp_data["affiliateWeeklyConversions"] = aff_periods["weeklyConversions"]
+        cp_data["affiliateMonthlyConversions"] = aff_periods["monthlyConversions"]
     except Exception:
         print("  ⚠️  Could not fetch FirstPromoter data — Affiliates channel will keep "
               "GA4 traffic numbers for this build. Full error:")

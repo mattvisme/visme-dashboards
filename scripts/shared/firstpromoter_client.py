@@ -160,6 +160,22 @@ def fetch_affiliate_traffic_by_period(start_date: date) -> dict:
     matches what GA4's Affiliates channel originally showed for tagged
     affiliates: one row per partner (there, "affiliate_<username>"; here,
     the promoter's name), now covering untagged legacy affiliates too.
+
+    Also returns per-promoter Free/Paid, sourced from FirstPromoter itself
+    (not the Admin DB sheet — promoter names never appear there as Titles,
+    so that matching path can't apply to this channel's sub-rows). "Free" is
+    the referral/signup count for that period (same as traffic — every
+    tracked referral already represents a signup); "Paid" is the count of
+    those referrals whose customer_since falls in that period, i.e. the
+    affiliate-driven conversions to a paying plan.
+
+    Returns:
+      {
+        "weeklyTraffic":  {promoter: {weekStart: signups}},
+        "monthlyTraffic": {promoter: {"YYYY-MM": signups}},
+        "weeklyConversions":  {promoter: {weekStart: {"free": int, "paid": int}}},
+        "monthlyConversions": {promoter: {"YYYY-MM": {"free": int, "paid": int}}},
+      }
     """
     today = date.today()
     this_monday = today - timedelta(days=today.weekday())
@@ -171,6 +187,8 @@ def fetch_affiliate_traffic_by_period(start_date: date) -> dict:
 
     weekly: dict = defaultdict(lambda: defaultdict(int))
     monthly: dict = defaultdict(lambda: defaultdict(int))
+    weekly_conv: dict = defaultdict(lambda: defaultdict(lambda: {"free": 0, "paid": 0}))
+    monthly_conv: dict = defaultdict(lambda: defaultdict(lambda: {"free": 0, "paid": 0}))
     for r in referrals:
         promoter = r.get("promoter_campaign", {}).get("promoter") or {}
         source = promoter.get("name") or promoter.get("email") or "Unknown"
@@ -178,17 +196,30 @@ def fetch_affiliate_traffic_by_period(start_date: date) -> dict:
         cd = created.date()
 
         w = _get_monday_str(created)
+        m = f"{cd.year:04d}-{cd.month:02d}"
         if w < this_monday_str:
             weekly[source][w] += 1
-
+            weekly_conv[source][w]["free"] += 1
         if cd < this_month_start:
-            monthly[source][f"{cd.year:04d}-{cd.month:02d}"] += 1
+            monthly[source][m] += 1
+            monthly_conv[source][m]["free"] += 1
+
+        if r.get("customer_since"):
+            conv_dt = datetime.strptime(r["customer_since"], "%Y-%m-%dT%H:%M:%SZ")
+            conv_w = _get_monday_str(conv_dt)
+            conv_m = f"{conv_dt.year:04d}-{conv_dt.month:02d}"
+            if conv_w < this_monday_str:
+                weekly_conv[source][conv_w]["paid"] += 1
+            if conv_dt.date() < this_month_start:
+                monthly_conv[source][conv_m]["paid"] += 1
 
     print(f"✅  FirstPromoter collected — {len(referrals)} referrals, "
           f"{len(weekly)} weekly sources, {len(monthly)} monthly sources")
     return {
         "weeklyTraffic": {s: dict(wk) for s, wk in weekly.items()},
         "monthlyTraffic": {s: dict(mo) for s, mo in monthly.items()},
+        "weeklyConversions": {s: {p: dict(v) for p, v in wk.items()} for s, wk in weekly_conv.items()},
+        "monthlyConversions": {s: {p: dict(v) for p, v in mo.items()} for s, mo in monthly_conv.items()},
     }
 
 

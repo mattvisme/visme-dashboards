@@ -605,8 +605,16 @@ function render() {
   // Best-effort per-source/medium match — see title_classifier.match_source_medium
   // (Python) for what does/doesn't match. Most rows, especially long-tail
   // Referral, legitimately have no match at all: that's "—", not a bug.
-  function matchedFreePaid(sm, period) {
+  function matchedFreePaid(channel, sm, period) {
     if (!convAvailable) return null;
+    // Affiliates' sub-rows are promoter names, not GA4 source/mediums — they
+    // have their own Free/Paid straight from FirstPromoter (Python side),
+    // not from the Admin DB title match every other channel uses.
+    if (channel === 'Affiliates') {
+      const promoterConv = mode === 'month' ? CP.affiliateMonthlyConversions : CP.affiliateWeeklyConversions;
+      const c = (promoterConv || {})[sm]?.[period];
+      return c ? { free: c.free || 0, paid: c.paid || 0 } : null;
+    }
     const title = (CP.sourceMediumMatch || {})[sm];
     if (!title) return null;
     const titleConv = mode === 'month' ? CP.monthlyTitleConversions : CP.weeklyTitleConversions;
@@ -623,13 +631,13 @@ function render() {
       const tr = document.createElement('tr');
       tr.className = 'sub-row sub-row-l2' + (searchTerm && r.sm.toLowerCase().includes(searchTerm) ? ' match-highlight' : '');
       const trafficVal = r.byPeriod[period] || 0;
-      const m = matchedFreePaid(r.sm, period);
+      const m = matchedFreePaid(channel, r.sm, period);
       tr.innerHTML = `
         <td></td><td class="sub-name sub-name-l2">${highlight(r.sm)}</td>
         <td class="num-cell">${fmtInt(trafficVal)}</td><td class="num-cell"></td>
         <td class="num-cell${m ? '' : ' pending-cell'}">${m ? fmtInt(m.free) : '—'}</td><td class="num-cell"></td>
         <td class="num-cell${m ? '' : ' pending-cell'}">${m ? fmtInt(m.paid) : '—'}</td><td class="num-cell"></td>
-        <td class="num-cell">${m ? pctStr(m.free, trafficVal) : '—'}</td>
+        <td class="num-cell">${m && channel !== 'Affiliates' ? pctStr(m.free, trafficVal) : '—'}</td>
         <td class="num-cell">${m ? pctStr(m.paid, m.free) : '—'}</td>
       `;
       tbody.appendChild(tr);
