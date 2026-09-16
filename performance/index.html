@@ -91,7 +91,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .tbl-wrap{overflow-x:visible}
 @media(max-width:900px){.tbl-wrap{overflow-x:auto}}
 table{width:100%;border-collapse:collapse;font-size:13px;}
-thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;position:sticky;top:var(--topbar-h);z-index:2;}
+thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;position:sticky;top:var(--sticky-offset,var(--topbar-h));z-index:2;}
 tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s;}
 tbody tr:last-child{border-bottom:none}tbody tr:hover{background:var(--surface2)}
 tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
@@ -709,6 +709,14 @@ function initScrollSpy() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+// Topbar height can wrap on narrow viewports — measure it at runtime so the
+// sticky thead pins just below it instead of at a stale fixed offset.
+function syncStickyOffset() {
+  const topbar = document.getElementById('topbar');
+  if (topbar) document.documentElement.style.setProperty('--sticky-offset', topbar.offsetHeight + 'px');
+}
+window.addEventListener('resize', syncStickyOffset);
+
 function init() {
   try {
     document.getElementById('asOfBadge').textContent = 'Data as of ' + (PERF.lastUpdated || '—');
@@ -720,6 +728,7 @@ function init() {
     buildCampaigns();
     initNavScroll();
     initScrollSpy();
+    syncStickyOffset();
   } catch (err) {
     console.error('Dashboard init error:', err);
     document.getElementById('content').insertAdjacentHTML('afterbegin',

@@ -51,6 +51,31 @@ DOMAIN_CHANNELS = {
     "Organic Search":  ["google.com", "bing.com", "duckduckgo.com"],
     "Organic Social":  ["facebook.com", "pinterest.com", "reddit.com"],
     "Organic Video":   ["youtube.com"],
+    # Legacy affiliate domains confirmed against FirstPromoter's own referral
+    # tracking (traffic_source field) — see scripts/shared/firstpromoter_client.py.
+    # Without this, every one of these Titles fell through to the generic
+    # domain-shape "Referral" rule below, so the Affiliates channel's Free/Paid
+    # always showed 0 even though the Admin DB sheet does track their
+    # conversions (e.g. "fixthephoto.com": real free/paid counts, misfiled
+    # under Referral). Only domains actually verified as FirstPromoter
+    # referral sources are listed — nothing guessed.
+    "Affiliates": [
+        "guru99.com", "fixthephoto.com", "aixploria.com", "experte.com",
+        "vc.ru", "brightspace.carleton.ca", "aitoolsdirectory.com",
+        "pikabu.ru", "mychartguide.com", "serchen7.wordpress.com",
+        "unite.ai", "demandsage.com", "alternativeto.net",
+        "technicalwall.com", "wpbeginner.com", "bloggingwizard.com",
+        "themeisle.com", "toools.design", "d2l.wcupa.edu", "hashdork.com",
+        "geekflare.com", "aitoptools.com", "bigincomeparadise.com",
+        "hongkiat.com", "craftum.com", "webmoneyai.com", "powerfulai.tools",
+        "educationise.com", "mobilinkinfinity.com", "memberpress.com",
+        "reactivaonline.com", "moghamir.com", "aiwithit.com",
+        "presentation-creation.ru", "sales-hacking.com", "techjury.net",
+        "digital-expert.online", "rafalreyzer.com", "ixdf.org",
+        "feedough.com", "martech.zone", "digitiz.fr", "saasmarket.ru",
+        "softfinder.ru", "juliety.com", "go.phuongacademy.com",
+        "dpo.nntu.ru", "expotechjunior.ru",
+    ],
 }
 # yandex.* — documented as a wildcard family (yandex.ru, yandex.com.tr,
 # yandex.kz, yandex.by, yandex.uz all appeared in the actual GA4 export

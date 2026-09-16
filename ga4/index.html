@@ -86,7 +86,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .tbl-wrap{overflow-x:visible}
 @media(max-width:900px){.tbl-wrap{overflow-x:auto}}
 table{width:100%;border-collapse:collapse;font-size:13px;}
-thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;cursor:pointer;user-select:none;white-space:nowrap;position:sticky;top:var(--topbar-h);z-index:2;}
+thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;cursor:pointer;user-select:none;white-space:nowrap;position:sticky;top:var(--sticky-offset,var(--topbar-h));z-index:2;}
 thead th:hover{color:var(--text)}
 thead th.sort-asc::after{content:" ↑"}thead th.sort-desc::after{content:" ↓"}
 tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s;}
@@ -341,11 +341,20 @@ let channelSortCol = 1, channelSortAsc = false;
 let landingSortCol = 1, landingSortAsc = false;
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+// Topbar height can wrap on narrow viewports — measure it at runtime so the
+// sticky thead pins just below it instead of at a stale fixed offset.
+function syncStickyOffset() {
+  const topbar = document.getElementById('topbar');
+  if (topbar) document.documentElement.style.setProperty('--sticky-offset', topbar.offsetHeight + 'px');
+}
+window.addEventListener('resize', syncStickyOffset);
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('asOfBadge').textContent = 'Data as of ' + GA4.asOfDate;
   buildAllCharts();
   setupPills();
   setupNavHighlight();
+  syncStickyOffset();
   setTimeout(() => document.getElementById('loading').classList.add('hide'), 1400);
 });
 

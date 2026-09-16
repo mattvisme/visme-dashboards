@@ -81,7 +81,7 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .tbl-wrap{overflow-x:visible}
 @media(max-width:900px){.tbl-wrap{overflow-x:auto}}
 table{width:100%;border-collapse:collapse;font-size:13px;}
-thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;position:sticky;top:var(--topbar-h);z-index:2;}
+thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;position:sticky;top:var(--sticky-offset,var(--topbar-h));z-index:2;}
 thead th.num{text-align:right}
 thead th .unit{font-weight:400;text-transform:none;color:var(--text-dim);}
 tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s;}
@@ -317,6 +317,15 @@ function channelLabelHtml(channel) {
 })();
 
 // ── INIT ─────────────────────────────────────────────────────────────────
+// Topbar height varies (wraps to multiple lines with the mode/period/search
+// controls), so the CSS var alone isn't reliable — measure it at runtime and
+// keep sticky thead pinned just below it, not at a stale fixed offset.
+function syncStickyOffset() {
+  const topbar = document.getElementById('topbar');
+  if (topbar) document.documentElement.style.setProperty('--sticky-offset', topbar.offsetHeight + 'px');
+}
+window.addEventListener('resize', syncStickyOffset);
+
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof CP === 'undefined') {
     document.getElementById('asOfBadge').textContent = 'No data injected — run scripts/build_channel_performance.py';
@@ -330,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPeriodPills();
   setupSearch();
   render();
+  syncStickyOffset();
   setTimeout(() => document.getElementById('loading').classList.add('hide'), 900);
 });
 
@@ -349,6 +359,7 @@ function setupModePills() {
         renderWeekDropdowns();
       }
       render();
+      syncStickyOffset();
     });
   });
 }
