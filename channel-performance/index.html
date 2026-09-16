@@ -266,7 +266,7 @@ const CHANNEL_DESCRIPTIONS = {
   'AI Assistant': 'AI traffic we can explicitly identify (e.g. ChatGPT, Claude)',
   'Cross-network': 'Google Ads across multiple Google networks',
   'Organic Video': 'Unpaid traffic from video platforms',
-  'Affiliates': 'Traffic from tracked affiliate partners',
+  'Affiliates': 'Sourced from FirstPromoter, not GA4 (unreliable due to UTM tagging gaps). "Traffic" here is tracked referral signups, not sessions — %Traffic→Free is suppressed since both are signup-level counts from different systems.',
   'Paid Other': 'Other paid traffic not classified elsewhere',
   'Paid Social': 'Traffic from paid social campaigns',
   'Organic Shopping': 'Unpaid traffic from product/shopping listings',
@@ -577,7 +577,7 @@ function render() {
 
   const convAvailable = mode === 'month' ? !CP.monthConversionsUnavailable : !CP.weekConversionsUnavailable;
 
-  function metricCells(trafficVal, prevTrafficVal, freeVal, prevFreeVal, paidVal, prevPaidVal, trafficAvailable) {
+  function metricCells(trafficVal, prevTrafficVal, freeVal, prevFreeVal, paidVal, prevPaidVal, trafficAvailable, suppressTrafficRatio) {
     return `
       <td class="num-cell${trafficAvailable ? '' : ' pending-cell'}">${trafficAvailable ? fmtInt(trafficVal) : '—'}</td>
       <td class="num-cell">${trafficAvailable && prevTrafficVal !== null ? deltaBadge(trafficVal, prevTrafficVal) : ''}</td>
@@ -585,7 +585,7 @@ function render() {
       <td class="num-cell">${convAvailable && prevFreeVal !== null ? deltaBadge(freeVal, prevFreeVal) : ''}</td>
       <td class="num-cell${convAvailable ? '' : ' pending-cell'}">${convAvailable ? fmtInt(paidVal) : '—'}</td>
       <td class="num-cell">${convAvailable && prevPaidVal !== null ? deltaBadge(paidVal, prevPaidVal) : ''}</td>
-      <td class="num-cell">${trafficAvailable && convAvailable ? pctStr(freeVal, trafficVal) : '—'}</td>
+      <td class="num-cell">${trafficAvailable && convAvailable && !suppressTrafficRatio ? pctStr(freeVal, trafficVal) : '—'}</td>
       <td class="num-cell">${convAvailable ? pctStr(paidVal, freeVal) : '—'}</td>
     `;
   }
@@ -659,7 +659,7 @@ function render() {
     tr.innerHTML = `
       <td>${trafficAvailable ? `<span class="expand-icon${isOpen ? '' : ' expandable'}">${isOpen ? '−' : '+'}</span>` : ''}</td>
       ${nameCell}
-      ${metricCells(trafficVal, prevTrafficVal, cConv.free, pConv ? pConv.free : null, cConv.paid, pConv ? pConv.paid : null, trafficAvailable)}
+      ${metricCells(trafficVal, prevTrafficVal, cConv.free, pConv ? pConv.free : null, cConv.paid, pConv ? pConv.paid : null, trafficAvailable, channel === 'Affiliates')}
     `;
     if (trafficAvailable) tr.addEventListener('click', () => { expandedPeriod[key] = !expandedPeriod[key]; render(); });
     tbody.appendChild(tr);
