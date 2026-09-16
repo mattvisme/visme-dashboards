@@ -318,13 +318,21 @@ function channelLabelHtml(channel) {
 
 // ── INIT ─────────────────────────────────────────────────────────────────
 // Topbar height varies (wraps to multiple lines with the mode/period/search
-// controls), so the CSS var alone isn't reliable — measure it at runtime and
-// keep sticky thead pinned just below it, not at a stale fixed offset.
+// controls, and how many are wrapped changes with every interaction — period
+// selection, mode toggle, search status text), so the CSS var alone isn't
+// reliable. A ResizeObserver on #topbar catches every case that changes its
+// rendered height automatically, rather than needing a syncStickyOffset()
+// call threaded through every interaction handler individually.
 function syncStickyOffset() {
   const topbar = document.getElementById('topbar');
   if (topbar) document.documentElement.style.setProperty('--sticky-offset', topbar.offsetHeight + 'px');
 }
-window.addEventListener('resize', syncStickyOffset);
+const topbarEl = document.getElementById('topbar');
+if (topbarEl && window.ResizeObserver) {
+  new ResizeObserver(syncStickyOffset).observe(topbarEl);
+} else {
+  window.addEventListener('resize', syncStickyOffset);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   if (typeof CP === 'undefined') {
@@ -359,7 +367,6 @@ function setupModePills() {
         renderWeekDropdowns();
       }
       render();
-      syncStickyOffset();
     });
   });
 }
