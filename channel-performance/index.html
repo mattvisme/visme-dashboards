@@ -78,6 +78,11 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .search-status{font-size:11px;color:var(--text-dim);flex-shrink:0;}
 #content{padding:32px;display:flex;flex-direction:column;gap:20px;max-width:1400px;width:100%;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0;box-shadow:var(--shadow);overflow:hidden;}
+/* overflow:hidden (for rounded-corner clipping) makes this card the sticky
+   containing block for any position:sticky descendant, breaking it relative
+   to the real page scroll — this card holds the sticky thead, so it can't
+   use the clipping trick; corners stay square here instead. */
+.card-sticky-table{overflow:visible;}
 .tbl-wrap{overflow-x:visible}
 @media(max-width:900px){.tbl-wrap{overflow-x:auto}}
 table{width:100%;border-collapse:collapse;font-size:13px;}
@@ -204,7 +209,7 @@ mark{background:var(--mark-bg);color:var(--mark-text);border-radius:2px;padding:
   <div id="content">
 
     <div class="section" id="section-table">
-      <div class="card">
+      <div class="card card-sticky-table">
         <div class="tbl-wrap">
           <table id="tblChannels">
             <thead>
