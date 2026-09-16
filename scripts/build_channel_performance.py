@@ -127,9 +127,16 @@ def main():
         for t in titles:
             known_titles_lower.setdefault(t.lower(), t)
 
+    # Affiliates' traffic keys are now bare FirstPromoter domains (e.g. "google.com",
+    # "direct"), not GA4's "source / medium" strings — matching them against admin-DB
+    # titles produces false collisions with other channels' real GA4-format matches
+    # (e.g. Affiliates' bare "google.com" wrongly picking up Organic Search's numbers).
+    # Excluded from matching entirely; Affiliates sub-rows show "—" for Free/Paid.
     all_source_mediums = set()
     for traffic_map in (cp_data.get("monthlyTraffic", {}), cp_data.get("weeklyTraffic", {})):
-        for sm_map in traffic_map.values():
+        for channel, sm_map in traffic_map.items():
+            if channel == "Affiliates":
+                continue
             all_source_mediums.update(sm_map.keys())
 
     source_medium_match = {}

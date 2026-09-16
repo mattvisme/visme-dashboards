@@ -78,9 +78,10 @@ body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-heigh
 .search-status{font-size:11px;color:var(--text-dim);flex-shrink:0;}
 #content{padding:32px;display:flex;flex-direction:column;gap:20px;max-width:1400px;width:100%;}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0;box-shadow:var(--shadow);overflow:hidden;}
-.tbl-wrap{overflow-x:auto}
+.tbl-wrap{overflow-x:visible}
+@media(max-width:900px){.tbl-wrap{overflow-x:auto}}
 table{width:100%;border-collapse:collapse;font-size:13px;}
-thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;}
+thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;position:sticky;top:var(--topbar-h);z-index:2;}
 thead th.num{text-align:right}
 thead th .unit{font-weight:400;text-transform:none;color:var(--text-dim);}
 tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s;}
