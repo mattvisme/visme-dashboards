@@ -116,6 +116,8 @@ jobs:
         env:
           GA4_CREDENTIALS_JSON: ${{ secrets.GA4_SERVICE_ACCOUNT_KEY }}
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          FIRSTPROMOTER_API_KEY: ${{ secrets.FIRSTPROMOTER_API_KEY }}
+          FIRSTPROMOTER_ACCOUNT_ID: ${{ secrets.FIRSTPROMOTER_ACCOUNT_ID }}
         run: python scripts/build_channel_performance.py
 
       - name: Commit rebuilt dashboards

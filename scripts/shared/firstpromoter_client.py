@@ -31,6 +31,9 @@ def _get_monday_str(dt: datetime) -> str:
     return (d - timedelta(days=d.weekday())).strftime("%Y-%m-%d")
 
 
+PAGE_DELAY_SECONDS = 0.6   # ~100 req/min, under FirstPromoter's observed ~100-130 req/min limit
+
+
 def _paginate(path: str, params: dict) -> list[dict]:
     headers = _get_headers()
     results = []
@@ -41,6 +44,13 @@ def _paginate(path: str, params: dict) -> list[dict]:
             try:
                 resp = requests.get(f"{API_BASE}/{path}",
                                      headers=headers, params=page_params, timeout=30)
+                if resp.status_code == 429:
+                    if attempt == 3:
+                        resp.raise_for_status()
+                    wait = int(resp.headers.get("Retry-After", 15 * (2 ** attempt)))
+                    print(f"  FirstPromoter rate limited (attempt {attempt + 1}/4), retrying in {wait}s")
+                    time.sleep(wait)
+                    continue
                 resp.raise_for_status()
                 break
             except requests.RequestException as e:
@@ -54,6 +64,7 @@ def _paginate(path: str, params: dict) -> list[dict]:
             break
         results.extend(batch)
         page += 1
+        time.sleep(PAGE_DELAY_SECONDS)
     return results
 
 
@@ -130,6 +141,45 @@ def fetch_affiliate_source_weekly(weeks: int = WEEKS_HISTORY) -> dict:
         "signups": {s: dict(wk) for s, wk in signups.items()},
         "conversions": {s: dict(wk) for s, wk in conversions.items()},
         "revenue": {s: dict(wk) for s, wk in revenue.items()},
+    }
+
+
+def fetch_affiliate_traffic_by_period(start_date: date) -> dict:
+    """
+    Fetch affiliate signups by source, bucketed by both complete Mon-Sun week
+    and complete calendar month, from start_date through the last complete
+    period. Period keys match fetch_channel_performance_data()'s format
+    (week: Monday ISO date; month: "YYYY-MM") so callers can drop this
+    straight into CP.weeklyTraffic["Affiliates"] / CP.monthlyTraffic["Affiliates"]
+    in place of GA4's channel-grouped sessions.
+    """
+    today = date.today()
+    this_monday = today - timedelta(days=today.weekday())
+    this_month_start = date(today.year, today.month, 1)
+    this_monday_str = this_monday.strftime("%Y-%m-%d")
+
+    print(f"⏳  Pulling FirstPromoter referrals {start_date.isoformat()} → {today.isoformat()} …")
+    referrals = _fetch_referrals(start_date.isoformat(), today.isoformat())
+
+    weekly: dict = defaultdict(lambda: defaultdict(int))
+    monthly: dict = defaultdict(lambda: defaultdict(int))
+    for r in referrals:
+        source = r.get("traffic_source") or "direct"
+        created = datetime.strptime(r["created_at"], "%Y-%m-%dT%H:%M:%SZ")
+        cd = created.date()
+
+        w = _get_monday_str(created)
+        if w < this_monday_str:
+            weekly[source][w] += 1
+
+        if cd < this_month_start:
+            monthly[source][f"{cd.year:04d}-{cd.month:02d}"] += 1
+
+    print(f"✅  FirstPromoter collected — {len(referrals)} referrals, "
+          f"{len(weekly)} weekly sources, {len(monthly)} monthly sources")
+    return {
+        "weeklyTraffic": {s: dict(wk) for s, wk in weekly.items()},
+        "monthlyTraffic": {s: dict(mo) for s, mo in monthly.items()},
     }
 
 

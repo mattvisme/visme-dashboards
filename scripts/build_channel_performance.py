@@ -36,7 +36,8 @@ import traceback
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from scripts.shared.ga4_client import fetch_channel_performance_data
+from scripts.shared.ga4_client import fetch_channel_performance_data, CHANNEL_PERF_START_DATE
+from scripts.shared.firstpromoter_client import fetch_affiliate_traffic_by_period
 from scripts.shared.sheets_client import (
     fetch_channel_conversions_data, CHANNEL_PERF_SHEET_ID,
     fetch_channel_conversions_monthly_data, CHANNEL_PERF_MONTHLY_SHEET_ID,
@@ -60,6 +61,21 @@ def main():
 
     print("\n[1/3] Fetching GA4 traffic by channel...")
     cp_data = fetch_channel_performance_data(property_id=property_id)
+
+    # GA4's Affiliates channel grouping depends on UTM medium tagging, which
+    # misses legacy affiliates using untagged links (they land in Referral
+    # instead) and can be inflated by bot traffic on a tagged link. Swap in
+    # FirstPromoter's own referral tracking for just this channel's traffic —
+    # everything else (Free/Paid from the Admin DB sheets) is untouched.
+    print("\n[1b/3] Overriding Affiliates channel traffic with FirstPromoter...")
+    try:
+        aff_periods = fetch_affiliate_traffic_by_period(CHANNEL_PERF_START_DATE)
+        cp_data["weeklyTraffic"]["Affiliates"] = aff_periods["weeklyTraffic"]
+        cp_data["monthlyTraffic"]["Affiliates"] = aff_periods["monthlyTraffic"]
+    except Exception:
+        print("  ⚠️  Could not fetch FirstPromoter data — Affiliates channel will keep "
+              "GA4 traffic numbers for this build. Full error:")
+        traceback.print_exc()
 
     unclassified, referral = {}, {}
     title_conversions_week, title_conversions_month = {}, {}
