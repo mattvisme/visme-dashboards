@@ -389,7 +389,7 @@ def fetch_traffic_data() -> dict:
     # don't land in GA4's "Affiliates" channel. FirstPromoter tracks referrals
     # via its own cookie/link regardless of UTM tagging, so it's ground truth.
     print("⏳  Pulling Affiliate signups by source (FirstPromoter) …")
-    aff_metrics = fetch_affiliate_source_weekly()
+    aff_metrics = fetch_affiliate_source_weekly(weeks=WEEKS)
     aff_source_weekly = aff_metrics["signups"]
     aff_conversions_weekly = aff_metrics["conversions"]
     aff_revenue_weekly = aff_metrics["revenue"]
