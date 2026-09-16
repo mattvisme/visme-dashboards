@@ -146,12 +146,20 @@ def fetch_affiliate_source_weekly(weeks: int = WEEKS_HISTORY) -> dict:
 
 def fetch_affiliate_traffic_by_period(start_date: date) -> dict:
     """
-    Fetch affiliate signups by source, bucketed by both complete Mon-Sun week
-    and complete calendar month, from start_date through the last complete
-    period. Period keys match fetch_channel_performance_data()'s format
-    (week: Monday ISO date; month: "YYYY-MM") so callers can drop this
-    straight into CP.weeklyTraffic["Affiliates"] / CP.monthlyTraffic["Affiliates"]
-    in place of GA4's channel-grouped sessions.
+    Fetch affiliate signups by promoter (the actual affiliate/partner), bucketed
+    by both complete Mon-Sun week and complete calendar month, from start_date
+    through the last complete period. Period keys match
+    fetch_channel_performance_data()'s format (week: Monday ISO date; month:
+    "YYYY-MM") so callers can drop this straight into
+    CP.weeklyTraffic["Affiliates"] / CP.monthlyTraffic["Affiliates"] in place
+    of GA4's channel-grouped sessions.
+
+    Grouped by promoter identity (name), not traffic_source — traffic_source
+    is just the visitor's last referrer before clicking the affiliate link
+    (e.g. "google.com", "direct"), not the affiliate's own identity. This
+    matches what GA4's Affiliates channel originally showed for tagged
+    affiliates: one row per partner (there, "affiliate_<username>"; here,
+    the promoter's name), now covering untagged legacy affiliates too.
     """
     today = date.today()
     this_monday = today - timedelta(days=today.weekday())
@@ -164,7 +172,8 @@ def fetch_affiliate_traffic_by_period(start_date: date) -> dict:
     weekly: dict = defaultdict(lambda: defaultdict(int))
     monthly: dict = defaultdict(lambda: defaultdict(int))
     for r in referrals:
-        source = r.get("traffic_source") or "direct"
+        promoter = r.get("promoter_campaign", {}).get("promoter") or {}
+        source = promoter.get("name") or promoter.get("email") or "Unknown"
         created = datetime.strptime(r["created_at"], "%Y-%m-%dT%H:%M:%SZ")
         cd = created.date()
 
