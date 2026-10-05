@@ -15,6 +15,7 @@ Self-contained marketing analytics dashboards served via GitHub Pages. Each dash
 | Amplitude PLG Metrics | `/amplitude/` | Amplitude (Google Sheets) |
 | GSC SEO Performance | `/gsc/` | Google Search Console API |
 | Paid Media | `/paid-media/` | Google Ads (Google Sheets) + Amplitude |
+| Performance Marketing (LinkedIn Ads) | `/performance/` | HubSpot CRM API + Fibbler MCP (`https://app.fibbler.co/mcp`) |
 | Marketing Channel Performance | `/channel-performance/` | GA4 (Traffic) + "Weekly Conversion & Signups channels" Google Sheet (Free/Paid, joined by a title classifier) |
 
 ## How It Works
@@ -49,6 +50,8 @@ Go to **Settings → Secrets and variables → Actions** and add:
 | `AMPLITUDE_SHEET_ID` | Amplitude Google Sheet ID: `11E6j63Jq56o-G_EqwQ0ZCSH5ssTMLAAII4bbeK8p6zw` |
 | `PPC_SHEET_ID` | PPC Google Sheet ID: `11YiWr1aHhwBto9JrgwnSGJLtyq1KEfJvs5ZRbkoWKho` |
 | `GSC_SHEET_ID` | ID of the Google Sheet populated by the GSC Apps Script exporter |
+| `FIBBLER_API_KEY` | Fibbler MCP API key (bearer token) — used by `build_performance.py` for spend, influenced deals and company engagement |
+| `HUBSPOT_ACCESS_TOKEN` | HubSpot Private App token. For Performance Marketing it needs contacts, deals, meetings and owners read scopes |
 | `SLACK_WEBHOOK_URL` | Slack Incoming Webhook URL used by the anomaly-check workflows to post alerts |
 
 The service account must have:

@@ -87,6 +87,7 @@ jobs:
       - name: Build Performance Marketing dashboard
         env:
           HUBSPOT_ACCESS_TOKEN: ${{ secrets.HUBSPOT_ACCESS_TOKEN }}
+          FIBBLER_API_KEY: ${{ secrets.FIBBLER_API_KEY }}
         run: python scripts/build_performance.py
 
       - name: Build GSC SEO dashboard

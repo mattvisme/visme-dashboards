@@ -1,747 +1,465 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <script src="/auth.js"></script>
-<link rel="icon" type="image/png" href="https://www.visme.co/favicon-32x32.png"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="icon" type="image/png" href="https://www.visme.co/favicon-32x32.png">
 <title>Performance Marketing — Visme Marketing</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#F8FAFB;--surface:#FFFFFF;--surface2:#EFF6FC;--sidebar:#1E2A35;
-  --sidebar-accent:#273542;--text:#293745;--text-muted:#7F859D;--text-dim:#A8B2C0;
-  --accent:#FF7A59;--accent-pale:#FFF2EE;
-  --border:#BBD0E5;--border-light:#E7EFF3;--sidebar-w:232px;--topbar-h:72px;
-  --radius:10px;--radius-sm:6px;
-  --shadow:0 1px 3px rgba(41,55,69,.07),0 4px 16px rgba(41,55,69,.05);
-  --shadow-md:0 4px 12px rgba(41,55,69,.1),0 12px 40px rgba(41,55,69,.07);
-  --font-ui:'Lato',sans-serif;--font-display:'Montserrat',sans-serif;
+  --paper:#F6F7F5; --surface:#FFFFFF; --ink:#18212C; --slate:#5B6572; --faint:#8A939E;
+  --rule:#DCE0E3; --blue:#2A579E; --blue-soft:#DCE5F3; --won:#2B7A57; --won-soft:#DDEFE6;
+  --lost:#A9524A; --lost-soft:#F4E1DE; --warn:#8A6A1F; --warn-soft:#F5ECD6;
+  --s1:#2A579E; --s2:#5E86C4; --s3:#9DB6DD; --s4:#C9D6EA; --s5:#B8BFC7; --s6:#8A939E; --s7:#E3E6E9;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
-html{font-size:15px;-webkit-font-smoothing:antialiased}
-body{font-family:var(--font-ui);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
-#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--sidebar);display:flex;flex-direction:column;z-index:100;overflow-y:auto;scrollbar-width:none;}
-#sidebar::-webkit-scrollbar{display:none}
-.sidebar-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;}
-.sidebar-logo-mark{display:flex;align-items:center;gap:9px;}
-.logo-text{font-family:var(--font-display);font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;}
-.logo-sub{font-size:9.5px;color:rgba(255,255,255,.3);margin-top:1px;letter-spacing:.4px;text-transform:uppercase;font-weight:400;}
-.source-group{margin-top:6px;}
-.source-header{display:flex;align-items:center;gap:7px;padding:8px 14px 4px;cursor:pointer;user-select:none;}
-.source-header:hover .source-label{color:rgba(255,255,255,.7)}
-.source-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.source-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;flex:1;transition:color .15s;}
-.source-toggle{width:10px;height:10px;color:rgba(255,255,255,.2);transition:transform .2s ease;flex-shrink:0;}
-.source-group.collapsed .source-toggle{transform:rotate(-90deg)}
-.source-group.collapsed .source-nav{display:none}
-.source-nav{list-style:none;padding:0 8px 4px;}
-.source-nav li a{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:400;color:rgba(255,255,255,.5);transition:all .12s ease;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.source-nav li a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);}
-.source-nav li a.active{background:rgba(255,122,89,.14);color:#FF7A59;font-weight:600;}
-.nav-icon{width:14px;height:14px;opacity:.65;flex-shrink:0;}
-.source-nav li a.active .nav-icon{opacity:1}
-.source-divider{height:1px;background:rgba(255,255,255,.06);margin:6px 14px;}
-.sidebar-footer{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.18);line-height:1.6;}
-.back-link{display:flex;align-items:center;gap:5px;padding:7px 10px;border-radius:6px;text-decoration:none;font-size:11.5px;color:rgba(255,255,255,.35);transition:all .12s;margin:8px 8px 0;}
-.back-link:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.65);}
-#main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
-#topbar{position:sticky;top:0;z-index:50;height:var(--topbar-h);background:rgba(248,250,251,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 32px;gap:20px;}
-.topbar-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.4px;flex-shrink:0;margin-right:auto;}
-.topbar-title span{color:var(--accent)}
-.range-control{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.range-label{font-size:11.5px;color:var(--text-muted);font-weight:500;white-space:nowrap;}
-.range-pills{display:flex;gap:3px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px;}
-.pill{padding:4px 13px;border-radius:16px;font-size:11.5px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .15s ease;white-space:nowrap;user-select:none;}
-.pill.active{background:var(--accent);color:#fff;font-weight:600;}
-.pill:not(.active):hover{background:rgba(0,0,0,.04);color:var(--text);}
-.as-of-badge{font-size:11.5px;font-weight:500;color:var(--text-muted);background:var(--surface2);border:1px solid var(--border);padding:5px 12px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
-#content{padding:32px;display:flex;flex-direction:column;gap:32px;max-width:1400px;width:100%;}
-.section{display:flex;flex-direction:column;gap:16px;animation:fadeUp .4s ease both;scroll-margin-top:var(--topbar-h);}
-.section:nth-child(1){animation-delay:.05s}.section:nth-child(2){animation-delay:.1s}.section:nth-child(3){animation-delay:.15s}.section:nth-child(4){animation-delay:.2s}
-.section-header{display:flex;align-items:baseline;gap:12px;}
-.section-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.3px;}
-.section-subtitle{font-size:12px;color:var(--text-dim);font-weight:400;}
-.section-divider{height:1px;background:var(--border-light);margin-bottom:2px;}
-.fixed-window-note{font-size:11.5px;color:var(--text-dim);font-style:italic;margin:-8px 0 2px;padding-left:2px;}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:box-shadow .2s ease;}
-.card:hover{box-shadow:var(--shadow-md)}
-.card-title{font-size:12px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;margin-bottom:16px;}
-.cards-row{display:grid;gap:16px;}
-.cards-2{grid-template-columns:1fr 1fr}
-@media(max-width:900px){.cards-2{grid-template-columns:1fr}}
-.kpi-row{display:grid;gap:12px;}
-.kpi-2{grid-template-columns:1fr 1fr}
-.kpi-4{grid-template-columns:repeat(4,1fr)}
-@media(max-width:1000px){.kpi-4{grid-template-columns:repeat(2,1fr)}}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 18px;box-shadow:var(--shadow);}
-.kpi-label{font-size:11px;font-weight:600;color:var(--text-dim);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
-.kpi-value{font-size:26px;font-weight:700;color:var(--text);line-height:1;letter-spacing:-1px;}
-.kpi-delta{font-size:11.5px;font-weight:500;margin-top:5px;display:flex;align-items:center;gap:4px;}
-.delta-up{color:#3CACD7}.delta-down{color:#F45F50}.delta-neu{color:var(--text-dim)}.delta-first{color:var(--text-dim);font-style:italic}
-.chart-wrap{position:relative;height:260px;}
-.chart-wrap-sm{position:relative;height:180px;}
-.chart-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
-.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);}
-.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.tbl-wrap{overflow-x:visible}
-@media(max-width:900px){.tbl-wrap{overflow-x:auto}}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-thead th{font-size:11px;font-weight:600;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;padding:10px 14px;background:var(--surface2);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;position:sticky;top:var(--sticky-offset,var(--topbar-h));z-index:2;}
-tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s;}
-tbody tr:last-child{border-bottom:none}tbody tr:hover{background:var(--surface2)}
-tbody td{padding:10px 14px;color:var(--text);vertical-align:middle;}
-.num-cell{text-align:right;font-variant-numeric:tabular-nums}
-.callout{background:#F5F9FF;border:1px solid #BBD0E5;border-left:4px solid #3CACD7;border-radius:var(--radius-sm);padding:14px 18px;font-size:13px;color:var(--text-muted);line-height:1.6;}
-.error-card{background:#FFF5F5;border:1px solid #FFBBBB;border-radius:var(--radius);padding:20px 24px;color:#C0392B;font-size:13px;}
-#loading{position:fixed;inset:0;background:var(--sidebar);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;opacity:1;transition:opacity .5s ease;}
-#loading.hide{opacity:0;pointer-events:none}
-.loading-logo{font-family:var(--font-display);font-size:28px;font-weight:700;color:#fff;margin-bottom:24px;letter-spacing:-.5px;}
-.loading-logo span{color:var(--accent)}
-.loading-bar-track{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;}
-.loading-bar-fill{height:100%;background:var(--accent);border-radius:2px;animation:loadbar 1.2s ease-in-out forwards;}
-@keyframes loadbar{from{width:0}to{width:100%}}
-.loading-text{margin-top:14px;font-size:12px;color:rgba(255,255,255,.3);letter-spacing:.5px;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-/* ── Campaign cards ───────────────────────────────────────────────────────── */
-.campaign-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
-.campaign-card{display:flex;flex-direction:column;gap:14px;}
-.campaign-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
-.campaign-name{font-size:13px;font-weight:600;color:var(--text);line-height:1.4;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
-.format-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap;flex-shrink:0;letter-spacing:.2px;}
-.badge-doc{background:#EFF6FC;color:#3CACD7;}
-.badge-img{background:#EFF9F3;color:#27AE60;}
-.badge-spot{background:#F4EEFF;color:#9062F0;}
-.badge-vid{background:#FFF5EB;color:#E07B20;}
-.badge-other{background:var(--surface2);color:var(--text-muted);}
-.campaign-funnel{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;}
-.funnel-step{display:flex;flex-direction:column;align-items:center;min-width:64px;}
-.funnel-value{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.5px;line-height:1;}
-.funnel-label{font-size:10px;color:var(--text-muted);margin-top:3px;text-transform:uppercase;letter-spacing:.3px;font-weight:600;}
-.funnel-rate{font-size:11px;color:var(--text-dim);margin-top:2px;}
-.funnel-arrow{font-size:14px;color:var(--border);flex-shrink:0;margin-top:3px;}
-.funnel-awareness{font-size:11px;color:var(--text-dim);font-style:italic;padding:4px 0;align-self:center;}
-.campaign-stats{display:flex;gap:24px;padding-top:12px;border-top:1px solid var(--border-light);}
-.campaign-stat-value{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.5px;}
-.campaign-stat-label{font-size:10px;color:var(--text-muted);margin-top:2px;text-transform:uppercase;letter-spacing:.3px;font-weight:600;}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11161C; --surface:#182029; --ink:#E7EBEF; --slate:#A7B0BA; --faint:#7C8793;
+    --rule:#2A3440; --blue:#7FA6E6; --blue-soft:#1F3150; --won:#6CC49A; --won-soft:#173A2B;
+    --lost:#E08A80; --lost-soft:#43231F; --warn:#E3C06A; --warn-soft:#3A3018;
+    --s1:#7FA6E6; --s2:#5A82C2; --s3:#3F5F93; --s4:#2C4468; --s5:#56606B; --s6:#7C8793; --s7:#2A3440;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11161C; --surface:#182029; --ink:#E7EBEF; --slate:#A7B0BA; --faint:#7C8793;
+  --rule:#2A3440; --blue:#7FA6E6; --blue-soft:#1F3150; --won:#6CC49A; --won-soft:#173A2B;
+  --lost:#E08A80; --lost-soft:#43231F; --warn:#E3C06A; --warn-soft:#3A3018;
+  --s1:#7FA6E6; --s2:#5A82C2; --s3:#3F5F93; --s4:#2C4468; --s5:#56606B; --s6:#7C8793; --s7:#2A3440;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 24px 56px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:28px}
+h1{font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;margin:0}
+.sub{color:var(--slate);margin-top:6px;font-size:14px}
+.actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.stamp{color:var(--faint);font-size:13px}
+button{font:inherit;font-weight:600;font-size:14px;color:var(--surface);background:var(--ink);border:0;
+  padding:9px 16px;border-radius:6px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule)}
+.flash{font-size:13px;color:var(--slate)}
+.wrap.printing{width:1100px;max-width:none}
+.wrap.printing .actions button{display:none}
+button:focus-visible,a:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Funnel chain */
+.chain{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.step{padding:22px 22px 20px;position:relative;min-width:0}
+.step+.step{border-left:1px solid var(--rule)}
+.step+.step::before{content:"";position:absolute;left:-7px;top:34px;width:12px;height:12px;background:var(--surface);
+  border-top:1px solid var(--rule);border-right:1px solid var(--rule);transform:rotate(45deg)}
+.step h2{font-size:14px;font-weight:600;color:var(--slate);margin:0 0 10px}
+.big{font-size:44px;line-height:1;font-weight:800;letter-spacing:-0.03em}
+.step.won .big{color:var(--won)}
+.step .note{font-size:13px;color:var(--slate);margin-top:10px}
+.step .src{font-size:12px;color:var(--faint);margin-top:4px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:20px 22px;min-width:0}
+.panel.full{grid-column:1/-1}
+.panel h3{font-size:17px;font-weight:700;margin:0;letter-spacing:-0.01em}
+.panel .hint{font-size:13px;color:var(--slate);margin:4px 0 16px}
+.state{font-size:14px;color:var(--slate);padding:18px 0}
+.state.err{color:var(--lost)}
+.state.err b{color:var(--ink)}
+
+/* month bars */
+.months{display:flex;align-items:flex-end;gap:14px;height:180px;padding-top:12px}
+.mcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0}
+.mbar{width:100%;max-width:64px;background:var(--blue);border-radius:4px 4px 0 0;min-height:2px}
+.mbar.partial{background:repeating-linear-gradient(135deg,var(--blue) 0 6px,var(--s2) 6px 12px)}
+.mval{font-weight:700;font-size:15px;margin-bottom:6px}
+.mlab{font-size:13px;color:var(--slate);margin-top:8px;text-align:center}
+
+/* horizontal bars */
+.hbars{display:flex;flex-direction:column;gap:10px}
+.hrow{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:10px;align-items:center}
+.hlab{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px}
+.htrack{height:8px;background:var(--s7);border-radius:4px;overflow:hidden}
+.hfill{height:100%;background:var(--blue);border-radius:4px}
+.hnum{font-weight:700;text-align:right;font-size:14px}
+
+/* status stack */
+.stack{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--s7)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:13px;color:var(--slate)}
+.legend span b{color:var(--ink);font-weight:700;margin-left:4px}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* tables */
+.tscroll{overflow-x:auto;margin:0 -4px}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:560px}
+th{font-size:12px;font-weight:600;color:var(--faint);text-align:left;padding:8px 4px;border-bottom:1px solid var(--rule)}
+td{padding:10px 4px;border-bottom:1px solid var(--rule);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.won{background:var(--won-soft);color:var(--won)}
+.pill.open{background:var(--blue-soft);color:var(--blue)}
+.pill.lost{background:var(--lost-soft);color:var(--lost)}
+.pill.sched{background:var(--warn-soft);color:var(--warn)}
+.muted{color:var(--slate);font-size:13px}
+.totals{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:14px;font-size:13px;color:var(--slate)}
+.totals b{display:block;font-size:20px;color:var(--ink);font-weight:800;letter-spacing:-0.02em}
+
+.spend{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:14px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.spend div{padding:14px 22px}
+.spend div+div{border-left:1px solid var(--rule)}
+.spend span{display:block;font-size:13px;color:var(--slate)}
+.spend b{display:block;font-size:24px;font-weight:800;letter-spacing:-0.02em;margin-top:2px}
+.spend small{display:block;font-size:12px;color:var(--faint);margin-top:2px}
+.mbar.spendbar{background:var(--s2)}
+.mbar.spendbar.partial{background:repeating-linear-gradient(135deg,var(--s2) 0 6px,var(--s3) 6px 12px)}
+td .zero{color:var(--faint)}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--s7);color:var(--slate);margin-top:4px;white-space:nowrap}
+.tag.cust{background:var(--warn-soft);color:var(--warn)}
+.tag.later{background:var(--blue-soft);color:var(--blue)}
+.spark{display:block;margin-top:6px}
+.fun{display:flex;flex-direction:column;gap:12px}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:end}
+.flab{font-size:14px;font-weight:600}
+.fnum{font-size:14px;text-align:right;white-space:nowrap}
+.fnum b{font-weight:800;font-size:16px}
+.fnum span{color:var(--faint);font-size:12px;margin-left:6px}
+.ftrack{grid-column:1/-1;height:12px;background:var(--s7);border-radius:6px;overflow:hidden}
+.ffill{height:100%;border-radius:6px;background:var(--blue);min-width:2px}
+.fsub{grid-column:1/-1;font-size:12px;color:var(--slate)}
+.fz{display:flex;flex-direction:column;gap:6px}
+.fzrow{display:grid;grid-template-columns:220px minmax(0,1fr) 150px 210px;gap:18px;align-items:center}
+.fztgt{font-size:12px;color:var(--slate);display:flex;flex-direction:column;gap:5px}
+.fztgt div{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.fztgt .pill{font-size:11px;padding:1px 7px}
+@media (max-width:1000px){.fzrow{grid-template-columns:200px minmax(0,1fr) 130px}.fztgt{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;gap:6px 18px}}
+.fzlab b{display:block;font-size:16px;font-weight:800;letter-spacing:-0.01em}
+.fzlab span{display:block;font-size:12px;color:var(--slate)}
+.fzbar{height:64px;display:flex;justify-content:center;align-items:stretch}
+.fzbar div{height:100%;border-radius:8px;display:flex;align-items:center;justify-content:center;min-width:64px;color:#fff;font-size:24px;font-weight:800;letter-spacing:-0.02em;box-shadow:inset 0 -3px 0 rgba(0,0,0,.12)}
+.fzbar div.lt{color:var(--ink)}
+.fznum{white-space:nowrap}
+.fznum b{display:block;font-size:22px;font-weight:800;letter-spacing:-0.02em;line-height:1.1}
+.fznum span{display:block;font-size:12px;color:var(--slate)}
+.fznames{grid-column:1/-1;font-size:13px;color:var(--ink);margin:2px 0 8px 238px;padding:8px 12px;background:var(--paper);border-left:3px solid var(--rule);border-radius:0 6px 6px 0}
+.fznames .more{display:block;font-size:12px;color:var(--faint);margin-top:3px}
+.fznames i{font-style:normal;font-weight:700;color:var(--slate);margin-right:6px}
+@media (max-width:700px){.fzrow{grid-template-columns:1fr auto;gap:6px 12px}.fzbar{grid-column:1/-1;grid-row:2;height:48px}.fzbar div{font-size:18px;min-width:44px}.fznames{margin-left:0}}
+.srows{display:flex;flex-direction:column;gap:10px;max-width:900px}
+.srow{display:grid;grid-template-columns:180px minmax(0,1fr) 90px;gap:14px;align-items:center}
+.slab{font-size:14px;font-weight:600}
+.strack{height:12px;background:var(--s7);border-radius:6px;overflow:hidden}
+.sfill{height:100%;border-radius:6px;min-width:2px}
+.snum{text-align:right;white-space:nowrap;font-size:14px}
+.snum b{font-weight:800;font-size:16px}
+.snum span{color:var(--faint);font-size:12px;margin-left:6px}
+@media (max-width:520px){.srow{grid-template-columns:120px minmax(0,1fr) 70px;gap:8px}}
+.lf{display:flex;flex-direction:column;align-items:center;gap:5px;max-width:820px;margin:0 auto}
+.lfs{position:relative;height:52px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:600;
+  clip-path:polygon(0 0,100% 0,calc(100% - 18px) 100%,18px 100%);min-width:240px;white-space:nowrap;text-align:center;padding:0 18px}
+.lfs b{font-size:17px;font-weight:800;margin-right:8px}
+.lfs span{opacity:.85;font-weight:500;margin-left:6px}
+.lfx{display:flex;flex-wrap:wrap;gap:10px 24px;justify-content:center;margin-top:16px;padding-top:12px;border-top:1px dashed var(--rule);font-size:13px;color:var(--slate)}
+.lfx b{color:var(--ink);font-weight:700;margin-left:4px}
+.lfx .t{width:100%;font-size:12px;color:var(--faint)}
+.fsplit{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:4px;border-top:1px dashed var(--rule)}
+td.acct b{font-weight:700}
+.ppl+.ppl{margin-top:8px}
+td.title{max-width:260px;color:var(--slate);font-size:13px}
+td .who{font-weight:600}
+td .more{display:block;font-size:12px;color:var(--faint)}
+@media (max-width:900px){.spend{grid-template-columns:1fr 1fr}.spend div:nth-child(3){border-left:0}.spend div:nth-child(n+3){border-top:1px solid var(--rule)}}
+@media (max-width:520px){.spend{grid-template-columns:1fr}.spend div+div{border-left:0;border-top:1px solid var(--rule)}}
+footer{margin-top:28px;color:var(--slate);font-size:13px;max-width:78ch}
+footer p{margin:0 0 8px}
+
+@media (max-width:900px){
+  .chain{grid-template-columns:1fr 1fr}
+  .step:nth-child(3){border-left:0;border-top:1px solid var(--rule)}
+  .step:nth-child(4){border-top:1px solid var(--rule)}
+  .step:nth-child(3)::before{display:none}
+  .grid{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .wrap{padding:22px 16px 40px}
+  .chain{grid-template-columns:1fr}
+  .step+.step{border-left:0;border-top:1px solid var(--rule)}
+  .step+.step::before{display:none}
+  .big{font-size:38px}
+}
 </style>
 </head>
 <body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>LinkedIn Ads, June 1 to today</h1>
+      <div class="sub">Lead gen form leads and meetings from HubSpot. Spend, influenced pipeline and closed won from Fibbler.</div>
+    </div>
+    <div class="actions">
+      <a href="../index.html">All dashboards</a>
+      <span class="stamp" id="stamp">Not loaded yet</span>
+    </div>
+  </header>
 
-<div id="loading">
-  <div class="loading-logo">Visme <span>Performance</span></div>
-  <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
-  <div class="loading-text">Loading performance data…</div>
+  <section class="chain" aria-label="Funnel summary">
+    <div class="step"><h2>Lead gen form leads</h2><div class="big" id="k-leads">&nbsp;</div><div class="note" id="k-leads-n"></div><div class="src">HubSpot</div></div>
+    <div class="step"><h2>Meetings booked</h2><div class="big" id="k-mtg">&nbsp;</div><div class="note" id="k-mtg-n"></div><div class="src">HubSpot</div></div>
+    <div class="step"><h2>Influenced pipeline</h2><div class="big" id="k-pipe">&nbsp;</div><div class="note" id="k-pipe-n"></div><div class="src">Fibbler</div></div>
+    <div class="step won"><h2>Influenced closed won</h2><div class="big" id="k-won">&nbsp;</div><div class="note" id="k-won-n"></div><div class="src">Fibbler</div></div>
+  </section>
+
+  <section class="spend" aria-label="Spend and efficiency">
+    <div><span>LinkedIn spend</span><b id="s-total">&nbsp;</b><small id="s-total-n">Fibbler</small></div>
+    <div><span>Cost per meeting</span><b id="s-mtg">&nbsp;</b><small>Spend divided by meetings booked</small></div>
+    <div><span>Cost per influenced deal</span><b id="s-deal">&nbsp;</b><small>Spend divided by deals, open, won and lost</small></div>
+    <div><span>Open pipeline per $1 spent</span><b id="s-roi">&nbsp;</b><small>Open influenced pipeline divided by spend</small></div>
+  </section>
+
+  <div class="grid">
+    <section class="panel">
+      <h3>Leads by month</h3>
+      <p class="hint">Contacts created from a LinkedIn lead gen form. The current month is striped because it is still in progress.</p>
+      <div id="p-months"><div class="state">No data</div></div>
+    </section>
+    <section class="panel">
+      <h3>Spend by 30-day period</h3>
+      <p class="hint">LinkedIn spend across every campaign in rolling 30-day periods ending today, from the same daily data as Fibbler's headline spend. Fibbler's calendar-month totals run behind for the most recent month, so they are not used here.</p>
+      <div id="p-spend"><div class="state">No data</div></div>
+    </section>
+    <section class="panel full">
+      <h3>Leads by form</h3>
+      <p class="hint">The lead gen form each lead first submitted.</p>
+      <div id="p-forms"><div class="state">No data</div></div>
+    </section>
+    <section class="panel full">
+      <h3>Where the leads are now</h3>
+      <p class="hint">Companies behind the lead gen form leads since June 1, by the furthest step any of their people reached.</p>
+      <div id="p-status"><div class="state">No data</div></div>
+    </section>
+    <section class="panel full">
+      <h3>Influenced deals</h3>
+      <p class="hint">Deals Fibbler matched to companies that saw LinkedIn ads before the deal was created or closed.</p>
+      <div id="p-deals"><div class="state">No data</div></div>
+    </section>
+    <section class="panel full">
+      <h3>Dark funnel: demo requests from LinkedIn-engaged accounts</h3>
+      <p class="hint">Demo requests since June 1 from companies that engaged with our LinkedIn ads, where no one at the company had come in through a LinkedIn lead gen form or LinkedIn click first. An account only counts if it saw or engaged with our LinkedIn ads in a full month before the month of its demo request. Bars show monthly engagement; the blue bar is the request month, which is not counted.</p>
+      <div id="p-dark"><div class="state">No data</div></div>
+    </section>
+    <section class="panel full">
+      <h3>Meetings with lead gen form leads</h3>
+      <p class="hint">HubSpot meetings created since June 1 that include at least one of these leads. Participants lists every contact on the meeting; the LinkedIn lead tag marks lead gen form leads. Visme team is the meeting owner and any internal attendees.</p>
+      <div id="p-mtgs"><div class="state">No data</div></div>
+    </section>
+  </div>
+
+  <footer>
+    <p><b>Leads</b> are HubSpot contacts created on or after June 1 with LinkedIn paid social as the original source and a LinkedIn lead gen form as a conversion. Internal Visme test submissions are left out. For CPL, use Campaign Manager lead counts rather than these.</p>
+    <p><b>Dark funnel</b> accounts match a demo requester's email domain to the website on the LinkedIn company page Fibbler saw engaging. Domains shared by several LinkedIn pages (league sites like nhl.com, careers sites) are skipped so a match is never ambiguous. Demo requests are the Main Sales Form, Support to Sales form and ABM landing page forms, dated from HubSpot's first or most recent conversion on the contact, so a demo request sandwiched between other form fills is not picked up. Any contact at the account whose first or most recent conversion was a LinkedIn lead gen form before the request removes the account. Engagement is company level, so it shows the account was paying attention, not that the requester personally saw an ad.</p>
+    <p><b>Spend</b> comes from Fibbler's sync of LinkedIn billing. Budget caps and pacing live in Campaign Manager.</p>
+    <p><b>Pipeline and closed won</b> use Fibbler's company-level influence model: a deal counts if anyone at the buying company saw a LinkedIn ad in the 12 months before it was created (pipeline) or closed (won). Fibbler's pipeline figure includes open and closed lost deals. These deals are not limited to the leads above, and expansion deals are included.</p>
+  </footer>
 </div>
 
-<nav id="sidebar">
-  <div class="sidebar-logo">
-    <a href="https://visme-dashboards.vercel.app/" style="text-decoration:none;display:block">
-      <div class="sidebar-logo-mark">
-        <img src="https://www.visme.co/favicon-32x32.png" alt="Visme" style="width:28px;height:28px;border-radius:7px;display:block;flex-shrink:0;">
-        <div>
-          <div class="logo-text">Visme</div>
-          <div class="logo-sub">Marketing Analytics</div>
-        </div>
-      </div>
-    </a>
-  </div>
-
-  <div class="source-group" id="grp-perf">
-    <div class="source-header" onclick="toggleGroup('grp-perf')">
-      <div class="source-dot" style="background:#FF7A59"></div>
-      <span class="source-label">Performance</span>
-      <svg class="source-toggle" viewBox="0 0 10 10" fill="none"><polyline points="2,3 5,7 8,3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </div>
-    <ul class="source-nav">
-      <li><a href="#section-leads" class="active">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M2 13.5c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
-        New Leads WoW
-      </a></li>
-      <li><a href="#section-journey">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M1 3h14l-4 5v5l-6-2V8z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-        Lead Journey
-      </a></li>
-      <li><a href="#section-quality-trend">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><polyline points="1,12 4,7 7,10 11,4 15,6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-        Lead Quality Trend
-      </a></li>
-      <li><a href="#section-notable">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="5" cy="6" r="2.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M1 14c0-2.2 1.8-4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/><path d="M9 5h6M9 8h4M9 11h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        Notable Leads
-      </a></li>
-      <li><a href="#section-campaigns">
-        <svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 12V4l5 2 2-4 2 4 3-2v8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="2" y1="12" x2="14" y2="12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        Campaign Performance
-      </a></li>
-    </ul>
-  </div>
-
-  <div class="source-divider"></div>
-
-  <div style="padding:4px 8px;">
-    <a href="../index.html" class="back-link">
-      <svg style="width:12px;height:12px;opacity:.5" viewBox="0 0 16 16" fill="none"><path d="M2 8L8 2L14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      All Dashboards
-    </a>
-  </div>
-
-  <div class="sidebar-footer">
-    HubSpot CRM · Fibbler LinkedIn<br/>
-    Campaign snapshot updated weekly
-  </div>
-</nav>
-
-<div id="main">
-  <div id="topbar">
-    <div class="topbar-title">Performance <span>Marketing</span></div>
-    <div class="range-control">
-      <span class="range-label">Compare</span>
-      <div class="range-pills" id="wowPills">
-        <span class="pill active" data-window="current_vs_last">This wk vs last</span>
-        <span class="pill" data-window="last_vs_prev">Last wk vs prev</span>
-      </div>
-    </div>
-    <div class="as-of-badge" id="asOfBadge">Data as of —</div>
-  </div>
-
-  <div id="content">
-
-    <!-- ── SECTION 1: NEW LEADS WoW ──────────────────────────────────────── -->
-    <div class="section" id="section-leads">
-      <div class="section-header">
-        <h2 class="section-title">New Leads — Week over Week</h2>
-        <span class="section-subtitle" id="leads-section-subtitle">Contacts from forms or paid channels</span>
-      </div>
-      <div class="section-divider"></div>
-      <div class="cards-row cards-2">
-        <div class="card">
-          <div class="card-title">New Leads</div>
-          <div class="kpi-row kpi-2">
-            <div class="kpi">
-              <div class="kpi-label" id="label-leads-selected">This Week</div>
-              <div class="kpi-value" id="leads-this">—</div>
-              <div class="kpi-delta" id="leads-delta"></div>
-            </div>
-            <div class="kpi">
-              <div class="kpi-label" id="label-leads-comparison">Last Week</div>
-              <div class="kpi-value" id="leads-last">—</div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title" id="daily-vol-title">Daily Volume</div>
-          <div class="chart-wrap-sm"><canvas id="chartLeadsSparkline"></canvas></div>
-          <div class="chart-legend" id="daily-vol-legend"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── SECTION 2: LEAD JOURNEY ────────────────────────────────────────── -->
-    <div class="section" id="section-journey">
-      <div class="section-header">
-        <h2 class="section-title">Lead Journey</h2>
-        <span class="section-subtitle" id="journeyScopeNote">Paid + form leads · last 28 days</span>
-      </div>
-      <div class="section-divider"></div>
-      <div class="card">
-        <div class="card-title">Lead Stage Breakdown</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>Stage</th>
-              <th class="num-cell">Count</th>
-              <th class="num-cell">% of Total</th>
-            </tr></thead>
-            <tbody id="tbodyJourney"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── SECTION 3: LEAD QUALITY SCORE TREND ───────────────────────────── -->
-    <div class="section" id="section-quality-trend">
-      <div class="section-header">
-        <h2 class="section-title">Lead Quality Score Trend</h2>
-        <span class="section-subtitle">Average HubSpot lead score per week · last 8 complete weeks</span>
-      </div>
-      <div class="section-divider"></div>
-      <div class="card">
-        <div class="card-title">Avg Lead Score by Week of Creation</div>
-        <div id="qualityStartNote" style="font-size:11px;color:#7F859D;margin:-4px 0 10px;font-style:italic;"></div>
-        <div class="chart-wrap"><canvas id="chartQualityTrend"></canvas></div>
-      </div>
-    </div>
-
-    <!-- ── SECTION 4: NOTABLE LEADS ──────────────────────────────────────── -->
-    <div class="section" id="section-notable">
-      <div class="section-header">
-        <h2 class="section-title">Notable Leads</h2>
-        <span class="section-subtitle" id="notableSubtitle">Top scored leads · This week</span>
-      </div>
-      <div class="section-divider"></div>
-      <div class="card">
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>Company</th>
-              <th>Title</th>
-              <th class="num-cell">Score</th>
-            </tr></thead>
-            <tbody id="tbodyNotable"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── SECTION 5: CAMPAIGN PERFORMANCE ───────────────────────────────── -->
-    <div class="section" id="section-campaigns">
-      <div class="section-header">
-        <h2 class="section-title">Campaign Performance — LinkedIn</h2>
-        <span class="section-subtitle">Active campaigns · last 30 days</span>
-      </div>
-      <div class="section-divider"></div>
-      <p class="fixed-window-note">Fixed 30-day window · not affected by the comparison selector above</p>
-      <div class="campaign-grid" id="campaignGrid"></div>
-    </div>
-
-  </div><!-- /content -->
-</div><!-- /main -->
+<!-- DATA_INJECTION_POINT -->
 
 <script>
-const PERF = {"windows":{"current_vs_last":{"label":"This week vs. last week","selectedLabel":"This week","comparisonLabel":"Last week","leads":{"selected":14,"comparison":36,"wowDelta":-22,"wowPct":-61.1,"dailyVolume":[{"date":"2026-09-28","compDate":"2026-09-21","weekday":"Mon","selected":2,"comparison":10},{"date":"2026-09-29","compDate":"2026-09-22","weekday":"Tue","selected":3,"comparison":7},{"date":"2026-09-30","compDate":"2026-09-23","weekday":"Wed","selected":4,"comparison":2},{"date":"2026-10-01","compDate":"2026-09-24","weekday":"Thu","selected":3,"comparison":8},{"date":"2026-10-02","compDate":"2026-09-25","weekday":"Fri","selected":1,"comparison":5},{"date":"2026-10-03","compDate":"2026-09-26","weekday":"Sat","selected":1,"comparison":2},{"date":"2026-10-04","compDate":"2026-09-27","weekday":"Sun","selected":0,"comparison":2}]},"leadJourney":{"scopeNote":"Paid + form leads, last 7 days (14 total)","total":14,"stages":{"New":8,"Open":0,"In Progress":0,"Open Deal":0,"Unqualified":2,"LinkedIn Outreach":0,"Attempted to Contact":1,"Never Replied":0,"Connected":0,"Disqualified":0}},"leadQuality":{"weeks":["2026-08-10","2026-08-17","2026-08-24","2026-08-31","2026-09-07","2026-09-14","2026-09-21","2026-09-28"],"avgScores":[null,null,null,null,null,null,null,null]},"notableLeads":[]},"last_vs_prev":{"label":"Last week vs. two weeks ago","selectedLabel":"Last week","comparisonLabel":"Two weeks ago","leads":{"selected":36,"comparison":45,"wowDelta":-9,"wowPct":-20.0,"dailyVolume":[{"date":"2026-09-21","compDate":"2026-09-14","weekday":"Mon","selected":10,"comparison":5},{"date":"2026-09-22","compDate":"2026-09-15","weekday":"Tue","selected":7,"comparison":5},{"date":"2026-09-23","compDate":"2026-09-16","weekday":"Wed","selected":2,"comparison":9},{"date":"2026-09-24","compDate":"2026-09-17","weekday":"Thu","selected":8,"comparison":9},{"date":"2026-09-25","compDate":"2026-09-18","weekday":"Fri","selected":5,"comparison":8},{"date":"2026-09-26","compDate":"2026-09-19","weekday":"Sat","selected":2,"comparison":5},{"date":"2026-09-27","compDate":"2026-09-20","weekday":"Sun","selected":2,"comparison":4}]},"leadJourney":{"scopeNote":"Paid + form leads, last 7 days (36 total)","total":36,"stages":{"New":13,"Open":0,"In Progress":0,"Open Deal":0,"Unqualified":0,"LinkedIn Outreach":0,"Attempted to Contact":6,"Never Replied":0,"Connected":0,"Disqualified":0}},"leadQuality":{"weeks":["2026-08-03","2026-08-10","2026-08-17","2026-08-24","2026-08-31","2026-09-07","2026-09-14","2026-09-21"],"avgScores":[null,null,null,null,null,null,null,null]},"notableLeads":[]}},"campaigns":[{"channel":"LinkedIn","name":"Retargeting - Sports Presentation Examples","format":"Document Ad","impressions":96850,"clicks":42,"engagements":6305,"ctr":0.04,"engagementRate":6.51,"spend":4819,"influencedDeals":1},{"channel":"LinkedIn","name":"Document Ads - Sponsorships/Partnership Skills","format":"Document Ad","impressions":134182,"clicks":19,"engagements":7286,"ctr":0.01,"engagementRate":5.43,"spend":4816,"influencedDeals":3},{"channel":"LinkedIn","name":"Retargeting 2 - LAFC Webinar","format":"Image Ad","impressions":21411,"clicks":3,"engagements":41,"ctr":0.01,"engagementRate":0.19,"spend":2165,"influencedDeals":1},{"channel":"LinkedIn","name":"Document Ad - Sales Enablement","format":"Document Ad","impressions":12237,"clicks":0,"engagements":793,"ctr":0.0,"engagementRate":6.48,"spend":2157,"influencedDeals":0},{"channel":"LinkedIn","name":"Retargeting 2 - Demo Request","format":"Image Ad","impressions":7381,"clicks":0,"engagements":3,"ctr":0.0,"engagementRate":0.04,"spend":582,"influencedDeals":0},{"channel":"LinkedIn","name":"TOFU - Insurance Content Playbook","format":"Document Ad","impressions":6380,"clicks":0,"engagements":791,"ctr":0.0,"engagementRate":12.4,"spend":235,"influencedDeals":0}],"lastUpdated":"2026-10-05"};
-</script>
-
-<script>
-// ── SAFETY CHECK ──────────────────────────────────────────────────────────────
-if (typeof PERF === 'undefined') {
-  document.getElementById('loading').classList.add('hide');
-  document.getElementById('content').innerHTML =
-    '<div class="error-card">⚠️ Dashboard data is missing. Run <code>python scripts/build_performance.py</code> to inject data.</div>';
-  throw new Error('PERF data not injected');
-}
-
-// ── PALETTE & CHART DEFAULTS ──────────────────────────────────────────────────
-const PALETTE = [
-  '#FF7A59','#3CACD7','#6CC395','#9062F0','#F5C842',
-  '#E05C90','#3D92E7','#A0C840','#FF8C42','#5BC8D0',
-  '#B07AE0','#7DB8E0','#E8A050','#60B880','#D0607A',
-];
-
-const JOURNEY_PALETTE = [
-  '#FF7A59','#3CACD7','#6CC395','#9062F0','#F5C842',
-  '#E05C90','#3D92E7','#F4704A','#A8B2C0','#5BC8D0',
-];
-
-const CHART_DEFAULTS = {
-  responsive: true, maintainAspectRatio: false,
-  interaction: { mode: 'index', intersect: false },
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: '#1E2A35',
-      titleColor: 'rgba(255,255,255,.9)',
-      bodyColor:  'rgba(255,255,255,.7)',
-      padding: 12, cornerRadius: 8,
-      titleFont: { family: 'Lato', size: 12, weight: '700' },
-      bodyFont:  { family: 'Lato', size: 11.5 },
-    },
-  },
-  scales: {
-    x: { grid: { display: false }, ticks: { color: '#7F859D', font: { family: 'Lato', size: 10.5 }, maxRotation: 45, autoSkipPadding: 12 }, border: { display: false } },
-    y: { grid: { color: '#E7EFF3', lineWidth: 1 }, ticks: { color: '#7F859D', font: { family: 'Lato', size: 10.5 }, callback: v => fmtInt(v) }, border: { display: false } },
-  },
-};
-
-const charts = {};
-function initChart(id, type, data, opts) {
-  const ctx = document.getElementById(id);
-  if (!ctx) return;
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(ctx, { type, data, options: Object.assign({}, CHART_DEFAULTS, opts || {}) });
-}
-
-// ── HELPERS ───────────────────────────────────────────────────────────────────
-function fmtInt(v) {
-  if (v === null || v === undefined) return '—';
-  return Math.round(Number(v)).toLocaleString();
-}
-function fmtMoney(v) {
-  if (v === null || v === undefined) return '—';
-  v = Number(v);
-  if (v >= 1000000) return '$' + (v / 1000000).toFixed(2) + 'M';
-  if (v >= 1000)    return '$' + (v / 1000).toFixed(1) + 'K';
-  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-}
-
-function renderCountDelta(elId, delta, pct) {
-  const el = document.getElementById(elId);
-  if (!el) return;
-  if (pct === null || pct === undefined) { el.innerHTML = '<span class="delta-neu">—</span>'; return; }
-  const sign  = delta >= 0 ? '+' : '';
-  const abs   = Math.abs(pct);
-  const cls   = abs <= 2 ? 'delta-neu' : delta >= 0 ? 'delta-up' : 'delta-down';
-  const arrow = delta >= 0 ? '▲' : '▼';
-  el.innerHTML = `<span class="${cls}">${arrow} ${sign}${delta} (${sign}${Number(pct).toFixed(1)}%)</span>`;
-}
-
-// ── SELECTOR STATE ─────────────────────────────────────────────────────────────
-let activeWindow = 'current_vs_last';
-
-function setupWoWSelector() {
-  document.querySelectorAll('#wowPills .pill').forEach(p => {
-    p.addEventListener('click', () => {
-      document.querySelectorAll('#wowPills .pill').forEach(x => x.classList.remove('active'));
-      p.classList.add('active');
-      activeWindow = p.dataset.window;
-      buildLeads();
-      buildJourney();
-      buildQualityTrend();
-      buildNotableLeads();
-    });
-  });
-}
-
-// ── SECTION 1: NEW LEADS WoW ──────────────────────────────────────────────────
-function buildLeads() {
-  const w   = (PERF.windows || {})[activeWindow] || {};
-  const d   = w.leads || {};
-  const sel = w.selectedLabel   || 'Selected week';
-  const cmp = w.comparisonLabel || 'Comparison week';
-
-  const labelSelEl = document.getElementById('label-leads-selected');
-  const labelCmpEl = document.getElementById('label-leads-comparison');
-  if (labelSelEl) labelSelEl.textContent = sel;
-  if (labelCmpEl) labelCmpEl.textContent = cmp;
-
-  const subtitleEl = document.getElementById('leads-section-subtitle');
-  if (subtitleEl) subtitleEl.textContent = 'Contacts from forms or paid channels · ' + (w.label || '');
-
-  const titleEl = document.getElementById('daily-vol-title');
-  if (titleEl) titleEl.textContent = 'Daily Volume — ' + (w.label || '');
-
-  document.getElementById('leads-this').textContent = fmtInt(d.selected);
-  document.getElementById('leads-last').textContent = fmtInt(d.comparison);
-  renderCountDelta('leads-delta', d.wowDelta, d.wowPct);
-
-  // Grouped bar chart — one cluster per day, two bars per cluster
-  const daily   = d.dailyVolume || [];
-  const labels  = daily.map(r => {
-    const dt = new Date(r.date + 'T12:00:00');
-    return r.weekday + ' ' + dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  });
-  const selData = daily.map(r => r.selected);
-  const cmpData = daily.map(r => r.comparison);
-
-  initChart('chartLeadsSparkline', 'bar', {
-    labels,
-    datasets: [
-      {
-        label: sel,
-        data: selData,
-        backgroundColor: '#FF7A59',
-        borderRadius: 3,
-        barPercentage: 0.7,
-        categoryPercentage: 0.75,
-      },
-      {
-        label: cmp,
-        data: cmpData,
-        backgroundColor: 'rgba(255,122,89,0.28)',
-        borderRadius: 3,
-        barPercentage: 0.7,
-        categoryPercentage: 0.75,
-      },
-    ],
-  }, {
-    plugins: Object.assign({}, CHART_DEFAULTS.plugins, {
-      legend: { display: false },
-      tooltip: Object.assign({}, CHART_DEFAULTS.plugins.tooltip, {
-        callbacks: {
-          label: ctx => ' ' + ctx.dataset.label + ': ' + fmtInt(ctx.raw),
-        },
-      }),
-    }),
-    scales: {
-      x: { grid: { display: false }, ticks: { color: '#7F859D', font: { family: 'Lato', size: 9.5 }, maxRotation: 45, autoSkipPadding: 8 }, border: { display: false } },
-      y: { grid: { color: '#E7EFF3', lineWidth: 1 }, ticks: { color: '#7F859D', font: { family: 'Lato', size: 9.5 }, callback: v => fmtInt(v) }, border: { display: false } },
-    },
-  });
-
-  const legendEl = document.getElementById('daily-vol-legend');
-  if (legendEl) {
-    legendEl.innerHTML =
-      `<div class="legend-item"><div class="legend-dot" style="background:#FF7A59"></div>${sel}</div>` +
-      `<div class="legend-item"><div class="legend-dot" style="background:rgba(255,122,89,0.5)"></div>${cmp}</div>`;
-  }
-}
-
-// ── SECTION 2: LEAD JOURNEY ───────────────────────────────────────────────────
-const JOURNEY_STAGES = ['New','Open','In Progress','Open Deal','Unqualified','LinkedIn Outreach','Attempted to Contact','Never Replied','Connected','Disqualified'];
-
-function buildJourney() {
-  const w      = (PERF.windows || {})[activeWindow] || {};
-  const d      = w.leadJourney || {};
-  const stages = d.stages || {};
-
-  const noteEl = document.getElementById('journeyScopeNote');
-  if (noteEl && d.scopeNote) noteEl.textContent = d.scopeNote;
-
-  if (!d.total || d.total === 0) {
-    document.getElementById('tbodyJourney').innerHTML =
-      '<tr><td colspan="3" style="text-align:center;color:#7F859D;padding:16px;">No paid or form leads found in this period.</td></tr>';
+(function(){
+  if (typeof LI === "undefined") {
+    document.getElementById("stamp").textContent = "Data missing";
+    document.querySelector(".wrap").insertAdjacentHTML("beforeend", '<div class="state err"><b>Dashboard data is missing.</b> Run <code>python scripts/build_performance.py</code> to inject data.</div>');
     return;
   }
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const $ = id => document.getElementById(id);
+  const CUR = LI.lastUpdated.slice(0,7);
 
-  const counts = JOURNEY_STAGES.map(s => stages[s] || 0);
-  const total  = d.total;
-
-  const sorted = JOURNEY_STAGES
-    .map((s, i) => ({ stage: s, count: counts[i], color: JOURNEY_PALETTE[i] }))
-    .filter(r => r.count > 0)
-    .sort((a, b) => b.count - a.count);
-
-  document.getElementById('tbodyJourney').innerHTML = sorted.map(r => {
-    const pct = total > 0 ? (r.count / total * 100).toFixed(1) + '%' : '—';
-    return `<tr>
-      <td><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${r.color};margin-right:7px;vertical-align:middle;flex-shrink:0"></span>${r.stage}</td>
-      <td class="num-cell">${fmtInt(r.count)}</td>
-      <td class="num-cell">${pct}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ── SECTION 3: LEAD QUALITY TREND ────────────────────────────────────────────
-function buildQualityTrend() {
-  const w      = (PERF.windows || {})[activeWindow] || {};
-  const d      = w.leadQuality || {};
-  const weeks  = d.weeks  || [];
-  const scores = d.avgScores || [];
-
-  const firstReal = scores.findIndex(v => v !== null && v !== undefined);
-  const sliceFrom = firstReal === -1 ? 0 : firstReal;
-  const trimmedWeeks  = weeks.slice(sliceFrom);
-  const trimmedScores = scores.slice(sliceFrom);
-
-  const noteEl = document.getElementById('qualityStartNote');
-  if (noteEl) {
-    if (firstReal > 0) {
-      const startDt = new Date(weeks[firstReal] + 'T12:00:00');
-      const startLabel = startDt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      noteEl.textContent = `Scoring data available from ${startLabel} · earlier weeks had no scored leads`;
-    } else {
-      noteEl.textContent = '';
-    }
+  function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+  function money(n){n=Number(n)||0;if(Math.abs(n)>=1e6)return "$"+(n/1e6).toFixed(2)+"M";if(Math.abs(n)>=1e3)return "$"+(n/1e3).toFixed(1)+"K";return "$"+Math.round(n).toLocaleString();}
+  function moneyFull(n){return "$"+Math.round(Number(n)||0).toLocaleString();}
+  function fmtDate(s){if(!s)return "";const d=new Date(s);if(isNaN(d))return "";return MONTHS[d.getUTCMonth()]+" "+d.getUTCDate();}
+  function fmtDateY(s){ const d = fmtDate(s); return d ? d+", "+new Date(s).getUTCFullYear() : ""; }
+  function monthAdd(ym, n){ let [y,m] = ym.split("-").map(Number); m += n; while (m < 1){ m += 12; y--; } while (m > 12){ m -= 12; y++; } return y+"-"+String(m).padStart(2,"0"); }
+  function contactLink(id, name){
+    return LI.urlTemplate ? '<a class="who" href="'+esc(LI.urlTemplate.replace("{id}", id))+'" target="_blank" rel="noopener">'+esc(name)+'</a>' : '<span class="who">'+esc(name)+'</span>';
   }
 
-  const labels = trimmedWeeks.map(w => {
-    const dt = new Date(w + 'T12:00:00');
-    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  });
-  const data = trimmedScores.map(v => (v === null || v === undefined) ? NaN : v);
-
-  initChart('chartQualityTrend', 'line', {
-    labels,
-    datasets: [{
-      label: 'Avg Lead Score',
-      data,
-      borderColor: '#FF7A59',
-      backgroundColor: 'rgba(255,122,89,.12)',
-      borderWidth: 2.5,
-      pointRadius: 4,
-      pointHoverRadius: 6,
-      pointBackgroundColor: '#FF7A59',
-      fill: true,
-      tension: 0.35,
-      spanGaps: false,
-    }],
-  }, {
-    plugins: Object.assign({}, CHART_DEFAULTS.plugins, {
-      tooltip: Object.assign({}, CHART_DEFAULTS.plugins.tooltip, {
-        callbacks: { label: ctx => isNaN(ctx.raw) ? ' No data' : ' Avg score: ' + Number(ctx.raw).toFixed(2) },
-      }),
-    }),
-    scales: {
-      x: CHART_DEFAULTS.scales.x,
-      y: { grid: { color: '#E7EFF3', lineWidth: 1 }, ticks: { color: '#7F859D', font: { family: 'Lato', size: 10.5 }, callback: v => v.toFixed(0) }, border: { display: false } },
-    },
-  });
-}
-
-// ── SECTION 4: CAMPAIGN PERFORMANCE ──────────────────────────────────────────
-const FORMAT_BADGE = {
-  'Document Ad': 'badge-doc',
-  'Image Ad':    'badge-img',
-  'Spotlight':   'badge-spot',
-  'Video Ad':    'badge-vid',
-};
-
-function campaignCard(c) {
-  const badgeClass = FORMAT_BADGE[c.format] || 'badge-other';
-  const isSpotlight = c.format === 'Spotlight';
-
-  let funnelHtml;
-  if (isSpotlight) {
-    funnelHtml = `
-      <div class="campaign-funnel">
-        <div class="funnel-step">
-          <div class="funnel-value">${fmtInt(c.impressions)}</div>
-          <div class="funnel-label">Impressions</div>
-        </div>
-        <div class="funnel-awareness">Awareness format — click &amp; engagement metrics not tracked</div>
-      </div>`;
-  } else {
-    const ctrStr  = (c.ctr != null && c.ctr > 0) ? c.ctr.toFixed(2) + '%' : '0%';
-    const engStr  = (c.engagementRate != null) ? c.engagementRate.toFixed(2) + '%' : '—';
-    funnelHtml = `
-      <div class="campaign-funnel">
-        <div class="funnel-step">
-          <div class="funnel-value">${fmtInt(c.impressions)}</div>
-          <div class="funnel-label">Impressions</div>
-        </div>
-        <div class="funnel-arrow">→</div>
-        <div class="funnel-step">
-          <div class="funnel-value">${fmtInt(c.clicks)}</div>
-          <div class="funnel-label">Clicks</div>
-          <div class="funnel-rate">${ctrStr} CTR</div>
-        </div>
-        <div class="funnel-arrow">→</div>
-        <div class="funnel-step">
-          <div class="funnel-value">${fmtInt(c.engagements)}</div>
-          <div class="funnel-label">Engagements</div>
-          <div class="funnel-rate">${engStr}</div>
-        </div>
-      </div>`;
+  function monthKeys(){
+    const keys = [];
+    let [y,m] = LI.startMonth.split("-").map(Number);
+    while (true){ const k = y+"-"+String(m).padStart(2,"0"); keys.push(k); if (k===CUR || keys.length>24) break; m++; if(m>12){m=1;y++;} }
+    return keys;
+  }
+  function monthBars(keys, vals, fmt, cls){
+    const max = Math.max(1, ...keys.map(k=>vals[k]||0));
+    return '<div class="months" role="img">' + keys.map(k => {
+      const v = vals[k]||0, h = Math.round(v/max*140);
+      return '<div class="mcol"><div class="mval">'+fmt(v)+'</div><div class="mbar '+(cls||"")+(k===CUR?' partial':'')+'" style="height:'+h+'px"></div><div class="mlab">'+MONTHS[Number(k.slice(5))-1]+(k===CUR?' so far':'')+'</div></div>';
+    }).join("") + '</div>';
   }
 
-  const dealsVal = (c.influencedDeals != null) ? c.influencedDeals : '—';
-  const dealsCls = c.influencedDeals > 0 ? 'style="color:#3CACD7"' : '';
-
-  return `<div class="card campaign-card">
-    <div class="campaign-header">
-      <div class="campaign-name" title="${c.name}">${c.name}</div>
-      <span class="format-badge ${badgeClass}">${c.format}</span>
-    </div>
-    ${funnelHtml}
-    <div class="campaign-stats">
-      <div>
-        <div class="campaign-stat-value">${fmtMoney(c.spend)}</div>
-        <div class="campaign-stat-label">Spend</div>
-      </div>
-      <div>
-        <div class="campaign-stat-value" ${dealsCls}>${dealsVal}</div>
-        <div class="campaign-stat-label">Influenced Deals</div>
-      </div>
-    </div>
-  </div>`;
-}
-
-// ── SECTION 4: NOTABLE LEADS ─────────────────────────────────────────────────
-function buildNotableLeads() {
-  const win   = PERF.windows[activeWindow] || {};
-  const leads = win.notableLeads || [];
-  const tbody = document.getElementById('tbodyNotable');
-  if (!tbody) return;
-
-  const sub = document.getElementById('notableSubtitle');
-  if (sub) sub.textContent = `Top scored leads · ${win.selectedLabel || ''}`;
-
-  if (!leads.length) {
-    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#7F859D;padding:16px;">No scored leads found in this period.</td></tr>';
-    return;
+  /* ---------- Leads ---------- */
+  function renderLeads(d){
+    $("k-leads").textContent = d.count.toLocaleString();
+    $("k-leads-n").textContent = d.withDeal ? d.withDeal + (d.withDeal===1?" lead has":" leads have")+" a deal attached" : "None have a deal attached yet";
+    $("p-months").innerHTML = monthBars(monthKeys(), d.months, v=>v, "");
+    const fr = d.forms, fmax = fr.length ? fr[0][1] : 1;
+    $("p-forms").innerHTML = fr.length ? '<div class="hbars">' + fr.slice(0,8).map(([f,v]) =>
+      '<div class="hrow"><div><div class="hlab" title="'+esc(f)+'">'+esc(f)+'</div><div class="htrack"><div class="hfill" style="width:'+(v/fmax*100)+'%"></div></div></div><div class="hnum">'+v+'</div></div>'
+    ).join("") + '</div>' + (fr.length>8 ? '<p class="muted" style="margin:12px 0 0">Plus '+(fr.length-8)+' smaller forms.</p>' : '')
+      : '<div class="state">No lead gen form leads since June 1.</div>';
   }
 
-  tbody.innerHTML = leads.map(r => `<tr>
-    <td style="font-weight:600">${r.company}</td>
-    <td style="color:var(--text-muted)">${r.title}</td>
-    <td class="num-cell" style="color:var(--text-dim);font-size:12px">${r.score != null ? r.score : '—'}</td>
-  </tr>`).join('');
-}
-
-function buildCampaigns() {
-  const campaigns = PERF.campaigns || [];
-  const grid = document.getElementById('campaignGrid');
-  if (!grid) return;
-
-  if (!campaigns.length) {
-    grid.innerHTML = '<div class="callout">No campaign data in snapshot. Will populate on next Monday rebuild.</div>';
-    return;
+  /* ---------- Account funnel ---------- */
+  function renderAccountFunnel(F){
+    const accounts = F.accounts;
+    if (!F.leads){ $("p-status").innerHTML = '<div class="state">No leads to show yet.</div>'; return; }
+    const STEPS = [
+      ["Accounts with a lead", "Companies with at least one lead gen form lead"],
+      ["Has an SQL", "At least one contact accepted by sales"],
+      ["Meeting booked", "A lead at the account is on a HubSpot meeting"],
+      ["Meeting held", "Meeting outcome logged as completed"],
+      ["Opportunity", "Sales deal created after the lead came in"],
+      ["Closed won", "Sales deal won"]];
+    const FILL = ["var(--s3)","var(--s2)","#C98A1B","#A86F10","var(--s1)","var(--won)"];
+    const N = accounts.length || 1;
+    const reached = i => accounts.filter(a => a.step >= i);
+    const listNames = (arr, max) => { const s = arr.slice().sort((x,y)=>y.n-x.n || x.name.localeCompare(y.name));
+      return s.slice(0,max).map(a => esc(a.name) + (a.n > 1 ? ' ('+a.n+')' : '') + (a.lost && a.step === 4 ? ' lost' : '')).join(", ") + (s.length > max ? ', and '+(s.length-max)+' more' : ''); };
+    let prevV = null, prevL = "";
+    const TARGETS = [null, {lo:12, hi:15, cum:13}, {lo:40, hi:50, cum:6}, {lo:75, hi:85, cum:4.5}, {lo:40, hi:50, cum:2}, {lo:20, hi:25, cum:0.5}];
+    const rows = STEPS.map(([l, sub], i) => {
+      const r = reached(i), v = r.length, here = accounts.filter(a => a.step === i);
+      const conv = i && prevV ? Math.round(v/prevV*100) + '% of ' + prevL : '';
+      const stepPct = i && prevV ? v/prevV*100 : null, cumPct = v/N*100;
+      prevV = v; prevL = l;
+      const T = TARGETS[i];
+      const pill = ok => '<span class="pill '+(ok ? 'won' : 'sched')+'">'+(ok ? 'On track' : 'Behind')+'</span>';
+      const tgt = T ? '<div class="fztgt">' +
+        '<div><span>From step above: <b>'+T.lo+' to '+T.hi+'%</b></span>'+(stepPct == null ? '' : pill(stepPct >= T.lo))+'</div>' +
+        '<div><span>Cumulative: <b>'+T.cum+'%</b> of accounts</span>'+pill(cumPct >= T.cum)+'</div></div>' : '<div class="fztgt"><div><span>Starting point</span></div></div>';
+      const shown = i === 1 ? here : i === 2 ? r.filter(a => a.met) : i === 3 ? r.filter(a => a.held) : r;
+      const skipped = (i === 2 || i === 3) ? r.length - shown.length : 0;
+      const names = i === 0 ? '' : (shown.length || skipped ? '<div class="fznames"><i>'+(i === 1 ? 'Stopped here' : 'Accounts')+'</i>'+(shown.length ? listNames(shown, i >= 2 ? 40 : 14) : 'None logged') +
+        (skipped ? '<span class="more">Plus '+skipped+' account'+(skipped>1?'s':'')+' further along with no '+(i===2?'meeting':'completed meeting')+' logged in HubSpot</span>' : '')+'</div>' : '');
+      return '<div class="fzrow"><div class="fzlab"><b>'+l+'</b><span>'+sub+'</span></div>' +
+        '<div class="fzbar"><div class="'+(i===0?'lt':'')+'" style="width:'+(v ? Math.max(12, Math.log(v+1)/Math.log(N+1)*100) : 8)+'%;background:'+FILL[i]+(v?'':';opacity:.35')+'">'+v.toLocaleString()+'</div></div>' +
+        '<div class="fznum"><b>'+(cumPct > 0 && cumPct < 1 ? cumPct.toFixed(1) : Math.round(cumPct))+'%</b><span>of accounts</span>'+(conv?'<span>'+conv+'</span>':'')+'</div>' + tgt + names + '</div>';
+    }).join("");
+    const multi = accounts.filter(a => a.n > 1).length;
+    $("p-status").innerHTML = '<div class="totals"><span><b>'+F.leads.toLocaleString()+'</b>Leads</span><span><b>'+accounts.length.toLocaleString()+'</b>Accounts</span><span><b>'+multi+'</b>Accounts with 2+ leads</span><span><b>'+F.unmatched+'</b>Leads not matched to an account</span></div>' +
+      '<div class="fz">' + rows + '</div>' +
+      '<p class="muted" style="margin:12px 0 0">Leads are grouped into accounts by work email domain and company name, so two people at the same company count as one account. Leads with a personal email and no usable company name are left out of the funnel and counted above. Bar widths use a log scale so the smaller steps stay readable; the numbers and percentages are exact. Targets are common B2B starting points, not measured from Visme history, and should be replaced with our own rates after two or three quarters; a step is on track when it meets the low end of its range. Meeting held is behind by definition until reps log meeting outcomes, and closed won needs until Q4 or Q1 to be judged. Each account sits at the furthest step any of its leads reached. The meeting steps list the accounts that actually have a booked or completed meeting logged; accounts further along without one are counted in the bar and noted underneath. Opportunity and closed won list every account that reached them. At SQL, only accounts that stopped there are listed. Lead counts are in brackets. Opportunity and closed won use Pro and Enterprise pipeline deals, plus the Opportunity lifecycle stage.</p>';
   }
 
-  grid.innerHTML = campaigns.map(c => campaignCard(c)).join('');
-}
-
-// ── SIDEBAR + SCROLL SPY ──────────────────────────────────────────────────────
-function toggleGroup(id) {
-  document.getElementById(id).classList.toggle('collapsed');
-}
-
-function initNavScroll() {
-  const topbarH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--topbar-h')) || 72;
-  document.querySelectorAll('.source-nav a[href^="#"]').forEach(link => {
-    link.addEventListener('click', function (e) {
-      const target = document.getElementById(this.getAttribute('href').slice(1));
-      if (!target) return;
-      e.preventDefault();
-      window.scrollTo({ top: Math.max(0, target.getBoundingClientRect().top + window.scrollY - topbarH - 4), behavior: 'smooth' });
-    });
-  });
-}
-
-function initScrollSpy() {
-  const sections = ['section-leads','section-journey','section-quality-trend','section-notable','section-campaigns'];
-  const links    = document.querySelectorAll('.source-nav a');
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        links.forEach(l => l.classList.remove('active'));
-        const link = document.querySelector(`.source-nav a[href="#${e.target.id}"]`);
-        if (link) link.classList.add('active');
-      }
-    });
-  }, { rootMargin: '-20% 0px -70% 0px' });
-  sections.forEach(id => { const el = document.getElementById(id); if (el) obs.observe(el); });
-}
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-// Topbar height can wrap on narrow viewports — measure it at runtime so the
-// sticky thead pins just below it instead of at a stale fixed offset.
-function syncStickyOffset() {
-  const topbar = document.getElementById('topbar');
-  if (topbar) document.documentElement.style.setProperty('--sticky-offset', topbar.offsetHeight + 'px');
-}
-window.addEventListener('resize', syncStickyOffset);
-
-function init() {
-  try {
-    document.getElementById('asOfBadge').textContent = 'Data as of ' + (PERF.lastUpdated || '—');
-    setupWoWSelector();
-    buildLeads();
-    buildJourney();
-    buildQualityTrend();
-    buildNotableLeads();
-    buildCampaigns();
-    initNavScroll();
-    initScrollSpy();
-    syncStickyOffset();
-  } catch (err) {
-    console.error('Dashboard init error:', err);
-    document.getElementById('content').insertAdjacentHTML('afterbegin',
-      `<div class="error-card">⚠️ Dashboard render error: ${err.message}</div>`);
+  /* ---------- Meetings ---------- */
+  function renderMeetings(M){
+    $("k-mtg").textContent = M.count.toLocaleString();
+    $("k-mtg-n").textContent = M.count ? (M.count-M.upcoming)+" held or past, "+M.upcoming+" upcoming" : "No meetings with these leads yet";
+    if (!M.rows.length){ $("p-mtgs").innerHTML = '<div class="state">No meetings associated with lead gen form leads since June 1.</div>'; return; }
+    $("p-mtgs").innerHTML = '<div class="tscroll"><table style="min-width:860px"><thead><tr><th>Account</th><th>Participants</th><th>Visme team</th><th>Meeting</th><th>Date</th><th>Outcome</th></tr></thead><tbody>' +
+      M.rows.map(m => {
+        const parts = m.parts.length ? m.parts.map(c =>
+          '<div class="ppl">'+contactLink(c.id, c.name)+(c.lead ? ' <span class="tag later">LinkedIn lead</span>' : '')+(c.sub ? '<span class="more">'+esc(c.sub)+'</span>' : '')+'</div>').join("") : '<span class="zero">No contacts</span>';
+        const team = m.team.length ? m.team.map(v=>'<div class="ppl">'+esc(v)+'</div>').join("") : '<span class="zero">None logged</span>';
+        return '<tr><td><b>'+esc(m.acct)+'</b></td><td>'+parts+'</td><td>'+team+'</td><td>'+esc(m.title)+'</td><td>'+fmtDateY(m.start)+'</td><td><span class="pill '+m.outcome[1]+'">'+m.outcome[0]+'</span></td></tr>';
+      }).join("") + '</tbody></table></div>';
   }
-  document.getElementById('loading').classList.add('hide');
-}
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
-} else {
-  init();
-}
+  /* ---------- Dark funnel ---------- */
+  function spark(monthly, demoMonth, jStart){
+    const keys = []; let k = jStart;
+    while (k <= CUR && keys.length < 18){ keys.push(k); k = monthAdd(k,1); }
+    const vals = monthly || {};
+    const max = Math.max(1, ...keys.map(x=>vals[x]||0)), w = 9, gap = 3, H = 26;
+    const bars = keys.map((m,i) => { const v = vals[m]||0, bh = Math.max(v?2:1, Math.round(v/max*H));
+      const fill = m === demoMonth ? "var(--blue)" : (m < demoMonth ? "var(--s3)" : "var(--s7)");
+      return '<rect x="'+(i*(w+gap))+'" y="'+(H-bh)+'" width="'+w+'" height="'+bh+'" rx="1.5" fill="'+fill+'"><title>'+MONTHS[Number(m.slice(5))-1]+': '+v+' engagements</title></rect>'; }).join("");
+    return '<svg class="spark" width="'+(keys.length*(w+gap))+'" height="'+H+'" role="img" aria-label="Monthly LinkedIn engagement">'+bars+'</svg>';
+  }
+  function renderDark(d){
+    const {list, sameMonth, jStart} = d;
+    const sameNote = sameMonth && sameMonth.length ? '<p class="muted" style="margin:12px 0 0">Not counted because their first LinkedIn activity was in the same month as the request, so the order cannot be confirmed: '+sameMonth.map(a=>esc(a.name)+' ('+fmtDateY(a.firstDemo)+')').join(", ")+'.</p>' : '';
+    if (!list.length){ $("p-dark").innerHTML = '<div class="state">No demo requests since June 1 where LinkedIn engagement came first and no LinkedIn lead came before the request.</div>' + sameNote; return; }
+    const newLogo = list.filter(a=>!a.customer).length;
+    $("p-dark").innerHTML = '<div class="totals"><span><b>'+list.length+'</b>Accounts</span><span><b>'+newLogo+'</b>Not yet customers</span><span><b>'+list.reduce((s,a)=>s+1+a.moreRequests,0)+'</b>Demo requests</span></div>' +
+      '<div class="tscroll"><table style="min-width:900px"><thead><tr><th>Account</th><th>Demo requested by</th><th>Requested</th><th>Came in via</th><th>LinkedIn engagement before the request</th><th>Deal</th></tr></thead><tbody>' +
+      list.map(a => {
+        const dm = a.firstDemo.slice(0,7);
+        const who = contactLink(a.id, a.who) + (a.jobtitle ? '<span class="more">'+esc(a.jobtitle)+'</span>' : '') + (a.moreRequests > 0 ? '<span class="more">plus '+a.moreRequests+' more request'+(a.moreRequests>1?'s':'')+'</span>' : '');
+        const tags = (a.customer ? '<span class="tag cust">Existing customer</span> ' : '') + (a.laterLgf ? '<span class="tag later">LinkedIn lead came after</span> ' : '') + (a.journey && a.engBefore === 0 ? '<span class="tag">Saw ads first, engaged in request month</span>' : '');
+        const eng = !a.journey ? '<span class="zero">Journey not loaded</span>' :
+          '<b>'+a.impBefore.toLocaleString()+'</b> impressions, <b>'+a.engBefore.toLocaleString()+'</b> engagements'+(a.firstEng ? '<span class="more">seeing our ads since '+MONTHS[Number(a.firstEng.slice(5))-1]+' '+a.firstEng.slice(0,4)+'</span>' : '') + spark(a.monthly, dm, jStart);
+        const deal = a.deal ? '<span class="pill open">Deal in CRM</span>' : '<span class="pill sched">No deal yet</span>';
+        return '<tr><td class="acct"><b>'+esc(a.name)+'</b><br>'+tags+'</td><td>'+who+'</td><td>'+fmtDateY(a.firstDemo)+'<span class="more">'+esc(a.form)+'</span></td><td>'+esc(a.via)+'</td><td>'+eng+'</td><td>'+deal+'</td></tr>';
+      }).join("") + '</tbody></table></div>' + sameNote;
+  }
+
+  /* ---------- Fibbler ---------- */
+  function renderSpendMonths(d){
+    const fd = s => { const t = new Date(s+"T00:00:00Z"); return MONTHS[t.getUTCMonth()]+" "+t.getUTCDate(); };
+    const max = Math.max(1, ...d.periods.map(p=>p.spend));
+    $("p-spend").innerHTML = '<div class="months" role="img" aria-label="Spend by period">' + d.periods.map(p => {
+      const hgt = Math.round(p.spend/max*140);
+      return '<div class="mcol"><div class="mval">'+money(p.spend)+'</div><div class="mbar spendbar" style="height:'+hgt+'px"></div><div class="mlab">'+fd(p.start)+' to '+fd(p.end)+'</div></div>';
+    }).join("") + '</div><p class="muted" style="margin:12px 0 0">Last 90 days: '+moneyFull(d.last90)+', the same figure as Fibbler\'s Last 90 Days view.</p>';
+  }
+  function renderEfficiency(spend, meetings, deals){
+    const s = Number(spend)||0;
+    $("s-total").textContent = s ? money(s) : "n/a";
+    $("s-mtg").textContent = s && meetings ? money(s/meetings) : "n/a";
+    $("s-deal").textContent = s && deals && deals.length ? money(s/deals.length) : "n/a";
+    const open = (deals||[]).filter(x=>stageKind(x.stage)==="open").reduce((a,x)=>a+(Number(x.amount)||0),0);
+    $("s-roi").textContent = s && deals ? "$"+(open/s).toFixed(2) : "n/a";
+  }
+  function stageKind(s){ s=(s||"").toLowerCase(); if (s.indexOf("closed won")>=0) return "won"; if (s.indexOf("closed lost")>=0) return "lost"; return "open"; }
+  function renderFibbler(d){
+    const {sum, deals} = d;
+    const won = deals.filter(x=>stageKind(x.stage)==="won"), lost = deals.filter(x=>stageKind(x.stage)==="lost"), open = deals.filter(x=>stageKind(x.stage)==="open");
+    const add = a => a.reduce((s,x)=>s+(Number(x.amount)||0),0);
+    const pipeline = sum && sum.totalInfluencedPipeline != null ? sum.totalInfluencedPipeline : add(open)+add(lost);
+    const revenue = sum && sum.totalInfluencedRevenue != null ? sum.totalInfluencedRevenue : add(won);
+    $("k-pipe").textContent = money(pipeline);
+    $("k-pipe-n").textContent = money(add(open))+" open across "+open.length+(open.length===1?" deal":" deals")+(lost.length? ", "+money(add(lost))+" closed lost":"");
+    $("k-won").textContent = money(revenue);
+    const wonCount = sum && sum.wonDealsCount != null ? sum.wonDealsCount : won.length;
+    $("k-won-n").textContent = wonCount+(wonCount===1?" deal closed":" deals closed");
+
+    if (!deals.length){ $("p-deals").innerHTML = '<div class="state">No LinkedIn-influenced deals since June 1.</div>'; return; }
+    const kindLbl = {won:"Closed won",lost:"Closed lost",open:"Open"};
+    deals.sort((a,b)=>({open:0,won:1,lost:2}[stageKind(a.stage)]-{open:0,won:1,lost:2}[stageKind(b.stage)]) || (b.amount||0)-(a.amount||0));
+    $("p-deals").innerHTML =
+      '<div class="totals"><span><b>'+money(add(open))+'</b>Open pipeline</span><span><b>'+money(add(won))+'</b>Closed won</span><span><b>'+money(add(lost))+'</b>Closed lost</span><span><b>'+deals.length+'</b>Deals</span></div>' +
+      '<div class="tscroll"><table><thead><tr><th>Deal</th><th>Stage</th><th>Type</th><th class="num">Amount</th><th class="num">Ad impressions</th><th>Created</th></tr></thead><tbody>' +
+      deals.map(x => {
+        const k = stageKind(x.stage);
+        const amt = x.amountCurrency && x.amountCurrency !== (sum&&sum.currency||"USD") ? esc(x.amount)+" "+esc(x.amountCurrency) : moneyFull(x.amount);
+        return '<tr><td>'+esc((x.dealName||"").trim())+'</td><td><span class="pill '+k+'">'+(k==="open"?esc(x.stage||"Open"):kindLbl[k])+'</span></td><td class="muted">'+esc(x.dealType||"")+'</td><td class="num">'+amt+'</td><td class="num">'+((Number(x.paidImpressions)||0)+(Number(x.organicImpressions)||0)).toLocaleString()+'</td><td>'+fmtDate(x.createDate)+'</td></tr>';
+      }).join("") + '</tbody></table></div>';
+  }
+
+  /* ---------- render ---------- */
+  renderLeads(LI.leads);
+  renderAccountFunnel(LI.funnel);
+  renderMeetings(LI.meetings);
+  renderSpendMonths(LI.spend);
+  renderFibbler(LI.fibbler);
+  renderEfficiency(LI.spend.total, LI.meetings.count, LI.fibbler.deals);
+  $("s-total-n").textContent = "Since June 1, from Fibbler";
+  renderDark(LI.dark);
+  const t = new Date(LI.lastUpdated + "T00:00:00Z");
+  $("stamp").textContent = "Updated " + MONTHS[t.getUTCMonth()] + " " + t.getUTCDate() + ", " + t.getUTCFullYear();
+})();
 </script>
 </body>
 </html>
