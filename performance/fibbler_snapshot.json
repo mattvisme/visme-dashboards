@@ -1,0 +1,18 @@
+{
+  "snapshotDate": "2026-10-12",
+  "campaigns": [
+    {"channel": "LinkedIn", "name": "Document Ads - Sponsorships/Partnership Skills", "format": "Document Ad", "impressions": 174095, "clicks": 114, "engagements": 10434, "ctr": 0.07, "engagementRate": 5.99, "spend": 9375.0, "influencedDeals": 2},
+    {"channel": "LinkedIn", "name": "TOFU - Insurance Content Playbook", "format": "Document Ad", "impressions": 10979, "clicks": 0, "engagements": 1080, "ctr": 0.0, "engagementRate": 9.84, "spend": 3820.0, "influencedDeals": 0},
+    {"channel": "LinkedIn", "name": "Retargeting - Sports", "format": "Document Ad", "impressions": 6684, "clicks": 0, "engagements": 284, "ctr": 0.0, "engagementRate": 4.25, "spend": 1811.0, "influencedDeals": 1},
+    {"channel": "LinkedIn", "name": "Single Image - Comparison Pages", "format": "Image Ad", "impressions": 28630, "clicks": 3, "engagements": 42, "ctr": 0.01, "engagementRate": 0.15, "spend": 588.0, "influencedDeals": 1}
+  ],
+  "current": {
+    "pipelineValue": 0.0,
+    "pipelineDealCount": 0,
+    "closedWonValue": 0.0,
+    "closedWonCount": 0,
+    "veryHighCount": 231,
+    "companies": []
+  },
+  "previous": null
+}
